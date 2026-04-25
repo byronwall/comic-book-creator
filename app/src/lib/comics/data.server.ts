@@ -7,6 +7,7 @@ import type {
   ComicBookSummary,
   ComicLayoutKind,
   ComicPage,
+  ComicPaperSize,
   ComicTemplateGrid,
   ComicTextAlign,
   ComicTextKind,
@@ -88,6 +89,7 @@ export async function createComicBookOnDisk(input: { title?: string } = {}): Pro
         title: "Page 1",
         status: "Blank",
         layout: "four",
+        paperSize: "letter-portrait",
         texts: [],
       },
     ],
@@ -175,6 +177,7 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
     title: cleanText(page.title) || `Page ${pageIndex + 1}`,
     status,
     layout,
+    paperSize: normalizePaperSize(page.paperSize),
     customGrid,
     texts: page.texts.map((text, textIndex) => {
       const panelIndex = clampInteger(text.panelIndex, 0, Math.max(0, panels.length - 1));
@@ -222,6 +225,12 @@ function normalizeTextKind(kind: ComicTextKind): ComicTextKind {
 
 function normalizeTextAlign(align: ComicTextAlign): ComicTextAlign {
   return align === "left" || align === "right" ? align : "center";
+}
+
+function normalizePaperSize(paperSize: ComicPaperSize | undefined): ComicPaperSize {
+  return paperSize === "letter-landscape" || paperSize === "half-portrait" || paperSize === "half-landscape"
+    ? paperSize
+    : "letter-portrait";
 }
 
 function getPanelRects(page: {
@@ -336,6 +345,7 @@ function createDefaultComicBook(): ComicBook {
         title: "Cover",
         status: "Ready",
         layout: "four",
+        paperSize: "letter-portrait",
         texts: [
           createText("caption", "MEANWHILE, IN MEGACITY...", 0, 10, 8, 15),
           createText("speech", "WE NEED\nTO STOP\nDR. DOOM!", 1, 14, 16, 18),
@@ -348,6 +358,7 @@ function createDefaultComicBook(): ComicBook {
         title: "Big Battle",
         status: "Draft",
         layout: "bigTop",
+        paperSize: "letter-portrait",
         texts: [
           createText("caption", "THE CITY SHOOK!", 0, 8, 8, 15),
           createText("speech", "WOW!", 2, 16, 18, 20),
@@ -359,6 +370,7 @@ function createDefaultComicBook(): ComicBook {
         title: "Ending",
         status: "Blank",
         layout: "four",
+        paperSize: "letter-portrait",
         texts: [],
       },
     ],
@@ -380,6 +392,7 @@ function createDefaultComicBookVariant(
         title: "Opening",
         status: "Draft",
         layout,
+        paperSize: "letter-portrait",
         texts: [createText("caption", title.toUpperCase(), 0, 8, 8, 15)],
       },
       {
@@ -387,6 +400,7 @@ function createDefaultComicBookVariant(
         title: "Next Scene",
         status: "Blank",
         layout: "four",
+        paperSize: "letter-portrait",
         texts: [],
       },
     ],

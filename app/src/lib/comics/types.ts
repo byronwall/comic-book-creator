@@ -8,6 +8,7 @@ export type ComicLayoutKind =
   | "custom";
 
 export type ComicTextKind = "speech" | "thought" | "caption" | "sfx";
+export type ComicPaperSize = "letter-portrait" | "letter-landscape" | "half-portrait" | "half-landscape";
 
 export type ComicTextAlign = "left" | "center" | "right";
 export type ComicTextPositionScope = "panel" | "page";
@@ -35,6 +36,7 @@ export interface ComicPage {
   title: string;
   status: "Blank" | "Draft" | "Ready";
   layout: ComicLayoutKind;
+  paperSize?: ComicPaperSize;
   customGrid?: ComicTemplateGrid;
   texts: ComicTextElement[];
 }

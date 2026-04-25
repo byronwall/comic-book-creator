@@ -1,6 +1,7 @@
 import { For, Show, createMemo } from "solid-js";
 import type { ComicPage, ComicTextElement } from "~/lib/comics/types";
 import { clamp, findPanelIndex, getPanelRects } from "./comic-layouts";
+import { getPaperSizeOption } from "./comic-paper-sizes";
 
 type TextPatch = Partial<Pick<ComicTextElement, "fontSize" | "panelIndex" | "width" | "x" | "y">>;
 
@@ -33,6 +34,7 @@ export function ComicPaper(props: {
   let layoutRef: HTMLDivElement | undefined;
   let dragState: DragState | null = null;
   const panels = createMemo(() => getPanelRects(props.page));
+  const paperSize = createMemo(() => getPaperSizeOption(props.page.paperSize));
 
   function getPagePoint(event: PointerEvent) {
     const layout = layoutRef;
@@ -125,7 +127,17 @@ export function ComicPaper(props: {
   }
 
   return (
-    <div class="comic-paper" aria-label="Printable comic page preview">
+    <div
+      class="comic-paper"
+      data-paper-size={paperSize().id}
+      style={{
+        "--comic-paper-width": `${paperSize().width}in`,
+        "--comic-paper-height": `${paperSize().height}in`,
+        "--comic-paper-ratio-width": paperSize().width,
+        "--comic-paper-ratio-height": paperSize().height,
+      }}
+      aria-label="Printable comic page preview"
+    >
       <div
         ref={layoutRef}
         class={`comic-page-layout ${props.page.layout}`}
