@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Comic Book Creator - Vertical Slice</title>
+  <style>
+    :root {
+      --blue-900: #05357d;
+      --blue-800: #0749b4;
+      --blue-700: #0c63df;
+      --blue-600: #1377f2;
+      --blue-100: #e8f2ff;
+      --yellow: #ffd32a;
+      --yellow-soft: #fff4c1;
+      --green: #28b947;
+      --red: #ff4d3d;
+      --ink: #0d1730;
+      --muted: #5f6b82;
+      --line: #d7e0ee;
+      --panel: #ffffff;
+      --bg: #f4f8ff;
+      --shadow: 0 10px 30px rgba(13, 23, 48, 0.12);
+      --radius: 18px;
+      --font: ui-rounded, "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --comic: "Trebuchet MS", "Arial Black", Impact, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12px 12px, rgba(255,255,255,.18) 2px, transparent 2px) 0 0 / 24px 24px,
+        linear-gradient(135deg, #0d6ef8 0%, #062c75 100%);
+      color: var(--ink);
+      font-family: var(--font);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 246px 1fr;
+    }
+
+    .sidebar {
+      color: #fff;
+      padding: 22px 14px;
+      background:
+        radial-gradient(circle at 18px 18px, rgba(255,255,255,.15) 2px, transparent 2px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #0575f6 0%, #07398c 55%, #05276a 100%);
+      border-right: 1px solid rgba(255,255,255,.16);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo {
+      margin: 2px 0 30px;
+      padding: 12px 8px;
+      font-family: var(--comic);
+      line-height: .85;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+      text-shadow:
+        3px 3px 0 #001b46,
+        -1px -1px 0 #001b46,
+        1px -1px 0 #001b46,
+        -1px 1px 0 #001b46;
+      transform: rotate(-3deg);
+    }
+
+    .logo .comic {
+      display: block;
+      width: max-content;
+      color: var(--yellow);
+      font-size: 42px;
+      background: #ff3b2f;
+      padding: 8px 10px 4px;
+      clip-path: polygon(8% 0, 100% 11%, 87% 33%, 100% 56%, 80% 66%, 86% 100%, 51% 82%, 22% 100%, 24% 68%, 0 58%, 17% 36%, 0 18%);
+    }
+
+    .logo .creator {
+      display: block;
+      margin-top: 8px;
+      margin-left: 16px;
+      color: #fff;
+      font-size: 34px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav button {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 14px;
+      background: transparent;
+      color: #fff;
+      font-weight: 850;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: transform .12s ease, background .12s ease;
+    }
+
+    .nav button:hover {
+      transform: translateX(2px);
+      background: rgba(255,255,255,.12);
+    }
+
+    .nav button.active {
+      color: #091933;
+      background: var(--yellow);
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,.14);
+    }
+
+    .nav .icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(255,255,255,.16);
+      font-size: 22px;
+    }
+
+    .nav button.active .icon {
+      background: rgba(255,255,255,.45);
+    }
+
+    .sidebar-tip {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 22px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.93);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-tip strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-tip p {
+      margin: 0;
+      color: #32415a;
+      line-height: 1.35;
+    }
+
+    .main {
+      background: var(--bg);
+      border-top-left-radius: 26px;
+      margin: 18px 18px 18px 0;
+      overflow: hidden;
+      box-shadow: -10px 0 40px rgba(0,0,0,.13);
+    }
+
+    .topbar {
+      min-height: 98px;
+      padding: 24px 28px;
+      background: rgba(255,255,255,.78);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .title-row h1 {
+      margin: 0;
+      font-family: var(--comic);
+      font-size: 34px;
+      letter-spacing: .2px;
+    }
+
+    .title-row p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #e9f9ec;
+      border: 1px solid #afe3bd;
+      color: #16772b;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .content {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 190px minmax(520px, 1fr) 280px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 14px rgba(13, 23, 48, .06);
+    }
+
+    .page-rail {
+      padding: 16px;
+    }
+
+    .page-rail h2,
+    .tools h2,
+    .properties h2 {
+      margin: 0 0 12px;
+      font-family: var(--comic);
+      font-size: 19px;
+    }
+
+    .book-meta {
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .thumb-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .thumb-item {
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 10px;
+      align-items: center;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .thumb-item.active {
+      border-color: var(--blue-600);
+      background: var(--blue-100);
+    }
+
+    .mini-page {
+      width: 58px;
+      height: 72px;
+      background: #fff;
+      border: 2px solid #9aa8bb;
+      border-radius: 6px;
+      padding: 5px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .mini-page.four {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .mini-page.three {
+      grid-template-rows: 1.2fr 1fr 1fr;
+    }
+
+    .mini-page div {
+      border: 1px solid #9aa8bb;
+    }
+
+    .thumb-title {
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .thumb-sub {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .add-page {
+      margin-top: 14px;
+      width: 100%;
+      border: 2px dashed #9fc2f8;
+      background: #f8fbff;
+      color: var(--blue-700);
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 14px;
+    }
+
+    .toolbar {
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 2px 7px rgba(13,23,48,.07);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: var(--blue-600);
+      color: #fff;
+      border-color: #075ec4;
+    }
+
+    .btn.success {
+      background: var(--green);
+      color: #fff;
+      border-color: #179632;
+    }
+
+    .btn.danger {
+      color: #c93022;
+    }
+
+    .editor-wrap {
+      padding: 22px;
+      display: grid;
+      place-items: center;
+      min-height: 650px;
+      overflow: auto;
+    }
+
+    .paper {
+      width: min(100%, 600px);
+      aspect-ratio: 8.5 / 11;
+      background: #fff;
+      box-shadow: 0 10px 28px rgba(13,23,48,.18);
+      border-radius: 8px;
+      padding: 28px;
+      position: relative;
+    }
+
+    .comic-page {
+      height: 100%;
+      display: grid;
+      gap: 10px;
+      grid-template-rows: 1.15fr 1fr 1.25fr;
+    }
+
+    .row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .panel {
+      border: 4px solid #111;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,.78), rgba(255,255,255,.78)),
+        repeating-linear-gradient(-45deg, #f8fbff 0 8px, #eef5ff 8px 16px);
+      position: relative;
+      overflow: hidden;
+      min-height: 110px;
+    }
+
+    .panel::after {
+      content: "Draw here";
+      position: absolute;
+      inset: auto 10px 8px auto;
+      color: #a5afbf;
+      font-weight: 900;
+      font-size: 13px;
+      transform: rotate(-3deg);
+    }
+
+    .speech,
+    .thought,
+    .caption,
+    .sfx {
+      position: absolute;
+      z-index: 2;
+    }
+
+    .speech {
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 50%;
+      padding: 14px 18px;
+      font-family: var(--comic);
+      font-size: 18px;
+      line-height: 1.08;
+      text-align: center;
+      max-width: 170px;
+    }
+
+    .speech::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      bottom: -19px;
+      width: 28px;
+      height: 22px;
+      background: #fff;
+      border-right: 3px solid #111;
+      border-bottom: 3px solid #111;
+      transform: skewX(-28deg) rotate(18deg);
+    }
+
+    .thought {
+      background: #fff;
+      border: 3px solid #111;
+      border-radius: 38px;
+      padding: 13px 16px;
+      font-family: var(--comic);
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .thought::before,
+    .thought::after {
+      content: "";
+      position: absolute;
+      border: 2px solid #111;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .thought::before {
+      width: 14px;
+      height: 14px;
+      left: 22px;
+      bottom: -18px;
+    }
+
+    .thought::after {
+      width: 8px;
+      height: 8px;
+      left: 10px;
+      bottom: -30px;
+    }
+
+    .caption {
+      background: var(--yellow-soft);
+      border: 3px solid #111;
+      padding: 9px 12px;
+      font-family: var(--comic);
+      font-size: 15px;
+    }
+
+    .sfx {
+      font-family: var(--comic);
+      font-size: 46px;
+      color: var(--yellow);
+      text-shadow:
+        3px 3px 0 #111,
+        -2px -2px 0 #111,
+        2px -2px 0 #111,
+        -2px 2px 0 #111,
+        5px 5px 0 var(--red);
+      transform: rotate(-9deg);
+    }
+
+    .selected {
+      outline: 3px dashed var(--blue-600);
+      outline-offset: 5px;
+    }
+
+    .handle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--blue-600);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      z-index: 5;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+
+    .handle.nw { top: -9px; left: -9px; }
+    .handle.ne { top: -9px; right: -9px; }
+    .handle.sw { bottom: -9px; left: -9px; }
+    .handle.se { bottom: -9px; right: -9px; }
+
+    .tools,
+    .properties {
+      padding: 16px;
+    }
+
+    .tool-tile {
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      font-weight: 900;
+    }
+
+    .tool-tile:hover,
+    .tool-tile.active {
+      border-color: var(--blue-600);
+      background: var(--blue-100);
+    }
+
+    .tool-emoji {
+      font-size: 28px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin: 14px 0;
+    }
+
+    .field label {
+      color: #26344f;
+      font-weight: 850;
+      font-size: 13px;
+    }
+
+    textarea,
+    select,
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      font-family: var(--comic);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .segmented button {
+      border: 0;
+      padding: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .segmented button.active {
+      background: var(--blue-100);
+      color: var(--blue-700);
+      font-weight: 900;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+    }
+
+    .print-preview {
+      display: none;
+    }
+
+    body.preview-mode .print-preview {
+      display: grid;
+    }
+
+    body.preview-mode .edit-only {
+      display: none;
+    }
+
+    .print-options {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      align-items: start;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+    }
+
+    .step .bubble {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 7px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #b8c4d7;
+    }
+
+    .step.done .bubble {
+      background: var(--green);
+    }
+
+    .step.active .bubble {
+      background: var(--blue-600);
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 12px;
+      }
+
+      .sidebar-tip {
+        display: none;
+      }
+
+      .nav {
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        overflow: auto;
+      }
+
+      .main {
+        margin: 0;
+        border-radius: 0;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .sidebar,
+      .topbar,
+      .page-rail,
+      .tools,
+      .properties,
+      .toolbar,
+      .footer-actions,
+      .print-options {
+        display: none !important;
+      }
+
+      .app,
+      .main,
+      .content,
+      .workspace,
+      .editor-wrap {
+        display: block;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        box-shadow: none;
+      }
+
+      .paper {
+        box-shadow: none;
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        padding: 0.4in;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="App navigation">
+      <div class="logo" aria-label="Comic Book Creator">
+        <span class="comic">Comic Book</span>
+        <span class="creator">Creator</span>
+      </div>
+
+      <nav class="nav">
+        <button data-screen="books"><span class="icon">🏠</span> My Books</button>
+        <button data-screen="frames"><span class="icon">▦</span> Create Page</button>
+        <button class="active" data-screen="text"><span class="icon">💬</span> Add Text</button>
+        <button data-screen="preview"><span class="icon">🖨️</span> Preview & Print</button>
+        <button data-screen="templates"><span class="icon">⭐</span> Templates</button>
+      </nav>
+
+      <section class="sidebar-tip">
+        <strong>Print your comic!</strong>
+        <p>Type the words here. Print the page. Then draw your awesome pictures by hand.</p>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="title-row">
+          <h1 id="screenTitle">Add Text</h1>
+          <p id="screenSubtitle">Add speech bubbles, captions, titles, and sound effects to your printable comic page.</p>
+        </div>
+        <div class="status" aria-live="polite">✅ Saved locally</div>
+      </header>
+
+      <section class="content">
+        <aside class="page-rail card">
+          <h2>Pages</h2>
+          <div class="book-meta">Super Max Saves the Day · 3 pages</div>
+
+          <div class="thumb-list">
+            <button class="thumb-item active">
+              <span class="mini-page four"><div></div><div></div><div></div><div></div></span>
+              <span>
+                <span class="thumb-title">1 · Cover</span>
+                <span class="thumb-sub">Ready</span>
+              </span>
+            </button>
+
+            <button class="thumb-item">
+              <span class="mini-page three"><div></div><div></div><div></div></span>
+              <span>
+                <span class="thumb-title">2 · Big Battle</span>
+                <span class="thumb-sub">Draft</span>
+              </span>
+            </button>
+
+            <button class="thumb-item">
+              <span class="mini-page four"><div></div><div></div><div></div><div></div></span>
+              <span>
+                <span class="thumb-title">3 · Ending</span>
+                <span class="thumb-sub">Blank</span>
+              </span>
+            </button>
+          </div>
+
+          <button class="add-page" id="addPageBtn">＋ Add New Page</button>
+        </aside>
+
+        <section class="workspace">
+          <div class="toolbar card edit-only">
+            <div class="tool-group">
+              <button class="btn" id="layout4">▦ 4 Panels</button>
+              <button class="btn" id="layout3">☰ Big Top</button>
+              <button class="btn" id="addBubbleBtn">💬 Add Bubble</button>
+              <button class="btn" id="addCaptionBtn">▭ Add Caption</button>
+            </div>
+
+            <div class="tool-group">
+              <button class="btn danger" id="clearBtn">🗑 Clear Text</button>
+              <button class="btn primary" id="previewBtn">Preview & Print →</button>
+            </div>
+          </div>
+
+          <div class="editor-wrap card">
+            <div class="paper" aria-label="Printable comic page preview">
+              <div class="comic-page" id="comicPage">
+                <div class="panel" id="panelA">
+                  <div class="caption selected" id="selectedText" style="top:16px; left:18px;">
+                    MEANWHILE, IN MEGACITY...
+                    <span class="handle nw"></span><span class="handle ne"></span><span class="handle sw"></span><span class="handle se"></span>
+                  </div>
+                </div>
+
+                <div class="row two">
+                  <div class="panel">
+                    <div class="speech" style="top:28px; left:28px;">WE NEED<br>TO STOP<br>DR. DOOM!</div>
+                  </div>
+                  <div class="panel">
+                    <div class="thought" style="top:34px; left:24px;">I HOPE MY<br>PLAN WORKS!</div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="sfx" style="top:38px; left:64px;">POW!</div>
+                  <div class="speech" style="right:34px; bottom:46px; font-size:15px;">TO BE<br>CONTINUED...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-actions">
+            <button class="btn">← Previous Page</button>
+            <div class="stepper">
+              <div class="step done"><div class="bubble">✓</div>Frames</div>
+              <div class="step active"><div class="bubble">2</div>Text</div>
+              <div class="step"><div class="bubble">3</div>Print</div>
+              <div class="step"><div class="bubble">4</div>Draw</div>
+            </div>
+            <button class="btn success" id="bottomPreviewBtn">Next: Print →</button>
+          </div>
+        </section>
+
+        <aside class="tools card edit-only" id="toolsPanel">
+          <h2>Add Text</h2>
+          <button class="tool-tile active" data-type="speech"><span class="tool-emoji">💬</span><span>Speech Bubble</span></button>
+          <button class="tool-tile" data-type="thought"><span class="tool-emoji">☁️</span><span>Thought Bubble</span></button>
+          <button class="tool-tile" data-type="caption"><span class="tool-emoji">▭</span><span>Caption Box</span></button>
+          <button class="tool-tile" data-type="sfx"><span class="tool-emoji">💥</span><span>Sound Effect</span></button>
+
+          <hr style="border:0;border-top:1px solid var(--line);margin:16px 0;">
+
+          <h2>Text Properties</h2>
+          <div class="field">
+            <label for="textValue">Text</label>
+            <textarea id="textValue">MEANWHILE, IN MEGACITY...</textarea>
+          </div>
+
+          <div class="field">
+            <label for="fontSize">Size</label>
+            <input id="fontSize" type="range" min="12" max="54" value="15">
+          </div>
+
+          <div class="field">
+            <label>Alignment</label>
+            <div class="segmented">
+              <button>Left</button>
+              <button class="active">Center</button>
+              <button>Right</button>
+            </div>
+          </div>
+        </aside>
+
+        <aside class="print-options card print-preview">
+          <h2>Print Options</h2>
+          <button class="btn primary" onclick="window.print()">🖨️ Print This Page</button>
+          <button class="btn">📘 Print Entire Book</button>
+
+          <div class="field">
+            <label for="copies">Copies</label>
+            <input id="copies" type="number" min="1" value="1">
+          </div>
+
+          <div class="field">
+            <label for="paperSize">Paper Size</label>
+            <select id="paperSize">
+              <option>Letter (8.5” × 11”)</option>
+              <option>A4</option>
+            </select>
+          </div>
+
+          <label style="display:flex;gap:10px;align-items:flex-start;font-weight:850;">
+            <input type="checkbox" checked style="width:auto;margin-top:3px;">
+            Include page numbers
+          </label>
+
+          <div style="padding:14px;border-radius:14px;background:var(--blue-100);color:#30405c;line-height:1.4;">
+            💡 Print on regular paper. Use pencils, markers, or crayons to finish the drawings by hand.
+          </div>
+
+          <button class="btn" id="backToEditBtn">← Back to Edit Text</button>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const body = document.body;
+    const navButtons = document.querySelectorAll(".nav button");
+    const screenTitle = document.getElementById("screenTitle");
+    const screenSubtitle = document.getElementById("screenSubtitle");
+    const comicPage = document.getElementById("comicPage");
+    const textValue = document.getElementById("textValue");
+    const fontSize = document.getElementById("fontSize");
+    const selectedText = document.getElementById("selectedText");
+
+    const state = {
+      selectedKind: "caption",
+      pageCount: 3
+    };
+
+    function setScreen(screen) {
+      navButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.screen === screen);
+      });
+
+      if (screen === "preview") {
+        body.classList.add("preview-mode");
+        screenTitle.textContent = "Preview & Print";
+        screenSubtitle.textContent = "Review the printable comic page before drawing by hand.";
+        return;
+      }
+
+      body.classList.remove("preview-mode");
+
+      if (screen === "frames") {
+        screenTitle.textContent = "Create Page";
+        screenSubtitle.textContent = "Choose a simple panel layout for the page.";
+        return;
+      }
+
+      if (screen === "books") {
+        screenTitle.textContent = "My Books";
+        screenSubtitle.textContent = "Vertical slice demo: one saved comic book is open.";
+        return;
+      }
+
+      if (screen === "templates") {
+        screenTitle.textContent = "Templates";
+        screenSubtitle.textContent = "Pick a starter panel layout, then add words.";
+        return;
+      }
+
+      screenTitle.textContent = "Add Text";
+      screenSubtitle.textContent = "Add speech bubbles, captions, titles, and sound effects to your printable comic page.";
+    }
+
+    function setLayout(kind) {
+      if (kind === "bigTop") {
+        comicPage.innerHTML = `
+          <div class="panel">
+            <div class="caption selected" id="selectedText" style="top:16px; left:18px;">
+              MEANWHILE, IN MEGACITY...
+              <span class="handle nw"></span><span class="handle ne"></span><span class="handle sw"></span><span class="handle se"></span>
+            </div>
+          </div>
+          <div class="row two">
+            <div class="panel"></div>
+            <div class="panel"><div class="speech" style="top:30px; left:30px;">WOW!</div></div>
+          </div>
+          <div class="panel"><div class="thought" style="top:40px; left:180px;">WE'D BETTER<br>BE CAREFUL.</div></div>
+        `;
+        return;
+      }
+
+      comicPage.innerHTML = `
+        <div class="row two" style="height:100%">
+          <div class="panel"><div class="caption selected" id="selectedText" style="top:16px; left:18px;">MEANWHILE, IN MEGACITY...<span class="handle nw"></span><span class="handle ne"></span><span class="handle sw"></span><span class="handle se"></span></div></div>
+          <div class="panel"><div class="speech" style="top:28px; left:28px;">WE NEED<br>TO STOP<br>DR. DOOM!</div></div>
+        </div>
+        <div class="row two" style="height:100%">
+          <div class="panel"><div class="thought" style="top:34px; left:24px;">I HOPE MY<br>PLAN WORKS!</div></div>
+          <div class="panel"><div class="sfx" style="top:40px; left:45px;">POW!</div></div>
+        </div>
+      `;
+    }
+
+    function addTextElement(kind) {
+      const firstPanel = document.querySelector(".panel");
+      const el = document.createElement("div");
+      el.style.top = "58px";
+      el.style.left = "42px";
+
+      if (kind === "caption") {
+        el.className = "caption";
+        el.textContent = "NEW CAPTION";
+      } else if (kind === "thought") {
+        el.className = "thought";
+        el.innerHTML = "I HAVE<br>AN IDEA!";
+      } else if (kind === "sfx") {
+        el.className = "sfx";
+        el.textContent = "ZAP!";
+      } else {
+        el.className = "speech";
+        el.innerHTML = "HELLO!";
+      }
+
+      firstPanel.appendChild(el);
+    }
+
+    navButtons.forEach(button => {
+      button.addEventListener("click", () => setScreen(button.dataset.screen));
+    });
+
+    document.getElementById("previewBtn").addEventListener("click", () => setScreen("preview"));
+    document.getElementById("bottomPreviewBtn").addEventListener("click", () => setScreen("preview"));
+    document.getElementById("backToEditBtn").addEventListener("click", () => setScreen("text"));
+    document.getElementById("layout3").addEventListener("click", () => setLayout("bigTop"));
+    document.getElementById("layout4").addEventListener("click", () => setLayout("four"));
+    document.getElementById("addBubbleBtn").addEventListener("click", () => addTextElement("speech"));
+    document.getElementById("addCaptionBtn").addEventListener("click", () => addTextElement("caption"));
+
+    document.querySelectorAll(".tool-tile").forEach(tile => {
+      tile.addEventListener("click", () => {
+        document.querySelectorAll(".tool-tile").forEach(t => t.classList.remove("active"));
+        tile.classList.add("active");
+        addTextElement(tile.dataset.type);
+      });
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      document.querySelectorAll(".speech, .thought, .caption, .sfx").forEach(el => el.remove());
+    });
+
+    document.getElementById("addPageBtn").addEventListener("click", () => {
+      state.pageCount += 1;
+      alert(`Added page ${state.pageCount}. In the full app, this would create a new saved page.`);
+    });
+
+    textValue.addEventListener("input", () => {
+      const current = document.querySelector(".selected");
+      if (!current) return;
+      current.childNodes[0].nodeValue = textValue.value;
+    });
+
+    fontSize.addEventListener("input", () => {
+      const current = document.querySelector(".selected");
+      if (!current) return;
+      current.style.fontSize = `${fontSize.value}px`;
+    });
+  </script>
+</body>
+</html>
