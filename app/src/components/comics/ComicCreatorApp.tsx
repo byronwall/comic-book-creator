@@ -22,6 +22,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
   const [saveState, setSaveState] = createSignal<"saved" | "saving" | "error">("saved");
   const [renameOpen, setRenameOpen] = createSignal(false);
   const [clearTextConfirmOpen, setClearTextConfirmOpen] = createSignal(false);
+  const [deleteTextId, setDeleteTextId] = createSignal("");
   const [deletePageId, setDeletePageId] = createSignal("");
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
   let acceptingServerEcho = true;
@@ -34,6 +35,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
     const page = activePage();
     return page?.texts.find((text) => text.id === selectedTextId()) ?? page?.texts[0] ?? null;
   });
+  const textPendingDelete = createMemo(() => activePage()?.texts.find((text) => text.id === deleteTextId()) ?? null);
   const pagePendingDelete = createMemo(() => book().pages.find((page) => page.id === deletePageId()) ?? null);
 
   createEffect(() => {
@@ -69,6 +71,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
   });
 
   function saveBook(nextBook: ComicBook) {
+    const savedSnapshot = JSON.stringify(nextBook);
     return fetch(`/api/comic-books/${nextBook.id}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
@@ -79,6 +82,10 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
         return response.json() as Promise<ComicBook>;
       })
       .then((savedBook) => {
+        if (untrack(() => JSON.stringify(book())) !== savedSnapshot) {
+          return;
+        }
+
         acceptingServerEcho = true;
         setBook(savedBook);
         setSaveState("saved");
@@ -168,6 +175,30 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
     setSelectedTextId("");
   }
 
+  function requestDeleteSelectedText() {
+    const textId = selectedText()?.id;
+    if (!textId) return;
+    setDeleteTextId(textId);
+  }
+
+  function deleteText(textId: string) {
+    updateActivePage((page) => {
+      const deletedIndex = page.texts.findIndex((text) => text.id === textId);
+      if (deletedIndex < 0) return page;
+
+      const nextTexts = page.texts.filter((text) => text.id !== textId);
+      const nextSelectedText = nextTexts[Math.min(deletedIndex, nextTexts.length - 1)] ?? null;
+      setSelectedTextId(nextSelectedText?.id ?? "");
+
+      return {
+        ...page,
+        texts: nextTexts,
+        status: nextTexts.length > 0 ? "Draft" : "Blank",
+      };
+    });
+    setDeleteTextId("");
+  }
+
   function renameBook(nextTitle: string) {
     setBook((current) => ({ ...current, title: nextTitle }));
   }
@@ -253,6 +284,17 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
             if (pageId) deletePage(pageId);
           }}
         />
+        <ConfirmDialog
+          open={Boolean(textPendingDelete())}
+          onOpenChange={(open) => !open && setDeleteTextId("")}
+          title="Delete selected text?"
+          description={`This will permanently remove "${textPendingDelete()?.text || "this text"}" from the current page.`}
+          confirmLabel="Delete Text"
+          onConfirm={() => {
+            const textId = deleteTextId();
+            if (textId) deleteText(textId);
+          }}
+        />
 
         <section class="comic-content">
           <PageRail
@@ -309,7 +351,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
             <PrintActions />
           </section>
 
-          <TextToolsPanel selectedText={selectedText()} onUpdateText={updateSelectedText} />
+          <TextToolsPanel selectedText={selectedText()} onUpdateText={updateSelectedText} onDeleteText={requestDeleteSelectedText} />
         </section>
       </main>
     </div>

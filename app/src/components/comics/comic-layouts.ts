@@ -18,9 +18,14 @@ export const layoutTemplates: Array<{
   { id: "wideMiddle", label: "Wide Middle", description: "Small panels around a reveal" },
   { id: "splashLeft", label: "Splash Left", description: "Large action panel and side beats" },
   { id: "six", label: "Six Panels", description: "Fast six-beat sequence" },
+  { id: "blank", label: "Blank Page", description: "No panels for covers or spacer pages" },
 ];
 
 export function getPanelRects(page: Pick<ComicPage, "layout" | "customGrid">): PanelRect[] {
+  if (page.layout === "blank") {
+    return [];
+  }
+
   if (page.layout === "bigTop") {
     return [
       { x: 0, y: 0, width: 100, height: 34 },

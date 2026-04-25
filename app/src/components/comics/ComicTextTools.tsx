@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-solid";
 import { For, Show } from "solid-js";
 import type { ComicTextAlign, ComicTextElement } from "~/lib/comics/types";
 
@@ -6,6 +7,7 @@ type TextPatch = Partial<Pick<ComicTextElement, "align" | "fontSize" | "text">>;
 export function TextToolsPanel(props: {
   selectedText: ComicTextElement | null;
   onUpdateText: (patch: TextPatch) => void;
+  onDeleteText: () => void;
 }) {
   return (
     <aside class="comic-card comic-tools">
@@ -17,6 +19,9 @@ export function TextToolsPanel(props: {
               <span>Text</span>
               <textarea value={text().text} onInput={(event) => props.onUpdateText({ text: event.currentTarget.value })} />
             </label>
+            <button type="button" class="comic-btn danger comic-delete-text-button" onClick={props.onDeleteText}>
+              <Trash2 size={18} /> Delete selected text
+            </button>
             <label class="comic-field">
               <span>Size</span>
               <input type="range" min="12" max="54" value={text().fontSize} onInput={(event) => props.onUpdateText({ fontSize: Number.parseInt(event.currentTarget.value, 10) })} />

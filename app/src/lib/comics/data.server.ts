@@ -180,6 +180,7 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
     page.layout === "wideMiddle" ||
     page.layout === "splashLeft" ||
     page.layout === "six" ||
+    page.layout === "blank" ||
     page.layout === "custom"
       ? page.layout
       : "four";
@@ -205,7 +206,7 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
       return {
         id: cleanText(text.id) || `text-${pageIndex + 1}-${textIndex + 1}`,
         kind: normalizeTextKind(text.kind),
-        text: cleanText(text.text) || "HELLO!",
+        text: typeof text.text === "string" ? text.text : "",
         panelIndex,
         positionScope: "page" as const,
         x,
@@ -252,6 +253,10 @@ function getPanelRects(page: {
   layout: ComicLayoutKind;
   customGrid?: ComicTemplateGrid;
 }): { x: number; y: number; width: number; height: number }[] {
+  if (page.layout === "blank") {
+    return [];
+  }
+
   if (page.layout === "bigTop") {
     return [
       { x: 0, y: 0, width: 100, height: 34 },

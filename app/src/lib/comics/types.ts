@@ -5,6 +5,7 @@ export type ComicLayoutKind =
   | "wideMiddle"
   | "splashLeft"
   | "six"
+  | "blank"
   | "custom";
 
 export type ComicTextKind = "speech" | "thought" | "caption" | "sfx";

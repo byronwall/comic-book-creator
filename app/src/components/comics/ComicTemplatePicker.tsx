@@ -24,13 +24,11 @@ export function TemplatePicker(props: {
               type="button"
               class="comic-template-button"
               classList={{ active: props.activeLayout === template.id }}
+              aria-label={template.label}
+              title={template.label}
               onClick={() => props.onSelect(template.id)}
             >
               <TemplatePreview layout={template.id} paperSize={props.activePaperSize} class="comic-template-preview" />
-              <span>
-                <strong>{template.label}</strong>
-                <small>{template.description}</small>
-              </span>
             </button>
           )}
         </For>
