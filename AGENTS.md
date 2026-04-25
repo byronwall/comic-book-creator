@@ -76,6 +76,10 @@ Run inside `app/`:
 - Use `useSubmission()` or `useSubmissions()` to drive pending/result/error UI for form-backed actions.
 - After handling a successful `submission.result`, call `submission.clear()` so dialogs and inspector tools do not replay stale success state.
 - Treat “button click does nothing” on an action flow as a likely transport issue first. Verify the browser is not posting to `http://_server/`.
+- For confirmation-dialog writes, do not hide a server-action form behind the dialog or call `requestSubmit()` from `onConfirm`; that can post to `http://_server/`.
+- Avoid `useAction(...)` for confirm-dialog deletes in the comic book UI; the client server-function fetch can fail after a stale dev-server connection.
+- Instead, call the existing app API route with the intended HTTP method, track pending/error state locally, then call `revalidate(...)` for the affected query key.
+- Keep dialog-open state separate from the selected entity id; keep the id until the API call has been dispatched, and clear it only on cancel or after revalidation removes the entity from view.
 
 ## AI SDK + Structured Data
 

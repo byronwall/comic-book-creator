@@ -46,32 +46,50 @@
 }
 
 .comic-logo {
+  position: relative;
+  isolation: isolate;
   margin: 2px 0 30px;
-  padding: 12px 8px;
+  width: min(205px, 100%);
+  padding: 14px 8px 10px;
   font-family: var(--comic-display);
-  line-height: 0.88;
+  line-height: 0.82;
   text-transform: uppercase;
-  text-shadow: 3px 3px 0 #001b46, -1px -1px 0 #001b46, 1px -1px 0 #001b46, -1px 1px 0 #001b46;
   transform: rotate(-3deg);
+}
+
+.comic-logo::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 9px -7px auto 6px;
+  height: 88px;
+  background: var(--comic-red);
+  clip-path: polygon(8% 5%, 100% 0, 86% 29%, 100% 50%, 77% 58%, 88% 92%, 55% 77%, 24% 100%, 26% 68%, 0 61%, 17% 38%, 0 22%);
+  transform: rotate(2deg);
 }
 
 .comic-logo span {
   display: block;
-  width: max-content;
-  max-width: 100%;
-  padding: 8px 10px 5px;
+  position: relative;
+  width: min-content;
+  max-width: 190px;
   color: var(--comic-yellow);
-  background: #ff3b2f;
-  font-size: 39px;
-  clip-path: polygon(8% 0, 100% 11%, 87% 33%, 100% 56%, 80% 66%, 86% 100%, 51% 82%, 22% 100%, 24% 68%, 0 58%, 17% 36%, 0 18%);
+  font-size: 41px;
+  letter-spacing: 0;
+  -webkit-text-stroke: 2px #071538;
+  text-shadow: 3px 4px 0 #071538;
 }
 
 .comic-logo strong {
   display: block;
-  margin-top: 8px;
-  margin-left: 16px;
+  position: relative;
+  margin-top: 12px;
+  margin-left: 20px;
   color: #fff;
-  font-size: 34px;
+  font-size: 36px;
+  letter-spacing: 0;
+  -webkit-text-stroke: 2px #071538;
+  text-shadow: 3px 4px 0 #071538;
 }
 
 .comic-nav {
@@ -374,6 +392,7 @@
 
 .comic-mini-page {
   position: relative;
+  box-sizing: border-box;
   padding: 5px;
   border: 2px solid #9aa8bb;
   border-radius: 6px;
@@ -438,7 +457,7 @@
 
 .comic-template-button {
   display: grid;
-  grid-template-columns: 50px minmax(0, 1fr);
+  grid-template-columns: 72px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   min-height: 86px;
@@ -478,6 +497,7 @@
 
 .comic-template-preview {
   position: relative;
+  box-sizing: border-box;
   border: 2px solid #1a2438;
   border-radius: 5px;
   background: #fff;
@@ -816,7 +836,9 @@
 }
 
 .comic-book-card {
+  position: relative;
   display: grid;
+  align-content: start;
   gap: 8px;
   min-height: 260px;
   padding: 14px;
@@ -830,6 +852,13 @@
 
 .comic-book-card:hover {
   transform: translateY(-2px);
+}
+
+.comic-book-card-link {
+  display: grid;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .comic-book-cover {
@@ -851,10 +880,41 @@
   line-height: 1.12;
 }
 
-.comic-book-card span,
-.comic-book-card small {
+.comic-book-card-link span,
+.comic-book-card-link small {
   color: var(--comic-muted);
   font-weight: 800;
+}
+
+.comic-book-delete-button {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(13, 23, 48, 0.2);
+  border-radius: var(--comic-radius);
+  background: rgba(255, 255, 255, 0.92);
+  color: #c93022;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(13, 23, 48, 0.14);
+}
+
+.comic-book-delete-button:hover {
+  background: #fff0ee;
+}
+
+.comic-book-delete-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.comic-dialog-error {
+  margin: 0;
+  color: #c93022;
+  font-weight: 850;
 }
 
 .comic-create-book {

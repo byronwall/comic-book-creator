@@ -1,5 +1,5 @@
 import type { APIEvent } from "@solidjs/start/server";
-import { readComicBookByIdFromDisk, writeComicBookByIdToDisk } from "~/lib/comics/data.server";
+import { deleteComicBookOnDisk, readComicBookByIdFromDisk, writeComicBookByIdToDisk } from "~/lib/comics/data.server";
 
 export async function GET(event: APIEvent) {
   const book = await readComicBookByIdFromDisk(event.params.bookId);
@@ -16,6 +16,17 @@ export async function PUT(event: APIEvent) {
   const book = await writeComicBookByIdToDisk(event.params.bookId, payload);
 
   return json(book);
+}
+
+export async function DELETE(event: APIEvent) {
+  await deleteComicBookOnDisk(event.params.bookId);
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "cache-control": "no-store",
+    },
+  });
 }
 
 function json(value: unknown) {

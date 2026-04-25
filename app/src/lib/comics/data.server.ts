@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { resolveAppDataDir } from "~/lib/server/data-dir";
 import type {
@@ -72,6 +72,21 @@ export async function writeComicBookByIdToDisk(bookId: string, input: ComicBook)
   await writeFile(getComicBookPath(id), `${JSON.stringify(book, null, 2)}\n`, "utf8");
   await writeFile(getLegacyComicBookPath(), `${JSON.stringify(book, null, 2)}\n`, "utf8");
   return book;
+}
+
+export async function deleteComicBookOnDisk(bookId: string): Promise<void> {
+  await ensureComicBooksDir();
+  const cleanId = slugify(bookId);
+  if (!cleanId) {
+    throw new Error("A book id is required.");
+  }
+
+  const bookPath = getComicBookPath(cleanId);
+  if (!existsSync(bookPath)) {
+    return;
+  }
+
+  await unlink(bookPath);
 }
 
 export async function createComicBookOnDisk(input: { title?: string } = {}): Promise<ComicBook> {

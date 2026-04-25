@@ -3,6 +3,8 @@ import type { ComicLayoutKind, ComicPaperSize } from "~/lib/comics/types";
 import { getPanelRects, layoutTemplates } from "./comic-layouts";
 import { getPaperSizeOption, paperSizeOptions } from "./comic-paper-sizes";
 
+const templatePreviewScale = 68 / 11;
+
 export function TemplatePicker(props: {
   activeLayout: ComicLayoutKind;
   activePaperSize: ComicPaperSize;
@@ -68,13 +70,10 @@ export function TemplatePicker(props: {
 export function TemplatePreview(props: { layout: ComicLayoutKind; paperSize?: ComicPaperSize; class: string }) {
   const previewStyle = () => {
     const paperSize = getPaperSizeOption(props.paperSize);
-    const maxWidth = 58;
-    const maxHeight = 72;
-    const scale = Math.min(maxWidth / paperSize.width, maxHeight / paperSize.height);
 
     return {
-      width: `${paperSize.width * scale}px`,
-      height: `${paperSize.height * scale}px`,
+      width: `${paperSize.width * templatePreviewScale}px`,
+      height: `${paperSize.height * templatePreviewScale}px`,
     };
   };
 
