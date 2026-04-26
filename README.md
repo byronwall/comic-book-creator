@@ -2,22 +2,25 @@
 
 Comic Book Creator is a SolidStart app for making printable comic books. It gives you a desktop-style editor for saved books, page templates, comic text, paper sizes, autosave, and print-ready page output backed by local JSON persistence.
 
+README last refreshed after commit `b85b6c3` on 2026-04-26. The previous README update was commit `c552739` on 2026-04-25.
+
 ![Comic Book Creator library](docs/screenshots/comic-books-index.png)
 
 ## What You Can Do
 
 - Create and open multiple comic books from the library page.
-- Add, select, and delete pages inside a book.
-- Choose page layouts: four panels, big top, three stack, wide middle, splash left, and six panels.
+- Add, select, reorder, and delete pages inside a book.
+- Choose from rectangular, splash, strip, reveal, letterbox, webtoon-style, and angled action page layouts.
 - Switch between letter and half-sheet paper sizes in portrait or landscape.
 - Add printable text elements: speech bubbles, thought bubbles, captions, and sound effects.
-- Edit selected text, font size, and alignment from the side panel.
+- Drag, resize, rotate, delete, and retarget selected text directly on the page.
+- Change selected text kind, content, font size, alignment, wrapping, and rotation from the side panel.
 - Rename books and autosave edits to server JSON.
 - Print the current comic page from the app interface.
 
 ![Comic book editor](docs/screenshots/comic-book-editor.png)
 
-Dialog flows use the same shared UI system for focused edits and confirmations.
+Dialog flows use the same shared UI system for focused edits and confirmations, including rename, clear text, and delete confirmations.
 
 ![Rename comic book dialog](docs/screenshots/comic-book-rename-dialog.png)
 
@@ -132,13 +135,53 @@ interface ComicPage {
   id: string;
   title: string;
   status: "Blank" | "Draft" | "Ready";
-  layout: "four" | "bigTop" | "threeStack" | "wideMiddle" | "splashLeft" | "six" | "custom";
+  layout:
+    | "four"
+    | "bigTop"
+    | "threeStack"
+    | "wideMiddle"
+    | "splashLeft"
+    | "six"
+    | "splashInset"
+    | "threeVertical"
+    | "fourStrip"
+    | "revealBottom"
+    | "heroRight"
+    | "diagonalAction"
+    | "diagonalGrid"
+    | "cinematicSlant"
+    | "letterbox"
+    | "establishingDialogue"
+    | "webtoonStack"
+    | "doubleFeature"
+    | "blank"
+    | "custom";
   paperSize?: "letter-portrait" | "letter-landscape" | "half-portrait" | "half-landscape";
+  customGrid?: {
+    verticalLines: number[];
+    horizontalLines: number[];
+  };
   texts: ComicTextElement[];
+}
+
+interface ComicTextElement {
+  id: string;
+  kind: "speech" | "thought" | "caption" | "sfx";
+  text: string;
+  panelIndex: number;
+  positionScope?: "panel" | "page";
+  x: number;
+  y: number;
+  width: number;
+  height?: number;
+  fontSize: number;
+  rotation?: number;
+  align: "left" | "center" | "right";
+  autoWrap?: boolean;
 }
 ```
 
-During development, saved books live in `app/data/comic-books/*.json`. The server normalizes records on read/write so missing or stale fields remain compatible with the current editor.
+During development, saved books live in `app/data/comic-books/*.json`. The server normalizes records on read/write so missing or stale fields remain compatible with the current editor, including older panel-scoped text positions and missing rotation values.
 
 ## Docker
 
