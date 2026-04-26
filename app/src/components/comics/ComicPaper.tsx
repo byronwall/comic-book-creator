@@ -4,7 +4,7 @@ import { clamp, findPanelIndex, getPanelRects } from "./comic-layouts";
 import { getPaperSizeOption } from "./comic-paper-sizes";
 import { getDefaultTextHeight, lineHeightMultiplier, speechBubblePath } from "./comic-svg-shapes";
 
-type TextPatch = Partial<Pick<ComicTextElement, "height" | "fontSize" | "panelIndex" | "width" | "x" | "y">>;
+type TextPatch = Partial<Pick<ComicTextElement, "height" | "fontSize" | "panelIndex" | "rotation" | "width" | "x" | "y">>;
 type ResizeCorner = "nw" | "ne" | "sw" | "se";
 
 type DragState =
@@ -28,6 +28,15 @@ type DragState =
       startWidth: number;
       startHeight: number;
       corner: ResizeCorner;
+    }
+  | {
+      kind: "rotate";
+      pointerId: number;
+      textId: string;
+      centerX: number;
+      centerY: number;
+      startAngle: number;
+      startRotation: number;
     };
 
 export function ComicPaper(props: {
@@ -116,6 +125,31 @@ export function ComicPaper(props: {
     addDragListeners();
   }
 
+  function rotateText(event: PointerEvent, text: ComicTextElement) {
+    event.preventDefault();
+    event.stopPropagation();
+    props.onSelectText(text.id);
+
+    const startPoint = getPagePoint(event);
+    const layout = layoutRef;
+    if (!startPoint || !layout) return;
+
+    layout.setPointerCapture(event.pointerId);
+    const height = getTextHeight(text);
+    const centerX = text.x + text.width / 2;
+    const centerY = text.y + height / 2;
+    dragState = {
+      kind: "rotate",
+      pointerId: event.pointerId,
+      textId: text.id,
+      centerX,
+      centerY,
+      startAngle: angleFromCenter(centerX, centerY, startPoint.x, startPoint.y),
+      startRotation: getTextRotation(text),
+    };
+    addDragListeners();
+  }
+
   function updateDrag(event: PointerEvent) {
     const state = dragState;
     if (!state || state.pointerId !== event.pointerId) return;
@@ -130,6 +164,16 @@ export function ComicPaper(props: {
         panelIndex: findPanelIndex(panels(), x, y),
         x: clamp(x, -8, 98),
         y: clamp(y, -8, 98),
+      });
+      return;
+    }
+
+    if (state.kind === "rotate") {
+      const point = getPagePoint(event);
+      if (!point) return;
+      const angle = angleFromCenter(state.centerX, state.centerY, point.x, point.y);
+      props.onUpdateText(state.textId, {
+        rotation: normalizeRotation(state.startRotation + angle - state.startAngle),
       });
       return;
     }
@@ -199,13 +243,24 @@ export function ComicPaper(props: {
       >
         <For each={panels()}>
           {(panel) => (
-            <rect
-              class="comic-panel-svg"
-              x={`${panel.x}%`}
-              y={`${panel.y}%`}
-              width={`${panel.width}%`}
-              height={`${panel.height}%`}
-            />
+            <Show
+              when={panel.points}
+              fallback={
+                <rect
+                  class="comic-panel-svg"
+                  x={`${panel.x}%`}
+                  y={`${panel.y}%`}
+                  width={`${panel.width}%`}
+                  height={`${panel.height}%`}
+                />
+              }
+            >
+              {(points) => (
+                <svg x="0" y="0" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+                  <polygon class="comic-panel-svg" points={points()} />
+                </svg>
+              )}
+            </Show>
           )}
         </For>
 
@@ -216,6 +271,7 @@ export function ComicPaper(props: {
               selected={props.selectedTextId === text.id}
               onPointerDown={(event) => dragText(event, text)}
               onResizePointerDown={(event, corner) => resizeText(event, text, corner)}
+              onRotatePointerDown={(event) => rotateText(event, text)}
             />
           )}
         </For>
@@ -229,6 +285,7 @@ function ComicTextSvg(props: {
   selected: boolean;
   onPointerDown: (event: PointerEvent) => void;
   onResizePointerDown: (event: PointerEvent, corner: ResizeCorner) => void;
+  onRotatePointerDown: (event: PointerEvent) => void;
 }) {
   const lines = createMemo(() => getTextLines(props.text));
   const boxHeight = () => getTextHeight(props.text);
@@ -241,6 +298,11 @@ function ComicTextSvg(props: {
   };
   const firstLineDy = () => `${(-((lines().length - 1) * lineHeightMultiplier)) / 2}em`;
   const handlePointerDown = (event: PointerEvent) => {
+    if ((event.target as Element).closest(".comic-svg-handle-rotate")) {
+      props.onRotatePointerDown(event);
+      return;
+    }
+
     const resizeHandle = (event.target as Element).closest<SVGCircleElement>(".comic-svg-handle-resize");
     const corner = resizeHandle?.dataset.corner as ResizeCorner | undefined;
     if (corner) {
@@ -252,86 +314,109 @@ function ComicTextSvg(props: {
   };
 
   return (
-    <svg
+    <g
       class={`comic-svg-text comic-svg-text-${props.text.kind}`}
       classList={{ selected: props.selected }}
-      x={`${props.text.x}%`}
-      y={`${props.text.y}%`}
-      width={`${props.text.width}%`}
-      height={`${boxHeight()}%`}
-      overflow="visible"
+      style={{
+        "transform-box": "fill-box",
+        "transform-origin": "center",
+        transform: `rotate(${getTextRotation(props.text)}deg)`,
+      }}
       onPointerDown={handlePointerDown}
     >
-      <rect class="comic-svg-hitbox" x="0" y="0" width="100%" height="100%" />
-      <Show when={props.text.kind === "speech"}>
-        <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
-          <path class="comic-svg-shape comic-svg-speech-shape" d={speechBubblePath} />
-        </svg>
-      </Show>
-      <Show when={props.text.kind === "thought"}>
-        <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
-          <rect class="comic-svg-shape comic-svg-thought-shape" x="1" y="1" width="98" height="68" rx="18" />
-          <circle class="comic-svg-shape comic-svg-thought-dot" cx="18" cy="82" r="7" />
-          <circle class="comic-svg-shape comic-svg-thought-dot" cx="9" cy="94" r="4" />
-        </svg>
-      </Show>
-      <Show when={props.text.kind === "caption"}>
-        <rect class="comic-svg-shape comic-svg-caption-shape" x="0" y="0" width="100%" height="100%" />
-      </Show>
-      <Show when={props.selected}>
-        <rect class="comic-svg-selection" x="0" y="0" width="100%" height="100%" />
-        <circle
-          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-nw"
-          data-corner="nw"
-          cx="0"
-          cy="0"
-          r="7"
-        />
-        <circle
-          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-ne"
-          data-corner="ne"
-          cx="100%"
-          cy="0"
-          r="7"
-        />
-        <circle
-          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-sw"
-          data-corner="sw"
-          cx="0"
-          cy="100%"
-          r="7"
-        />
-        <circle
-          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-se"
-          data-corner="se"
-          cx="100%"
-          cy="100%"
-          r="7"
-        />
-      </Show>
-      <text
-        class="comic-svg-text-content"
-        classList={{ "comic-svg-sfx-text": props.text.kind === "sfx" }}
-        x={textX()}
-        y={textY()}
-        dominant-baseline="middle"
-        text-anchor={textAnchor()}
-        style={{ "font-size": `${props.text.fontSize}px` }}
+      <svg
+        x={`${props.text.x}%`}
+        y={`${props.text.y}%`}
+        width={`${props.text.width}%`}
+        height={`${boxHeight()}%`}
+        overflow="visible"
       >
-        <For each={lines()}>
-          {(line, index) => (
-            <tspan x={textX()} dy={index() === 0 ? firstLineDy() : `${lineHeightMultiplier}em`}>
-              {line}
-            </tspan>
-          )}
-        </For>
-      </text>
-    </svg>
+        <rect class="comic-svg-hitbox" x="0" y="0" width="100%" height="100%" />
+        <Show when={props.text.kind === "speech"}>
+          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+            <path class="comic-svg-shape comic-svg-speech-shape" d={speechBubblePath} />
+          </svg>
+        </Show>
+        <Show when={props.text.kind === "thought"}>
+          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+            <rect class="comic-svg-shape comic-svg-thought-shape" x="1" y="1" width="98" height="68" rx="18" />
+            <circle class="comic-svg-shape comic-svg-thought-dot" cx="18" cy="82" r="7" />
+            <circle class="comic-svg-shape comic-svg-thought-dot" cx="9" cy="94" r="4" />
+          </svg>
+        </Show>
+        <Show when={props.text.kind === "caption"}>
+          <rect class="comic-svg-shape comic-svg-caption-shape" x="0" y="0" width="100%" height="100%" />
+        </Show>
+        <Show when={props.selected}>
+          <line class="comic-svg-rotate-stem" x1="50%" y1="0" x2="50%" y2="-18" />
+          <circle class="comic-svg-handle comic-svg-handle-rotate" cx="50%" cy="-18" r="7" />
+          <rect class="comic-svg-selection" x="0" y="0" width="100%" height="100%" />
+          <circle
+            class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-nw"
+            data-corner="nw"
+            cx="0"
+            cy="0"
+            r="7"
+          />
+          <circle
+            class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-ne"
+            data-corner="ne"
+            cx="100%"
+            cy="0"
+            r="7"
+          />
+          <circle
+            class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-sw"
+            data-corner="sw"
+            cx="0"
+            cy="100%"
+            r="7"
+          />
+          <circle
+            class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-se"
+            data-corner="se"
+            cx="100%"
+            cy="100%"
+            r="7"
+          />
+        </Show>
+        <text
+          class="comic-svg-text-content"
+          classList={{ "comic-svg-sfx-text": props.text.kind === "sfx" }}
+          x={textX()}
+          y={textY()}
+          dominant-baseline="middle"
+          text-anchor={textAnchor()}
+          style={{ "font-size": `${props.text.fontSize}px` }}
+        >
+          <For each={lines()}>
+            {(line, index) => (
+              <tspan x={textX()} dy={index() === 0 ? firstLineDy() : `${lineHeightMultiplier}em`}>
+                {line}
+              </tspan>
+            )}
+          </For>
+        </text>
+      </svg>
+    </g>
   );
 }
 
 function getTextHeight(text: ComicTextElement) {
   return text.height ?? getDefaultTextHeight(text.kind, text.text, text.fontSize);
+}
+
+function getTextRotation(text: ComicTextElement) {
+  return text.rotation ?? (text.kind === "sfx" ? -9 : 0);
+}
+
+function angleFromCenter(centerX: number, centerY: number, x: number, y: number) {
+  return Math.atan2(y - centerY, x - centerX) * (180 / Math.PI);
+}
+
+function normalizeRotation(rotation: number) {
+  const normalized = ((((rotation + 180) % 360) + 360) % 360) - 180;
+  return Math.round(normalized);
 }
 
 function getTextLines(text: ComicTextElement) {

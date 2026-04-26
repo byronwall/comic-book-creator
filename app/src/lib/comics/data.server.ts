@@ -167,6 +167,18 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
     page.layout === "wideMiddle" ||
     page.layout === "splashLeft" ||
     page.layout === "six" ||
+    page.layout === "splashInset" ||
+    page.layout === "threeVertical" ||
+    page.layout === "fourStrip" ||
+    page.layout === "revealBottom" ||
+    page.layout === "heroRight" ||
+    page.layout === "diagonalAction" ||
+    page.layout === "diagonalGrid" ||
+    page.layout === "cinematicSlant" ||
+    page.layout === "letterbox" ||
+    page.layout === "establishingDialogue" ||
+    page.layout === "webtoonStack" ||
+    page.layout === "doubleFeature" ||
     page.layout === "blank" ||
     page.layout === "custom"
       ? page.layout
@@ -195,6 +207,7 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
       const height = isPageScoped
         ? clampNumber(text.height ?? getDefaultTextHeight(kind, textValue, fontSize), 5, 50)
         : (panel.height * clampNumber(text.height ?? getDefaultTextHeight(kind, textValue, fontSize), 5, 50)) / 100;
+      const rotation = typeof text.rotation === "number" ? clampNumber(text.rotation, -180, 180) : kind === "sfx" ? -9 : 0;
 
       return {
         id: cleanText(text.id) || `text-${pageIndex + 1}-${textIndex + 1}`,
@@ -207,6 +220,7 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
         width,
         height,
         fontSize,
+        rotation,
         align: normalizeTextAlign(text.align),
         autoWrap: text.autoWrap !== false,
       };
@@ -312,6 +326,107 @@ function getPanelRects(page: {
       { x: 52, y: 34.5, width: 48, height: 31 },
       { x: 0, y: 69, width: 48, height: 31 },
       { x: 52, y: 69, width: 48, height: 31 },
+    ];
+  }
+
+  if (page.layout === "splashInset") {
+    return [
+      { x: 0, y: 0, width: 100, height: 100 },
+      { x: 62, y: 6, width: 32, height: 24 },
+    ];
+  }
+
+  if (page.layout === "threeVertical") {
+    return [
+      { x: 0, y: 0, width: 30.5, height: 100 },
+      { x: 34.75, y: 0, width: 30.5, height: 100 },
+      { x: 69.5, y: 0, width: 30.5, height: 100 },
+    ];
+  }
+
+  if (page.layout === "fourStrip") {
+    return [
+      { x: 0, y: 0, width: 22, height: 100 },
+      { x: 26, y: 0, width: 22, height: 100 },
+      { x: 52, y: 0, width: 22, height: 100 },
+      { x: 78, y: 0, width: 22, height: 100 },
+    ];
+  }
+
+  if (page.layout === "revealBottom") {
+    return [
+      { x: 0, y: 0, width: 30.5, height: 28 },
+      { x: 34.75, y: 0, width: 30.5, height: 28 },
+      { x: 69.5, y: 0, width: 30.5, height: 28 },
+      { x: 0, y: 32, width: 100, height: 68 },
+    ];
+  }
+
+  if (page.layout === "heroRight") {
+    return [
+      { x: 0, y: 0, width: 34, height: 31 },
+      { x: 0, y: 34.5, width: 34, height: 31 },
+      { x: 0, y: 69, width: 34, height: 31 },
+      { x: 38, y: 0, width: 62, height: 100 },
+    ];
+  }
+
+  if (page.layout === "diagonalAction") {
+    return [
+      { x: 0, y: 0, width: 100, height: 48 },
+      { x: 0, y: 52, width: 100, height: 48 },
+    ];
+  }
+
+  if (page.layout === "diagonalGrid") {
+    return [
+      { x: 0, y: 0, width: 64, height: 41 },
+      { x: 48, y: 0, width: 52, height: 72 },
+      { x: 0, y: 20, width: 54, height: 80 },
+      { x: 40, y: 53, width: 60, height: 47 },
+    ];
+  }
+
+  if (page.layout === "cinematicSlant") {
+    return [
+      { x: 0, y: 0, width: 100, height: 40 },
+      { x: 0, y: 38, width: 52, height: 46 },
+      { x: 56, y: 30, width: 44, height: 46 },
+      { x: 0, y: 75, width: 100, height: 25 },
+    ];
+  }
+
+  if (page.layout === "letterbox") {
+    return [
+      { x: 0, y: 0, width: 100, height: 29 },
+      { x: 0, y: 35.5, width: 100, height: 29 },
+      { x: 0, y: 71, width: 100, height: 29 },
+    ];
+  }
+
+  if (page.layout === "establishingDialogue") {
+    return [
+      { x: 0, y: 0, width: 100, height: 35 },
+      { x: 0, y: 39, width: 48, height: 28.5 },
+      { x: 52, y: 39, width: 48, height: 28.5 },
+      { x: 0, y: 71.5, width: 48, height: 28.5 },
+      { x: 52, y: 71.5, width: 48, height: 28.5 },
+    ];
+  }
+
+  if (page.layout === "webtoonStack") {
+    return [
+      { x: 0, y: 0, width: 100, height: 16 },
+      { x: 0, y: 20, width: 100, height: 20 },
+      { x: 0, y: 48, width: 100, height: 32 },
+      { x: 0, y: 88, width: 100, height: 12 },
+    ];
+  }
+
+  if (page.layout === "doubleFeature") {
+    return [
+      { x: 0, y: 0, width: 100, height: 48 },
+      { x: 0, y: 52, width: 100, height: 48 },
     ];
   }
 
@@ -456,6 +571,7 @@ function createText(
     width: kind === "sfx" ? 34 : 42,
     height: getDefaultTextHeight(kind, text, fontSize),
     fontSize,
+    rotation: kind === "sfx" ? -9 : 0,
     align: "center" as const,
     autoWrap: true,
   };

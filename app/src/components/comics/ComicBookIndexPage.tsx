@@ -55,10 +55,6 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
             Index
           </A>
         </nav>
-        <section class="comic-sidebar-tip">
-          <strong>Print your comic</strong>
-          <p>Pick a book, add panels and words, then print the pages for hand-drawn art.</p>
-        </section>
       </aside>
 
       <main class="comic-main">

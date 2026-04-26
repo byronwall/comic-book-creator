@@ -2,7 +2,7 @@ import { Trash2 } from "lucide-solid";
 import { For, Show } from "solid-js";
 import type { ComicTextAlign, ComicTextElement } from "~/lib/comics/types";
 
-type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "text">>;
+type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "rotation" | "text">>;
 
 const textSizeOptions = [
   { label: "S", value: 14 },
@@ -63,6 +63,28 @@ export function TextToolsPanel(props: {
                 </For>
               </div>
             </div>
+            <label class="comic-field">
+              <span>Rotation</span>
+              <span class="comic-rotation-control">
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value={text().rotation ?? (text().kind === "sfx" ? -9 : 0)}
+                  onInput={(event) => props.onUpdateText({ rotation: Number(event.currentTarget.value) })}
+                />
+                <input
+                  type="number"
+                  aria-label="Rotation degrees"
+                  min="-180"
+                  max="180"
+                  step="1"
+                  value={text().rotation ?? (text().kind === "sfx" ? -9 : 0)}
+                  onInput={(event) => props.onUpdateText({ rotation: Number(event.currentTarget.value) })}
+                />
+              </span>
+            </label>
             <label class="comic-check">
               <input
                 type="checkbox"

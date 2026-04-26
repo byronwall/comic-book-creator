@@ -5,6 +5,18 @@ export type ComicLayoutKind =
   | "wideMiddle"
   | "splashLeft"
   | "six"
+  | "splashInset"
+  | "threeVertical"
+  | "fourStrip"
+  | "revealBottom"
+  | "heroRight"
+  | "diagonalAction"
+  | "diagonalGrid"
+  | "cinematicSlant"
+  | "letterbox"
+  | "establishingDialogue"
+  | "webtoonStack"
+  | "doubleFeature"
   | "blank"
   | "custom";
 
@@ -25,6 +37,7 @@ export interface ComicTextElement {
   width: number;
   height?: number;
   fontSize: number;
+  rotation?: number;
   align: ComicTextAlign;
   autoWrap?: boolean;
 }

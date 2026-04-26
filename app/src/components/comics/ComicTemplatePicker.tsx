@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import type { ComicLayoutKind, ComicPaperSize, ComicTemplateGrid, ComicTextElement } from "~/lib/comics/types";
 import { getPanelRects, layoutTemplates } from "./comic-layouts";
 import { getPaperSizeOption, paperSizeOptions } from "./comic-paper-sizes";
@@ -86,29 +86,48 @@ export function TemplatePreview(props: {
     <svg class={`${props.class} ${props.layout}`} style={previewStyle()} aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
       <For each={getPanelRects({ layout: props.layout, customGrid: props.customGrid })}>
         {(panel) => (
-          <rect
-            class="comic-preview-panel"
-            x={`${panel.x}%`}
-            y={`${panel.y}%`}
-            width={`${panel.width}%`}
-            height={`${panel.height}%`}
-          />
+          <Show
+            when={panel.points}
+            fallback={
+              <rect
+                class="comic-preview-panel"
+                x={`${panel.x}%`}
+                y={`${panel.y}%`}
+                width={`${panel.width}%`}
+                height={`${panel.height}%`}
+              />
+            }
+          >
+            {(points) => (
+              <svg x="0" y="0" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+                <polygon class="comic-preview-panel" points={points()} />
+              </svg>
+            )}
+          </Show>
         )}
       </For>
       <For each={props.texts ?? []}>
         {(text) => (
-          <svg
+          <g
             class={`comic-preview-text ${text.kind}`}
-            x={`${text.x}%`}
-            y={`${text.y}%`}
-            width={`${text.width}%`}
-            height={`${text.height ?? getDefaultTextHeight(text.kind, text.text, text.fontSize)}%`}
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            overflow="visible"
+            style={{
+              "transform-box": "fill-box",
+              "transform-origin": "center",
+              transform: `rotate(${text.rotation ?? (text.kind === "sfx" ? -9 : 0)}deg)`,
+            }}
           >
-            <PreviewTextShape text={text} />
-          </svg>
+            <svg
+              x={`${text.x}%`}
+              y={`${text.y}%`}
+              width={`${text.width}%`}
+              height={`${text.height ?? getDefaultTextHeight(text.kind, text.text, text.fontSize)}%`}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              overflow="visible"
+            >
+              <PreviewTextShape text={text} />
+            </svg>
+          </g>
         )}
       </For>
     </svg>

@@ -742,12 +742,6 @@
   white-space: pre;
 }
 
-.comic-svg-text-sfx {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: rotate(-9deg);
-}
-
 .comic-svg-sfx-text {
   color: var(--comic-yellow);
   fill: var(--comic-yellow);
@@ -774,6 +768,13 @@
   vector-effect: non-scaling-stroke;
 }
 
+.comic-svg-rotate-stem {
+  stroke: var(--comic-blue-600);
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
 .comic-svg-handle-resize-nw,
 .comic-svg-handle-resize-se {
   cursor: nwse-resize;
@@ -782,6 +783,14 @@
 .comic-svg-handle-resize-ne,
 .comic-svg-handle-resize-sw {
   cursor: nesw-resize;
+}
+
+.comic-svg-handle-rotate {
+  cursor: grab;
+}
+
+.comic-svg-handle-rotate:active {
+  cursor: grabbing;
 }
 
 .comic-books-index {
@@ -1017,6 +1026,22 @@
   min-height: 90px;
   resize: vertical;
   font-family: var(--comic-display);
+}
+
+.comic-rotation-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px;
+  align-items: center;
+  gap: 10px;
+}
+
+.comic-field .comic-rotation-control {
+  color: inherit;
+  font: inherit;
+}
+
+.comic-field .comic-rotation-control input[type="number"] {
+  padding-inline: 8px;
 }
 
 .comic-segmented {

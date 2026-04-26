@@ -12,7 +12,7 @@ import { defaultPaperSize } from "./comic-paper-sizes";
 import { getDefaultTextHeight } from "./comic-svg-shapes";
 import "./comic-creator.css";
 
-type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "height" | "panelIndex" | "text" | "width" | "x" | "y">>;
+type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "height" | "panelIndex" | "rotation" | "text" | "width" | "x" | "y">>;
 
 export { PrintActions } from "./ComicPrintActions";
 
@@ -135,6 +135,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
       width: kind === "sfx" ? 22 : 34,
       height: getDefaultTextHeight(kind, defaultText(kind), kind === "sfx" ? 44 : kind === "speech" ? 18 : 15),
       fontSize: kind === "sfx" ? 44 : kind === "speech" ? 18 : 15,
+      rotation: kind === "sfx" ? -9 : 0,
       align: "center",
       autoWrap: true,
     };
@@ -253,10 +254,6 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
             Index
           </A>
         </nav>
-        <section class="comic-sidebar-tip">
-          <strong>Print your comic</strong>
-          <p>Choose a template, add words, then print the page for hand-drawn art.</p>
-        </section>
       </aside>
 
       <main class="comic-main">
