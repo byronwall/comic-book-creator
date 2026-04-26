@@ -676,6 +676,63 @@
   margin: 0 0 4px;
 }
 
+.comic-bubble-kind-panel {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.comic-bubble-kind-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.comic-bubble-kind-grid button {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  min-height: 58px;
+  padding: 6px 3px;
+  border: 1px solid var(--comic-line);
+  border-radius: var(--comic-radius);
+  background: #fff;
+  color: var(--comic-ink);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.05;
+  cursor: pointer;
+}
+
+.comic-bubble-kind-grid button:hover,
+.comic-bubble-kind-grid button.active {
+  border-color: var(--comic-blue-600);
+  background: var(--comic-blue-100);
+  color: var(--comic-blue-800);
+}
+
+.comic-bubble-kind-grid svg {
+  width: 42px;
+  height: 28px;
+  overflow: visible;
+}
+
+.comic-bubble-kind-shape {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 4px;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-bubble-kind-shape.caption {
+  fill: var(--comic-yellow-soft);
+}
+
+.comic-bubble-kind-shape.sfx {
+  fill: var(--comic-yellow);
+}
+
 .comic-editor-wrap {
   display: grid;
   align-items: start;

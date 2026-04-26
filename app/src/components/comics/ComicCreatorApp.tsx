@@ -12,7 +12,9 @@ import { defaultPaperSize } from "./comic-paper-sizes";
 import { getDefaultTextHeight } from "./comic-svg-shapes";
 import "./comic-creator.css";
 
-type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "height" | "panelIndex" | "rotation" | "text" | "width" | "x" | "y">>;
+type TextPatch = Partial<
+  Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "height" | "kind" | "panelIndex" | "rotation" | "text" | "width" | "x" | "y">
+>;
 
 export { PrintActions } from "./ComicPrintActions";
 
