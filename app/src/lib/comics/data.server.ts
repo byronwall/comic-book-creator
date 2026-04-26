@@ -13,7 +13,6 @@ import type {
   ComicTextKind,
 } from "./types";
 
-const COMIC_BOOK_FILE = "comic-book.json";
 const COMIC_BOOKS_DIR = "comic-books";
 
 export async function readComicBookFromDisk(): Promise<ComicBook> {
@@ -70,7 +69,6 @@ export async function writeComicBookByIdToDisk(bookId: string, input: ComicBook)
   const id = slugify(bookId) || nextBook.id;
   const book = { ...nextBook, id };
   await writeFile(getComicBookPath(id), `${JSON.stringify(book, null, 2)}\n`, "utf8");
-  await writeFile(getLegacyComicBookPath(), `${JSON.stringify(book, null, 2)}\n`, "utf8");
   return book;
 }
 
@@ -113,10 +111,6 @@ export async function createComicBookOnDisk(input: { title?: string } = {}): Pro
   return nextBook;
 }
 
-function getLegacyComicBookPath() {
-  return path.join(resolveAppDataDir(), COMIC_BOOK_FILE);
-}
-
 function getComicBooksDir() {
   return path.join(resolveAppDataDir(), COMIC_BOOKS_DIR);
 }
@@ -131,13 +125,6 @@ async function ensureComicBooksDir() {
 
   const filenames = await readdir(getComicBooksDir());
   if (filenames.some((filename) => filename.endsWith(".json"))) {
-    return;
-  }
-
-  if (existsSync(getLegacyComicBookPath())) {
-    const fileContents = await readFile(getLegacyComicBookPath(), "utf8");
-    const legacyBook = normalizeComicBook(JSON.parse(fileContents) as ComicBook, { touchUpdatedAt: false });
-    await writeFile(getComicBookPath(legacyBook.id), `${JSON.stringify(legacyBook, null, 2)}\n`, "utf8");
     return;
   }
 
@@ -196,24 +183,32 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
     paperSize: normalizePaperSize(page.paperSize),
     customGrid,
     texts: page.texts.map((text, textIndex) => {
+      const kind = normalizeTextKind(text.kind);
+      const textValue = typeof text.text === "string" ? text.text : "";
+      const fontSize = clampInteger(text.fontSize, 12, 54);
       const panelIndex = clampInteger(text.panelIndex, 0, Math.max(0, panels.length - 1));
       const panel = panels[panelIndex] ?? panels[0] ?? { x: 0, y: 0, width: 100, height: 100 };
       const isPageScoped = text.positionScope === "page";
       const x = isPageScoped ? clampNumber(text.x, -8, 98) : panel.x + (panel.width * clampNumber(text.x, 0, 88)) / 100;
       const y = isPageScoped ? clampNumber(text.y, -8, 98) : panel.y + (panel.height * clampNumber(text.y, 0, 88)) / 100;
       const width = isPageScoped ? clampNumber(text.width, 8, 96) : (panel.width * clampNumber(text.width, 16, 92)) / 100;
+      const height = isPageScoped
+        ? clampNumber(text.height ?? getDefaultTextHeight(kind, textValue, fontSize), 5, 50)
+        : (panel.height * clampNumber(text.height ?? getDefaultTextHeight(kind, textValue, fontSize), 5, 50)) / 100;
 
       return {
         id: cleanText(text.id) || `text-${pageIndex + 1}-${textIndex + 1}`,
-        kind: normalizeTextKind(text.kind),
-        text: typeof text.text === "string" ? text.text : "",
+        kind,
+        text: textValue,
         panelIndex,
         positionScope: "page" as const,
         x,
         y,
         width,
-        fontSize: clampInteger(text.fontSize, 12, 54),
+        height,
+        fontSize,
         align: normalizeTextAlign(text.align),
+        autoWrap: text.autoWrap !== false,
       };
     }),
   };
@@ -241,6 +236,22 @@ function normalizeTextKind(kind: ComicTextKind): ComicTextKind {
 
 function normalizeTextAlign(align: ComicTextAlign): ComicTextAlign {
   return align === "left" || align === "right" ? align : "center";
+}
+
+function getDefaultTextHeight(kind: ComicTextKind, text: string, fontSize: number) {
+  const lineHeightMultiplier = 1.08;
+  const lineCount = Math.max(1, text.split("\n").length);
+  const contentHeight = lineCount * fontSize * lineHeightMultiplier;
+  const legacyPixelHeight =
+    kind === "speech"
+      ? Math.max(52, contentHeight + 24) + 24
+      : kind === "thought"
+        ? Math.max(48, contentHeight + 26) + 34
+        : kind === "caption"
+          ? Math.max(38, contentHeight + 18) + 10
+          : Math.max(56, contentHeight + 8) + 10;
+
+  return Math.min(50, Math.max(5, legacyPixelHeight / 7));
 }
 
 function normalizePaperSize(paperSize: ComicPaperSize | undefined): ComicPaperSize {
@@ -443,7 +454,9 @@ function createText(
     x,
     y,
     width: kind === "sfx" ? 34 : 42,
+    height: getDefaultTextHeight(kind, text, fontSize),
     fontSize,
     align: "center" as const,
+    autoWrap: true,
   };
 }

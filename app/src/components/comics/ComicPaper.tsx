@@ -1,9 +1,11 @@
-import { For, Show, createMemo } from "solid-js";
+import { For, Show, createMemo, onCleanup } from "solid-js";
 import type { ComicPage, ComicTextElement } from "~/lib/comics/types";
 import { clamp, findPanelIndex, getPanelRects } from "./comic-layouts";
 import { getPaperSizeOption } from "./comic-paper-sizes";
+import { getDefaultTextHeight, lineHeightMultiplier, speechBubblePath } from "./comic-svg-shapes";
 
-type TextPatch = Partial<Pick<ComicTextElement, "fontSize" | "panelIndex" | "width" | "x" | "y">>;
+type TextPatch = Partial<Pick<ComicTextElement, "height" | "fontSize" | "panelIndex" | "width" | "x" | "y">>;
+type ResizeCorner = "nw" | "ne" | "sw" | "se";
 
 type DragState =
   | {
@@ -21,20 +23,42 @@ type DragState =
       textId: string;
       startClientX: number;
       startClientY: number;
+      startX: number;
+      startY: number;
       startWidth: number;
-      startFontSize: number;
+      startHeight: number;
+      corner: ResizeCorner;
     };
 
 export function ComicPaper(props: {
   page: ComicPage;
   selectedTextId: string;
   onSelectText: (textId: string) => void;
+  onDeselectText: () => void;
   onUpdateText: (textId: string, patch: TextPatch) => void;
 }) {
-  let layoutRef: HTMLDivElement | undefined;
+  let layoutRef: SVGSVGElement | undefined;
   let dragState: DragState | null = null;
   const panels = createMemo(() => getPanelRects(props.page));
   const paperSize = createMemo(() => getPaperSizeOption(props.page.paperSize));
+
+  onCleanup(() => {
+    removeDragListeners();
+  });
+
+  function addDragListeners() {
+    if (typeof window === "undefined") return;
+    window.addEventListener("pointermove", updateDrag);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
+  }
+
+  function removeDragListeners() {
+    if (typeof window === "undefined") return;
+    window.removeEventListener("pointermove", updateDrag);
+    window.removeEventListener("pointerup", endDrag);
+    window.removeEventListener("pointercancel", endDrag);
+  }
 
   function getPagePoint(event: PointerEvent) {
     const layout = layoutRef;
@@ -65,9 +89,10 @@ export function ComicPaper(props: {
       startTextX: text.x,
       startTextY: text.y,
     };
+    addDragListeners();
   }
 
-  function resizeText(event: PointerEvent, text: ComicTextElement) {
+  function resizeText(event: PointerEvent, text: ComicTextElement, corner: ResizeCorner) {
     event.preventDefault();
     event.stopPropagation();
     props.onSelectText(text.id);
@@ -82,9 +107,13 @@ export function ComicPaper(props: {
       textId: text.id,
       startClientX: event.clientX,
       startClientY: event.clientY,
+      startX: text.x,
+      startY: text.y,
       startWidth: text.width,
-      startFontSize: text.fontSize,
+      startHeight: getTextHeight(text),
+      corner,
     };
+    addDragListeners();
   }
 
   function updateDrag(event: PointerEvent) {
@@ -108,11 +137,24 @@ export function ComicPaper(props: {
     const layout = layoutRef;
     if (!layout) return;
     const bounds = layout.getBoundingClientRect();
-    const widthDelta = ((event.clientX - state.startClientX) / bounds.width) * 100;
-    const fontDelta = (event.clientY - state.startClientY) / 8;
+    const pointerDeltaX = ((event.clientX - state.startClientX) / bounds.width) * 100;
+    const pointerDeltaY = ((event.clientY - state.startClientY) / bounds.height) * 100;
+    const adjustsLeft = state.corner === "nw" || state.corner === "sw";
+    const adjustsTop = state.corner === "nw" || state.corner === "ne";
+    const widthDelta = adjustsLeft ? -pointerDeltaX : pointerDeltaX;
+    const heightDelta = adjustsTop ? -pointerDeltaY : pointerDeltaY;
+    const width = clamp(state.startWidth + widthDelta, 8, 96);
+    const height = clamp(state.startHeight + heightDelta, 5, 50);
     props.onUpdateText(state.textId, {
-      width: clamp(state.startWidth + widthDelta, 8, 96),
-      fontSize: Math.round(clamp(state.startFontSize + fontDelta, 12, 54)),
+      width,
+      height,
+      x: adjustsLeft ? state.startX + state.startWidth - width : state.startX,
+      y: adjustsTop ? state.startY + state.startHeight - height : state.startY,
+      panelIndex: findPanelIndex(
+        panels(),
+        adjustsLeft ? state.startX + state.startWidth - width : state.startX,
+        adjustsTop ? state.startY + state.startHeight - height : state.startY,
+      ),
     });
   }
 
@@ -124,6 +166,12 @@ export function ComicPaper(props: {
       layout.releasePointerCapture(event.pointerId);
     }
     dragState = null;
+    removeDragListeners();
+  }
+
+  function handlePagePointerDown(event: PointerEvent) {
+    if ((event.target as Element).closest(".comic-svg-text")) return;
+    props.onDeselectText();
   }
 
   return (
@@ -138,62 +186,215 @@ export function ComicPaper(props: {
       }}
       aria-label="Printable comic page preview"
     >
-      <div
+      <svg
         ref={layoutRef}
-        class={`comic-page-layout ${props.page.layout}`}
+        class={`comic-page-layout comic-page-svg ${props.page.layout}`}
+        role="img"
+        aria-label="Comic page"
+        xmlns="http://www.w3.org/2000/svg"
         onPointerMove={updateDrag}
+        onPointerDown={handlePagePointerDown}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
         <For each={panels()}>
           {(panel) => (
-            <div
-              class="comic-panel"
-              style={{
-                left: `${panel.x}%`,
-                top: `${panel.y}%`,
-                width: `${panel.width}%`,
-                height: `${panel.height}%`,
-              }}
+            <rect
+              class="comic-panel-svg"
+              x={`${panel.x}%`}
+              y={`${panel.y}%`}
+              width={`${panel.width}%`}
+              height={`${panel.height}%`}
             />
           )}
         </For>
 
         <For each={props.page.texts}>
           {(text) => (
-            <button
-              type="button"
-              class={`comic-text ${text.kind}`}
-              classList={{ selected: props.selectedTextId === text.id }}
-              style={{
-                left: `${text.x}%`,
-                top: `${text.y}%`,
-                width: `${text.width}%`,
-                "font-size": `${text.fontSize}px`,
-                "text-align": text.align,
-              }}
+            <ComicTextSvg
+              text={text}
+              selected={props.selectedTextId === text.id}
               onPointerDown={(event) => dragText(event, text)}
-            >
-              <For each={text.text.split("\n")}>
-                {(line, index) => (
-                  <>
-                    <Show when={index() > 0}>
-                      <br />
-                    </Show>
-                    {line}
-                  </>
-                )}
-              </For>
-              <Show when={props.selectedTextId === text.id}>
-                <span class="comic-handle nw" />
-                <span class="comic-handle ne" />
-                <span class="comic-handle sw" />
-                <span class="comic-handle se" onPointerDown={(event) => resizeText(event, text)} />
-              </Show>
-            </button>
+              onResizePointerDown={(event, corner) => resizeText(event, text, corner)}
+            />
           )}
         </For>
-      </div>
+      </svg>
     </div>
   );
+}
+
+function ComicTextSvg(props: {
+  text: ComicTextElement;
+  selected: boolean;
+  onPointerDown: (event: PointerEvent) => void;
+  onResizePointerDown: (event: PointerEvent, corner: ResizeCorner) => void;
+}) {
+  const lines = createMemo(() => getTextLines(props.text));
+  const boxHeight = () => getTextHeight(props.text);
+  const textAnchor = () => (props.text.align === "left" ? "start" : props.text.align === "right" ? "end" : "middle");
+  const textX = () => (props.text.align === "left" ? "8%" : props.text.align === "right" ? "92%" : "50%");
+  const textY = () => {
+    if (props.text.kind === "speech") return "44%";
+    if (props.text.kind === "thought") return "36%";
+    return "50%";
+  };
+  const firstLineDy = () => `${(-((lines().length - 1) * lineHeightMultiplier)) / 2}em`;
+  const handlePointerDown = (event: PointerEvent) => {
+    const resizeHandle = (event.target as Element).closest<SVGCircleElement>(".comic-svg-handle-resize");
+    const corner = resizeHandle?.dataset.corner as ResizeCorner | undefined;
+    if (corner) {
+      props.onResizePointerDown(event, corner);
+      return;
+    }
+
+    props.onPointerDown(event);
+  };
+
+  return (
+    <svg
+      class={`comic-svg-text comic-svg-text-${props.text.kind}`}
+      classList={{ selected: props.selected }}
+      x={`${props.text.x}%`}
+      y={`${props.text.y}%`}
+      width={`${props.text.width}%`}
+      height={`${boxHeight()}%`}
+      overflow="visible"
+      onPointerDown={handlePointerDown}
+    >
+      <rect class="comic-svg-hitbox" x="0" y="0" width="100%" height="100%" />
+      <Show when={props.text.kind === "speech"}>
+        <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+          <path class="comic-svg-shape comic-svg-speech-shape" d={speechBubblePath} />
+        </svg>
+      </Show>
+      <Show when={props.text.kind === "thought"}>
+        <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+          <rect class="comic-svg-shape comic-svg-thought-shape" x="1" y="1" width="98" height="68" rx="18" />
+          <circle class="comic-svg-shape comic-svg-thought-dot" cx="18" cy="82" r="7" />
+          <circle class="comic-svg-shape comic-svg-thought-dot" cx="9" cy="94" r="4" />
+        </svg>
+      </Show>
+      <Show when={props.text.kind === "caption"}>
+        <rect class="comic-svg-shape comic-svg-caption-shape" x="0" y="0" width="100%" height="100%" />
+      </Show>
+      <Show when={props.selected}>
+        <rect class="comic-svg-selection" x="0" y="0" width="100%" height="100%" />
+        <circle
+          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-nw"
+          data-corner="nw"
+          cx="0"
+          cy="0"
+          r="7"
+        />
+        <circle
+          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-ne"
+          data-corner="ne"
+          cx="100%"
+          cy="0"
+          r="7"
+        />
+        <circle
+          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-sw"
+          data-corner="sw"
+          cx="0"
+          cy="100%"
+          r="7"
+        />
+        <circle
+          class="comic-svg-handle comic-svg-handle-resize comic-svg-handle-resize-se"
+          data-corner="se"
+          cx="100%"
+          cy="100%"
+          r="7"
+        />
+      </Show>
+      <text
+        class="comic-svg-text-content"
+        classList={{ "comic-svg-sfx-text": props.text.kind === "sfx" }}
+        x={textX()}
+        y={textY()}
+        dominant-baseline="middle"
+        text-anchor={textAnchor()}
+        style={{ "font-size": `${props.text.fontSize}px` }}
+      >
+        <For each={lines()}>
+          {(line, index) => (
+            <tspan x={textX()} dy={index() === 0 ? firstLineDy() : `${lineHeightMultiplier}em`}>
+              {line}
+            </tspan>
+          )}
+        </For>
+      </text>
+    </svg>
+  );
+}
+
+function getTextHeight(text: ComicTextElement) {
+  return text.height ?? getDefaultTextHeight(text.kind, text.text, text.fontSize);
+}
+
+function getTextLines(text: ComicTextElement) {
+  const explicitLines = text.text.split("\n");
+  if (text.autoWrap === false) {
+    return explicitLines;
+  }
+
+  const usableWidth = getUsableTextWidth(text);
+  const averageCharacterWidth = text.fontSize * (text.kind === "sfx" ? 0.68 : 0.58);
+  const maxCharacters = Math.max(1, Math.floor(usableWidth / averageCharacterWidth));
+
+  return explicitLines.flatMap((line) => wrapLine(line, maxCharacters));
+}
+
+function getUsableTextWidth(text: ComicTextElement) {
+  const pageWidthPixels = 600;
+  const horizontalPadding = text.kind === "caption" || text.kind === "sfx" ? 0.1 : 0.18;
+  return Math.max(1, text.width * pageWidthPixels * (1 - horizontalPadding) / 100);
+}
+
+function wrapLine(line: string, maxCharacters: number) {
+  if (!line.trim()) {
+    return [line];
+  }
+
+  const wrapped: string[] = [];
+  let currentLine = "";
+
+  for (const word of line.trim().split(/\s+/)) {
+    if (!currentLine) {
+      wrapped.push(...splitLongWord(word, maxCharacters));
+      currentLine = wrapped.pop() ?? "";
+      continue;
+    }
+
+    const candidate = `${currentLine} ${word}`;
+    if (candidate.length <= maxCharacters) {
+      currentLine = candidate;
+      continue;
+    }
+
+    wrapped.push(currentLine);
+    const pieces = splitLongWord(word, maxCharacters);
+    currentLine = pieces.pop() ?? "";
+    wrapped.push(...pieces);
+  }
+
+  if (currentLine) {
+    wrapped.push(currentLine);
+  }
+
+  return wrapped.length > 0 ? wrapped : [line];
+}
+
+function splitLongWord(word: string, maxCharacters: number) {
+  if (word.length <= maxCharacters) {
+    return word ? [word] : [];
+  }
+
+  const pieces: string[] = [];
+  for (let index = 0; index < word.length; index += maxCharacters) {
+    pieces.push(word.slice(index, index + maxCharacters));
+  }
+  return pieces;
 }

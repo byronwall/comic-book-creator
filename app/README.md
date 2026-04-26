@@ -26,7 +26,7 @@ pnpm start
 - UI wrappers: `src/components/ui/*`
 - Theme + recipes: `src/theme/*`
 - Panda output (generated): `styled-system/*`
-- Comic persistence: `src/lib/comics/*` and `data/comic-book.json`
+- Comic persistence: `src/lib/comics/*` and `data/comic-books/*.json`
 - Comic API: `src/routes/api/comic-book.ts`
 
 ## Reconciled Additions

@@ -23,8 +23,10 @@ export interface ComicTextElement {
   x: number;
   y: number;
   width: number;
+  height?: number;
   fontSize: number;
   align: ComicTextAlign;
+  autoWrap?: boolean;
 }
 
 export interface ComicTemplateGrid {

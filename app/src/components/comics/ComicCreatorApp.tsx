@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { Check, Eraser, FilePlus2, Home, MessageCircle, Pencil, Sparkles, Trash2, Type } from "lucide-solid";
+import { ArrowLeft, ArrowRight, Check, Eraser, FilePlus2, Home, MessageCircle, Pencil, Sparkles, Trash2, Type } from "lucide-solid";
 import { For, Show, createEffect, createMemo, createSignal, onCleanup, untrack } from "solid-js";
 import type { ComicBook, ComicLayoutKind, ComicPage, ComicPaperSize, ComicTextElement, ComicTextKind } from "~/lib/comics/types";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
@@ -9,9 +9,10 @@ import { PrintActions } from "./ComicPrintActions";
 import { TemplatePicker, TemplatePreview } from "./ComicTemplatePicker";
 import { TextToolsPanel } from "./ComicTextTools";
 import { defaultPaperSize } from "./comic-paper-sizes";
+import { getDefaultTextHeight } from "./comic-svg-shapes";
 import "./comic-creator.css";
 
-type TextPatch = Partial<Pick<ComicTextElement, "align" | "fontSize" | "panelIndex" | "text" | "width" | "x" | "y">>;
+type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "height" | "panelIndex" | "text" | "width" | "x" | "y">>;
 
 export { PrintActions } from "./ComicPrintActions";
 
@@ -33,7 +34,8 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
   });
   const selectedText = createMemo(() => {
     const page = activePage();
-    return page?.texts.find((text) => text.id === selectedTextId()) ?? page?.texts[0] ?? null;
+    const textId = selectedTextId();
+    return textId ? page?.texts.find((text) => text.id === textId) ?? null : null;
   });
   const textPendingDelete = createMemo(() => activePage()?.texts.find((text) => text.id === deleteTextId()) ?? null);
   const pagePendingDelete = createMemo(() => book().pages.find((page) => page.id === deletePageId()) ?? null);
@@ -47,7 +49,8 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
   createEffect(() => {
     const page = activePage();
     if (!page) return;
-    if (!page.texts.some((text) => text.id === selectedTextId())) {
+    const textId = selectedTextId();
+    if (textId && !page.texts.some((text) => text.id === textId)) {
       setSelectedTextId(page.texts[0]?.id ?? "");
     }
   });
@@ -130,8 +133,10 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
       x: kind === "sfx" ? 28 : 10,
       y: kind === "sfx" ? 24 : 10,
       width: kind === "sfx" ? 22 : 34,
+      height: getDefaultTextHeight(kind, defaultText(kind), kind === "sfx" ? 44 : kind === "speech" ? 18 : 15),
       fontSize: kind === "sfx" ? 44 : kind === "speech" ? 18 : 15,
       align: "center",
+      autoWrap: true,
     };
     updateActivePage((page) => ({ ...page, status: "Draft", texts: [...page.texts, text] }));
     setSelectedTextId(id);
@@ -168,6 +173,24 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
     setActivePageId(nextActivePage?.id ?? nextPages[0]?.id ?? "");
     setSelectedTextId(nextActivePage?.texts[0]?.id ?? "");
     setDeletePageId("");
+  }
+
+  function moveActivePage(direction: -1 | 1) {
+    const pageId = activePageId();
+    if (!pageId) return;
+
+    setBook((current) => {
+      const currentIndex = current.pages.findIndex((page) => page.id === pageId);
+      const nextIndex = currentIndex + direction;
+      if (currentIndex < 0 || nextIndex < 0 || nextIndex >= current.pages.length) return current;
+
+      const pages = [...current.pages];
+      const [page] = pages.splice(currentIndex, 1);
+      if (!page) return current;
+      pages.splice(nextIndex, 0, page);
+
+      return { ...current, pages };
+    });
   }
 
   function clearText() {
@@ -302,6 +325,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
             activePageId={activePageId()}
             onSelect={setActivePageId}
             onAddPage={addPage}
+            onMoveActivePage={moveActivePage}
             onRequestDelete={setDeletePageId}
           />
 
@@ -342,13 +366,14 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
                     page={page()}
                     selectedTextId={selectedTextId()}
                     onSelectText={setSelectedTextId}
+                    onDeselectText={() => setSelectedTextId("")}
                     onUpdateText={updateText}
                   />
                 )}
               </Show>
             </div>
 
-            <PrintActions />
+            <PrintActions activePage={activePage()} pages={book().pages} />
           </section>
 
           <TextToolsPanel selectedText={selectedText()} onUpdateText={updateSelectedText} onDeleteText={requestDeleteSelectedText} />
@@ -363,9 +388,13 @@ function PageRail(props: {
   activePageId: string;
   onSelect: (pageId: string) => void;
   onAddPage: () => void;
+  onMoveActivePage: (direction: -1 | 1) => void;
   onRequestDelete: (pageId: string) => void;
 }) {
   const canDelete = () => props.book.pages.length > 1;
+  const activeIndex = createMemo(() => props.book.pages.findIndex((page) => page.id === props.activePageId));
+  const canMoveLeft = () => activeIndex() > 0;
+  const canMoveRight = () => activeIndex() >= 0 && activeIndex() < props.book.pages.length - 1;
 
   return (
     <aside class="comic-card comic-page-rail">
@@ -390,9 +419,39 @@ function PageRail(props: {
                 aria-label={`Select page ${index() + 1}`}
                 onClick={() => props.onSelect(page.id)}
               >
-                <TemplatePreview layout={page.layout} paperSize={page.paperSize ?? defaultPaperSize} class="comic-mini-page" />
+                <TemplatePreview
+                  layout={page.layout}
+                  paperSize={page.paperSize ?? defaultPaperSize}
+                  customGrid={page.customGrid}
+                  texts={page.texts}
+                  class="comic-mini-page"
+                />
                 <span class="comic-thumb-page-number">{index() + 1}</span>
               </button>
+              <Show when={props.activePageId === page.id}>
+                <div class="comic-thumb-move-controls" aria-label={`Move ${page.title}`}>
+                  <button
+                    type="button"
+                    class="comic-thumb-move"
+                    aria-label={`Move ${page.title} left`}
+                    title={canMoveLeft() ? `Move ${page.title} before page ${index()}` : `${page.title} is already first`}
+                    disabled={!canMoveLeft()}
+                    onClick={() => props.onMoveActivePage(-1)}
+                  >
+                    <ArrowLeft size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    class="comic-thumb-move"
+                    aria-label={`Move ${page.title} right`}
+                    title={canMoveRight() ? `Move ${page.title} after page ${index() + 2}` : `${page.title} is already last`}
+                    disabled={!canMoveRight()}
+                    onClick={() => props.onMoveActivePage(1)}
+                  >
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              </Show>
               <button
                 type="button"
                 class="comic-thumb-delete"

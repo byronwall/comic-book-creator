@@ -325,7 +325,7 @@
   gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 2px 6px;
+  padding: 12px 2px 6px;
   scroll-snap-type: x proximity;
 }
 
@@ -352,7 +352,7 @@
   gap: 5px;
   width: 100%;
   min-height: 100px;
-  padding: 6px 5px;
+  padding: 18px 5px 28px;
   border: 0;
   border-radius: calc(var(--comic-radius) - 2px);
   background: transparent;
@@ -363,8 +363,10 @@
 
 .comic-thumb-delete {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: -3px;
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -397,20 +399,76 @@
   opacity: 0.45;
 }
 
+.comic-thumb-move-controls {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.comic-thumb-move {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 24px;
+  border: 1px solid #9fc2f8;
+  border-radius: 7px;
+  background: #f8fbff;
+  color: var(--comic-blue-700);
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.comic-thumb-move:hover:not(:disabled) {
+  border-color: var(--comic-blue-600);
+  background: #e9f3ff;
+}
+
+.comic-thumb-move:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 .comic-mini-page {
-  position: relative;
   box-sizing: border-box;
-  padding: 5px;
   border: 2px solid #9aa8bb;
   border-radius: 6px;
   background: #fff;
+  overflow: visible;
 }
 
-.comic-mini-page span,
-.comic-template-preview span {
-  position: absolute;
-  border: 1px solid #9aa8bb;
-  background: #fff;
+.comic-mini-page .comic-preview-panel,
+.comic-template-preview .comic-preview-panel {
+  fill: #fff;
+  stroke: #9aa8bb;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-preview-text {
+  overflow: visible;
+}
+
+.comic-preview-shape {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 5px;
+}
+
+.comic-preview-shape.caption {
+  fill: var(--comic-yellow-soft);
+  stroke-width: 4px;
+}
+
+.comic-preview-shape.sfx {
+  fill: var(--comic-yellow);
+  stroke-width: 5px;
 }
 
 .comic-thumb-page-number {
@@ -482,11 +540,11 @@
 }
 
 .comic-template-preview {
-  position: relative;
   box-sizing: border-box;
   border: 2px solid #1a2438;
   border-radius: 5px;
   background: #fff;
+  overflow: visible;
 }
 
 .comic-paper-size-panel {
@@ -552,12 +610,17 @@
 }
 
 .comic-toolbar {
+  position: sticky;
+  top: 16px;
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   padding: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
 }
 
 .comic-tool-group {
@@ -632,161 +695,93 @@
 }
 
 .comic-page-layout {
-  position: relative;
+  display: block;
+  width: 100%;
   height: 100%;
+  overflow: visible;
   touch-action: none;
 }
 
-.comic-panel {
-  position: absolute;
-  min-height: 110px;
-  overflow: hidden;
-  border: 4px solid #111;
-  background: #fff;
+.comic-panel-svg {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 4px;
+  vector-effect: non-scaling-stroke;
 }
 
-.comic-text {
-  position: absolute;
-  z-index: 2;
-  border: 0;
-  color: var(--comic-ink);
+.comic-svg-text {
   cursor: grab;
-  white-space: pre-wrap;
-  touch-action: none;
   user-select: none;
+  touch-action: none;
 }
 
-.comic-text:active {
+.comic-svg-text:active {
   cursor: grabbing;
 }
 
-.comic-text.speech {
-  min-width: 64px;
-  min-height: 52px;
-  display: grid;
-  place-items: center;
-  padding: 12px 18px;
-  border: 3px solid #111;
-  border-radius: 999px / 76%;
-  background: #fff;
-  font-family: var(--comic-display);
-  line-height: 1.08;
+.comic-svg-hitbox {
+  fill: transparent;
+  pointer-events: all;
 }
 
-.comic-text.speech::before,
-.comic-text.speech::after {
-  content: "";
-  position: absolute;
+.comic-svg-shape {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-svg-caption-shape {
+  fill: var(--comic-yellow-soft);
+}
+
+.comic-svg-text-content {
+  fill: var(--comic-ink);
+  font-family: var(--comic-display);
   pointer-events: none;
-  clip-path: polygon(0 0, 100% 8%, 40% 100%);
+  white-space: pre;
 }
 
-.comic-text.speech::before {
-  right: 17px;
-  bottom: -17px;
-  width: 25px;
-  height: 21px;
-  background: #111;
-}
-
-.comic-text.speech::after {
-  right: 21px;
-  bottom: -10px;
-  width: 17px;
-  height: 14px;
-  background: #fff;
-}
-
-.comic-text.thought {
-  min-height: 48px;
-  display: grid;
-  place-items: center;
-  padding: 13px 16px;
-  border: 3px solid #111;
-  border-radius: 38px;
-  background: #fff;
-  font-family: var(--comic-display);
-}
-
-.comic-text.thought::before,
-.comic-text.thought::after {
-  content: "";
-  position: absolute;
-  border: 2px solid #111;
-  border-radius: 50%;
-  background: #fff;
-}
-
-.comic-text.thought::before {
-  width: 14px;
-  height: 14px;
-  left: 22px;
-  bottom: -18px;
-}
-
-.comic-text.thought::after {
-  width: 8px;
-  height: 8px;
-  left: 10px;
-  bottom: -30px;
-}
-
-.comic-text.caption {
-  min-height: 38px;
-  display: grid;
-  place-items: center;
-  padding: 9px 12px;
-  border: 3px solid #111;
-  background: var(--comic-yellow-soft);
-  font-family: var(--comic-display);
-}
-
-.comic-text.sfx {
-  min-height: 48px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  color: var(--comic-yellow);
-  font-family: var(--comic-display);
-  text-shadow: 3px 3px 0 #111, -2px -2px 0 #111, 2px -2px 0 #111, -2px 2px 0 #111, 5px 5px 0 var(--comic-red);
+.comic-svg-text-sfx {
+  transform-box: fill-box;
+  transform-origin: center;
   transform: rotate(-9deg);
 }
 
-.comic-text.selected {
-  outline: 3px dashed var(--comic-blue-600);
-  outline-offset: 5px;
+.comic-svg-sfx-text {
+  color: var(--comic-yellow);
+  fill: var(--comic-yellow);
+  stroke: #111;
+  stroke-width: 4px;
+  paint-order: stroke fill;
 }
 
-.comic-handle {
-  position: absolute;
-  z-index: 5;
-  width: 14px;
-  height: 14px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: var(--comic-blue-600);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.comic-svg-selection {
+  fill: transparent;
+  stroke: var(--comic-blue-600);
+  stroke-width: 3px;
+  stroke-dasharray: 8 6;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.comic-svg-handle {
+  fill: var(--comic-blue-600);
+  stroke: #fff;
+  stroke-width: 2px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.24));
+  pointer-events: all;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-svg-handle-resize-nw,
+.comic-svg-handle-resize-se {
   cursor: nwse-resize;
 }
 
-.comic-handle.nw {
-  top: -9px;
-  left: -9px;
-}
-
-.comic-handle.ne {
-  top: -9px;
-  right: -9px;
-}
-
-.comic-handle.sw {
-  bottom: -9px;
-  left: -9px;
-}
-
-.comic-handle.se {
-  right: -9px;
-  bottom: -9px;
+.comic-svg-handle-resize-ne,
+.comic-svg-handle-resize-sw {
+  cursor: nesw-resize;
 }
 
 .comic-books-index {
@@ -979,6 +974,34 @@
   font-weight: 850;
 }
 
+.comic-field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comic-field-label-row span {
+  color: inherit;
+  font: inherit;
+}
+
+.comic-clear-text-button {
+  border: 1px solid var(--comic-line);
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: #fff;
+  color: var(--comic-blue-700);
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.comic-clear-text-button:hover {
+  border-color: var(--comic-blue-600);
+  background: var(--comic-blue-100);
+}
+
 .comic-field textarea,
 .comic-field select,
 .comic-field input {
@@ -1019,6 +1042,14 @@
   font-weight: 900;
 }
 
+.comic-size-options {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.comic-size-options button {
+  text-transform: none;
+}
+
 .comic-empty-note {
   margin: 0;
   color: var(--comic-muted);
@@ -1035,6 +1066,10 @@
   border: 1px solid var(--comic-line);
   border-radius: var(--comic-radius);
   background: #fff;
+}
+
+.comic-print-book {
+  display: none;
 }
 
 .comic-check {
@@ -1121,6 +1156,10 @@
     padding: 12px;
   }
 
+  .comic-toolbar {
+    top: 10px;
+  }
+
   .comic-page-rail-header {
     align-items: stretch;
     flex-direction: column;
@@ -1177,6 +1216,14 @@
     box-shadow: none;
   }
 
+  .comic-editor-wrap {
+    display: none;
+  }
+
+  .comic-print-book {
+    display: block;
+  }
+
   .comic-paper {
     box-sizing: border-box;
     width: var(--comic-paper-width);
@@ -1186,6 +1233,10 @@
     border-radius: 0;
     box-shadow: none;
     break-after: page;
+  }
+
+  .comic-paper:last-child {
+    break-after: auto;
   }
 
   .comic-paper[data-paper-size="letter-landscape"] {

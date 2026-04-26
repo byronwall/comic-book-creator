@@ -2,7 +2,15 @@ import { Trash2 } from "lucide-solid";
 import { For, Show } from "solid-js";
 import type { ComicTextAlign, ComicTextElement } from "~/lib/comics/types";
 
-type TextPatch = Partial<Pick<ComicTextElement, "align" | "fontSize" | "text">>;
+type TextPatch = Partial<Pick<ComicTextElement, "align" | "autoWrap" | "fontSize" | "text">>;
+
+const textSizeOptions = [
+  { label: "S", value: 14 },
+  { label: "M", value: 18 },
+  { label: "L", value: 26 },
+  { label: "XL", value: 36 },
+  { label: "SFX", value: 44 },
+];
 
 export function TextToolsPanel(props: {
   selectedText: ComicTextElement | null;
@@ -16,16 +24,33 @@ export function TextToolsPanel(props: {
         {(text) => (
           <>
             <label class="comic-field">
-              <span>Text</span>
+              <span class="comic-field-label-row">
+                <span>Text</span>
+                <button type="button" class="comic-clear-text-button" onClick={() => props.onUpdateText({ text: "" })}>
+                  Clear text
+                </button>
+              </span>
               <textarea value={text().text} onInput={(event) => props.onUpdateText({ text: event.currentTarget.value })} />
             </label>
             <button type="button" class="comic-btn danger comic-delete-text-button" onClick={props.onDeleteText}>
-              <Trash2 size={18} /> Delete selected text
+              <Trash2 size={18} /> Delete this speech bubble
             </button>
-            <label class="comic-field">
-              <span>Size</span>
-              <input type="range" min="12" max="54" value={text().fontSize} onInput={(event) => props.onUpdateText({ fontSize: Number.parseInt(event.currentTarget.value, 10) })} />
-            </label>
+            <div class="comic-field">
+              <span>Text Size</span>
+              <div class="comic-segmented comic-size-options">
+                <For each={textSizeOptions}>
+                  {(option) => (
+                    <button
+                      type="button"
+                      classList={{ active: text().fontSize === option.value }}
+                      onClick={() => props.onUpdateText({ fontSize: option.value })}
+                    >
+                      {option.label}
+                    </button>
+                  )}
+                </For>
+              </div>
+            </div>
             <div class="comic-field">
               <span>Alignment</span>
               <div class="comic-segmented">
@@ -38,6 +63,14 @@ export function TextToolsPanel(props: {
                 </For>
               </div>
             </div>
+            <label class="comic-check">
+              <input
+                type="checkbox"
+                checked={text().autoWrap !== false}
+                onChange={(event) => props.onUpdateText({ autoWrap: event.currentTarget.checked })}
+              />
+              <span>Wrap text to fit box</span>
+            </label>
           </>
         )}
       </Show>
