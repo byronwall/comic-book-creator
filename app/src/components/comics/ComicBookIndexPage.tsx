@@ -1,9 +1,10 @@
 import { A, revalidate } from "@solidjs/router";
-import { BookOpen, FilePlus2, Home, Trash2 } from "lucide-solid";
+import { BookOpen, FilePlus2, Trash2 } from "lucide-solid";
 import { For, createSignal } from "solid-js";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import { getComicBooks } from "~/lib/comics/data";
 import type { ComicBookSummary } from "~/lib/comics/types";
+import { ComicAppNav } from "./ComicAppNav";
 import { PrintActions } from "./ComicPrintActions";
 import "./comic-creator.css";
 
@@ -42,20 +43,7 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
 
   return (
     <div class="comic-app">
-      <aside class="comic-sidebar" aria-label="App navigation">
-        <div class="comic-logo" aria-label="Comic Book Creator">
-          <span>Comic Book</span>
-          <strong>Creator</strong>
-        </div>
-        <nav class="comic-nav">
-          <A href="/" class="active">
-            <span class="comic-nav-icon">
-              <Home size={21} />
-            </span>
-            Index
-          </A>
-        </nav>
-      </aside>
+      <ComicAppNav />
 
       <main class="comic-main">
         <header class="comic-topbar">

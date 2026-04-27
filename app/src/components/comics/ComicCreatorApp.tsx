@@ -1,8 +1,8 @@
-import { A } from "@solidjs/router";
-import { ArrowLeft, ArrowRight, Check, Eraser, FilePlus2, Home, MessageCircle, Pencil, Sparkles, Trash2, Type } from "lucide-solid";
+import { ArrowLeft, ArrowRight, Check, Eraser, FilePlus2, MessageCircle, Pencil, Sparkles, Trash2, Type } from "lucide-solid";
 import { For, Show, createEffect, createMemo, createSignal, onCleanup, untrack } from "solid-js";
 import type { ComicBook, ComicLayoutKind, ComicPage, ComicPaperSize, ComicTextElement, ComicTextKind } from "~/lib/comics/types";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
+import { ComicAppNav } from "./ComicAppNav";
 import { ComicTitleRenameDialog } from "./ComicTitleRenameDialog";
 import { ComicPaper } from "./ComicPaper";
 import { PrintActions } from "./ComicPrintActions";
@@ -243,20 +243,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
 
   return (
     <div class="comic-app">
-      <aside class="comic-sidebar" aria-label="App navigation">
-        <div class="comic-logo" aria-label="Comic Book Creator">
-          <span>Comic Book</span>
-          <strong>Creator</strong>
-        </div>
-        <nav class="comic-nav">
-          <A href="/" class="active">
-            <span class="comic-nav-icon">
-              <Home size={21} />
-            </span>
-            Index
-          </A>
-        </nav>
-      </aside>
+      <ComicAppNav />
 
       <main class="comic-main">
         <header class="comic-topbar">

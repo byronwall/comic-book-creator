@@ -19,7 +19,7 @@
   --comic-display: "Trebuchet MS", "Arial Black", Impact, sans-serif;
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: 246px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   background:
     radial-gradient(circle at 12px 12px, rgba(255, 255, 255, 0.2) 2px, transparent 2px) 0 0 / 24px 24px,
     linear-gradient(135deg, #0d6ef8 0%, #062c75 100%);
@@ -34,15 +34,18 @@
   font: inherit;
 }
 
-.comic-sidebar {
-  position: relative;
-  overflow: hidden;
-  padding: 22px 14px;
+.comic-app-nav {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 18px;
   color: #fff;
-  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
   background:
     radial-gradient(circle at 18px 18px, rgba(255, 255, 255, 0.16) 2px, transparent 2px) 0 0 / 28px 28px,
-    linear-gradient(180deg, #0575f6 0%, #07398c 55%, #05276a 100%);
+    linear-gradient(90deg, #0575f6 0%, #07398c 55%, #05276a 100%);
 }
 
 .comic-logo {
@@ -92,15 +95,46 @@
   text-shadow: 3px 4px 0 #071538;
 }
 
+.comic-logo.compact {
+  flex: 0 0 auto;
+  margin: 0;
+  width: auto;
+  min-width: 142px;
+  padding: 5px 6px 4px;
+  line-height: 0.82;
+  transform: rotate(-2deg);
+}
+
+.comic-logo.compact::before {
+  inset: 4px -5px auto 4px;
+  height: 54px;
+}
+
+.comic-logo.compact span {
+  max-width: none;
+  font-size: 25px;
+  -webkit-text-stroke-width: 1.3px;
+  text-shadow: 2px 3px 0 #071538;
+}
+
+.comic-logo.compact strong {
+  margin-top: 7px;
+  margin-left: 18px;
+  font-size: 22px;
+  -webkit-text-stroke-width: 1.3px;
+  text-shadow: 2px 3px 0 #071538;
+}
+
 .comic-nav {
-  display: grid;
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
 .comic-nav button,
 .comic-nav a,
 .comic-nav-disabled {
-  width: 100%;
+  width: auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -173,10 +207,10 @@
 
 .comic-main {
   overflow: visible;
-  margin: 18px 18px 18px 0;
-  border-top-left-radius: 18px;
+  margin: 0 18px 18px;
+  border-radius: 0 0 18px 18px;
   background: var(--comic-bg);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.13);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.13);
 }
 
 .comic-topbar {
@@ -1174,23 +1208,11 @@
 }
 
 @media (max-width: 1120px) {
-  .comic-app {
-    grid-template-columns: 1fr;
-  }
-
-  .comic-sidebar {
-    position: static;
-    display: grid;
-    grid-template-columns: 190px minmax(0, 1fr);
-    gap: 12px;
-  }
-
   .comic-sidebar-tip {
     display: none;
   }
 
   .comic-nav {
-    grid-template-columns: minmax(120px, 180px);
     overflow: auto;
   }
 
@@ -1219,6 +1241,12 @@
 }
 
 @media (max-width: 700px) {
+  .comic-app-nav {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .comic-topbar,
   .comic-print-actions,
   .comic-toolbar {
@@ -1226,12 +1254,12 @@
     flex-direction: column;
   }
 
-  .comic-sidebar {
-    grid-template-columns: 1fr;
+  .comic-nav {
+    width: 100%;
   }
 
-  .comic-nav {
-    grid-template-columns: 1fr;
+  .comic-nav a {
+    justify-content: center;
   }
 
   .comic-content {
@@ -1277,6 +1305,7 @@
   }
 
   .comic-sidebar,
+  .comic-app-nav,
   .comic-topbar,
   .comic-page-rail,
   .comic-tools,
