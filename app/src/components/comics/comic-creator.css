@@ -1188,6 +1188,12 @@
   display: none;
 }
 
+.comic-print-sheet,
+.comic-print-slot,
+.comic-print-blank {
+  display: none;
+}
+
 .comic-check {
   display: flex;
   align-items: flex-start;
@@ -1290,18 +1296,17 @@
 
 @media print {
   @page {
-    size: letter portrait;
-    margin: 0;
-  }
-
-  @page comic-letter-landscape {
     size: letter landscape;
     margin: 0;
   }
 
   html,
   body {
+    width: 11in;
+    height: auto;
+    margin: 0;
     background: #fff;
+    overflow: visible;
   }
 
   .comic-sidebar,
@@ -1321,6 +1326,9 @@
   .comic-workspace,
   .comic-editor-wrap {
     display: block;
+    width: 11in;
+    min-height: 0;
+    height: auto;
     margin: 0;
     padding: 0;
     background: #fff;
@@ -1333,6 +1341,40 @@
 
   .comic-print-book {
     display: block;
+    width: 11in;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .comic-print-sheet {
+    box-sizing: border-box;
+    width: 11in;
+    height: 8.5in;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    background: #fff;
+    overflow: hidden;
+    break-after: auto;
+  }
+
+  .comic-print-sheet + .comic-print-sheet {
+    break-before: page;
+  }
+
+  .comic-print-slot {
+    min-width: 0;
+    min-height: 0;
+    display: block;
+  }
+
+  .comic-print-blank {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #fff;
   }
 
   .comic-paper {
@@ -1346,11 +1388,15 @@
     break-after: page;
   }
 
-  .comic-paper:last-child {
+  .comic-print-slot .comic-paper {
+    width: 100%;
+    height: 100%;
+    padding: 0.35in;
+    page: auto;
     break-after: auto;
   }
 
-  .comic-paper[data-paper-size="letter-landscape"] {
-    page: comic-letter-landscape;
+  .comic-paper:last-child {
+    break-after: auto;
   }
 }
