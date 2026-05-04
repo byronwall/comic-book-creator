@@ -2,7 +2,7 @@ import { Printer } from "lucide-solid";
 import { For, Show, createSignal } from "solid-js";
 import type { ComicPage } from "~/lib/comics/types";
 import { ComicPaper } from "./ComicPaper";
-import { buildComicPrintSheets } from "./comic-print-imposition";
+import { type ComicPrintArrangement, buildComicPrintSheets } from "./comic-print-imposition";
 
 type PrintMode = "active" | "all";
 
@@ -10,7 +10,8 @@ export function PrintActions(props: { activePage?: ComicPage; pages?: ComicPage[
   const pages = () => props.pages ?? [];
   const activePage = () => props.activePage ?? pages()[0];
   const printPages = () => (printMode() === "all" ? pages() : activePage() ? [activePage() as ComicPage] : []);
-  const printSheets = () => buildComicPrintSheets(printPages(), "two-up-consecutive");
+  const printArrangement = (): ComicPrintArrangement => (printMode() === "all" ? "booklet" : "two-up-consecutive");
+  const printSheets = () => buildComicPrintSheets(printPages(), printArrangement());
   const [printMode, setPrintMode] = createSignal<PrintMode>("active");
 
   function print(mode: PrintMode) {
@@ -34,7 +35,7 @@ export function PrintActions(props: { activePage?: ComicPage; pages?: ComicPage[
         <div class="comic-print-book" aria-hidden="true">
           <For each={printSheets()}>
             {(sheet) => (
-              <section class="comic-print-sheet" data-print-arrangement="two-up-consecutive">
+              <section class="comic-print-sheet" data-print-arrangement={printArrangement()}>
                 <For each={sheet.slots}>
                   {(slot) => (
                     <div class="comic-print-slot">

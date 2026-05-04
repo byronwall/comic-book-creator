@@ -196,6 +196,13 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
     });
   }
 
+  function setPageCover(pageId: string, cover: boolean) {
+    setBook((current) => ({
+      ...current,
+      pages: current.pages.map((page) => (page.id === pageId ? { ...page, cover } : page)),
+    }));
+  }
+
   function clearText() {
     updateActivePage((page) => ({ ...page, texts: [], status: "Blank" }));
     setSelectedTextId("");
@@ -313,6 +320,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
             onAddPage={addPage}
             onMoveActivePage={moveActivePage}
             onRequestDelete={setDeletePageId}
+            onSetPageCover={setPageCover}
           />
 
           <TemplatePicker
@@ -376,6 +384,7 @@ function PageRail(props: {
   onAddPage: () => void;
   onMoveActivePage: (direction: -1 | 1) => void;
   onRequestDelete: (pageId: string) => void;
+  onSetPageCover: (pageId: string, cover: boolean) => void;
 }) {
   const canDelete = () => props.book.pages.length > 1;
   const activeIndex = createMemo(() => props.book.pages.findIndex((page) => page.id === props.activePageId));
@@ -399,6 +408,16 @@ function PageRail(props: {
         <For each={props.book.pages}>
           {(page, index) => (
             <div class="comic-thumb-item" classList={{ active: props.activePageId === page.id }}>
+              <Show when={index() === 0 || index() === props.book.pages.length - 1}>
+                <label class="comic-thumb-cover-mark">
+                  <input
+                    type="checkbox"
+                    checked={page.cover === true}
+                    onChange={(event) => props.onSetPageCover(page.id, event.currentTarget.checked)}
+                  />
+                  <span>Cover</span>
+                </label>
+              </Show>
               <button
                 type="button"
                 class="comic-thumb-select"

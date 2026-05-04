@@ -190,6 +190,7 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
   return {
     id: cleanText(page.id) || `page-${pageIndex + 1}`,
     title: cleanText(page.title) || `Page ${pageIndex + 1}`,
+    cover: page.cover === true || (page.cover === undefined && isLegacyCoverPage(page)),
     status,
     layout,
     paperSize: normalizePaperSize(page.paperSize),
@@ -226,6 +227,15 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
       };
     }),
   };
+}
+
+function isLegacyCoverPage(page: ComicBook["pages"][number]) {
+  const marker = `${page.title ?? ""} ${page.id ?? ""}`
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return marker.includes("cover");
 }
 
 function normalizeTemplateGrid(grid: ComicTemplateGrid | undefined): ComicTemplateGrid | undefined {

@@ -44,20 +44,41 @@ function orderPagesForArrangement(pages: ComicPage[], arrangement: ComicPrintArr
 }
 
 function orderPagesForBooklet(pages: ComicPage[]) {
-  const paddedPages: Array<ComicPage | undefined> = [...pages];
-  while (paddedPages.length % 4 !== 0) {
-    paddedPages.push(undefined);
+  const frontCover = pages[0]?.cover ? pages[0] : pages.find(isFrontCoverPage) ?? pages[0];
+  if (!frontCover) {
+    return [];
   }
 
-  const orderedPages: Array<ComicPage | undefined> = [];
-  for (let left = 0, right = paddedPages.length - 1; left < right; left += 2, right -= 2) {
-    const outsideLeft = paddedPages[right];
-    const outsideRight = paddedPages[left];
-    const insideLeft = paddedPages[left + 1];
-    const insideRight = paddedPages[right - 1];
+  const lastPage = pages[pages.length - 1];
+  const endCover = lastPage?.cover && lastPage.id !== frontCover.id ? lastPage : [...pages].reverse().find(isEndCoverPage);
+  const contentPages = pages.filter((page) => page.id !== frontCover.id && page.id !== endCover?.id);
+  const orderedPages: Array<ComicPage | undefined> = [endCover, frontCover, undefined, undefined];
 
-    orderedPages.push(outsideLeft, outsideRight, insideLeft, insideRight);
+  for (const [pageIndex, page] of contentPages.entries()) {
+    const slotIndex = pageIndex === 0 ? 2 : 4 * Math.ceil(pageIndex / slotsPerSheet) + (pageIndex % slotsPerSheet === 1 ? 1 : 2);
+    while (orderedPages.length <= slotIndex) {
+      orderedPages.push(undefined);
+    }
+    orderedPages[slotIndex] = page;
+  }
+
+  while (orderedPages.length % 4 !== 0) {
+    orderedPages.push(undefined);
   }
 
   return orderedPages;
+}
+
+function isFrontCoverPage(page: ComicPage) {
+  const marker = getPageMarker(page);
+  return !isEndCoverPage(page) && (marker.includes("front-cover") || marker.includes("cover"));
+}
+
+function isEndCoverPage(page: ComicPage) {
+  const marker = getPageMarker(page);
+  return marker.includes("end-cover") || marker.includes("back-cover");
+}
+
+function getPageMarker(page: ComicPage) {
+  return `${page.title} ${page.id}`.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }

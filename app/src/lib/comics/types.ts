@@ -50,6 +50,7 @@ export interface ComicTemplateGrid {
 export interface ComicPage {
   id: string;
   title: string;
+  cover?: boolean;
   status: "Blank" | "Draft" | "Ready";
   layout: ComicLayoutKind;
   paperSize?: ComicPaperSize;
