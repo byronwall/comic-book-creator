@@ -424,6 +424,7 @@ function PageRail(props: {
                 aria-label={`Select page ${index() + 1}`}
                 onClick={() => props.onSelect(page.id)}
               >
+                <span class="comic-thumb-page-number">{index() + 1}</span>
                 <TemplatePreview
                   layout={page.layout}
                   paperSize={page.paperSize ?? defaultPaperSize}
@@ -431,7 +432,6 @@ function PageRail(props: {
                   texts={page.texts}
                   class="comic-mini-page"
                 />
-                <span class="comic-thumb-page-number">{index() + 1}</span>
               </button>
               <Show when={props.activePageId === page.id}>
                 <div class="comic-thumb-move-controls" aria-label={`Move ${page.title}`}>
@@ -455,18 +455,19 @@ function PageRail(props: {
                   >
                     <ArrowRight size={15} />
                   </button>
+                  <span class="comic-thumb-control-divider" aria-hidden="true" />
+                  <button
+                    type="button"
+                    class="comic-thumb-delete"
+                    aria-label={`Delete ${page.title}`}
+                    title={canDelete() ? `Delete ${page.title}` : "A book needs at least one page"}
+                    disabled={!canDelete()}
+                    onClick={() => props.onRequestDelete(page.id)}
+                  >
+                    <Trash2 size={15} />
+                  </button>
                 </div>
               </Show>
-              <button
-                type="button"
-                class="comic-thumb-delete"
-                aria-label={`Delete ${page.title}`}
-                title={canDelete() ? `Delete ${page.title}` : "A book needs at least one page"}
-                disabled={!canDelete()}
-                onClick={() => props.onRequestDelete(page.id)}
-              >
-                <Trash2 size={16} />
-              </button>
             </div>
           )}
         </For>
