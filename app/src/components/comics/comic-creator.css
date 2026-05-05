@@ -20,6 +20,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  overflow-x: clip;
   background:
     radial-gradient(circle at 12px 12px, rgba(255, 255, 255, 0.2) 2px, transparent 2px) 0 0 / 24px 24px,
     linear-gradient(135deg, #0d6ef8 0%, #062c75 100%);
@@ -299,10 +300,14 @@
 
 .comic-content {
   display: grid;
-  grid-template-columns: 250px minmax(520px, 1fr) 280px;
+  grid-template-columns: 288px minmax(520px, 1fr) 280px;
   gap: 20px;
   align-items: start;
   padding: 24px;
+}
+
+.comic-content > * {
+  min-width: 0;
 }
 
 .comic-card {
@@ -591,13 +596,12 @@
 }
 
 .comic-template-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 .comic-template-button {
-  flex: 0 0 118px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1258,7 +1262,7 @@
   line-height: 1.4;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1180px) {
   .comic-sidebar-tip {
     display: none;
   }
@@ -1274,6 +1278,10 @@
 
   .comic-content {
     grid-template-columns: 1fr;
+  }
+
+  .comic-template-grid {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   }
 
   .comic-page-rail {
