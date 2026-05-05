@@ -1,0 +1,76 @@
+{
+  "artifact_version": 1,
+  "artifacts": [
+    {
+      "agent_load": "full",
+      "bytes": 286,
+      "name": "manifest",
+      "path": "manifest.json",
+      "read_order": 1
+    },
+    {
+      "agent_load": "full",
+      "bytes": 7312,
+      "name": "report",
+      "path": "report.md",
+      "read_order": 1
+    },
+    {
+      "agent_load": "full",
+      "bytes": 8840,
+      "name": "findings_top",
+      "path": "findings.top.json",
+      "read_order": 2
+    },
+    {
+      "agent_load": "full",
+      "bytes": 2401,
+      "name": "action_plan",
+      "path": "action-plan.md",
+      "read_order": 3
+    },
+    {
+      "agent_load": "full",
+      "bytes": 19059,
+      "name": "tree_summary",
+      "path": "tree.summary.json",
+      "read_order": 4
+    },
+    {
+      "agent_load": "top_n",
+      "bytes": 44265,
+      "name": "findings",
+      "path": "findings.json",
+      "read_order": 5
+    },
+    {
+      "agent_load": "top_n",
+      "bytes": 53398,
+      "name": "hotspots",
+      "path": "hotspots.json",
+      "read_order": 6
+    },
+    {
+      "agent_load": "reference",
+      "bytes": 6106,
+      "name": "metrics_schema",
+      "path": "metrics.schema.json",
+      "read_order": 7
+    },
+    {
+      "agent_load": "reference",
+      "bytes": 1521,
+      "name": "agent_skill",
+      "path": "agent-skill.md",
+      "read_order": 10
+    }
+  ],
+  "cache_used": false,
+  "generated_at": "2026-05-04T12:40:49.023456+00:00",
+  "profiles": [
+    "general"
+  ],
+  "repo_root_path": "/Users/byronwall/Projects/comic-books",
+  "root_path": "/Users/byronwall/Projects/comic-books",
+  "srcly_version": "0.1.32"
+}

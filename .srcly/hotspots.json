@@ -1,0 +1,2123 @@
+{
+  "rankings": [
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 1.0,
+          "value": 24,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 1.0,
+          "value": 5,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0501,
+          "value": 107,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 147,
+      "metrics": {
+        "complexity": 24,
+        "loc": 107,
+        "max_nesting_depth": 5,
+        "parameter_count": 2
+      },
+      "name": "parseMarkdownHeadingSections",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/projects/context-node-markdown.ts::parseMarkdownHeadingSections",
+      "path_priority": "neutral",
+      "rank": 1,
+      "raw_score": 0.611,
+      "reason": "High complexity 24, 107 LOC, nesting depth 5",
+      "score": 0.611,
+      "start_line": 41
+    },
+    {
+      "drivers": [
+        {
+          "metric": "loc",
+          "normalized": 0.59,
+          "value": 1259,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "loc": 1259
+      },
+      "name": "comic-creator.css",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comics/comic-creator.css",
+      "path_priority": "neutral",
+      "rank": 2,
+      "raw_score": 0.59,
+      "reason": "High 1259 LOC",
+      "score": 0.59,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "loc",
+          "normalized": 0.5253,
+          "value": 1121,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 2245,
+      "metrics": {
+        "loc": 1121
+      },
+      "name": "<VStack>",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx::DesignSystemOverview::<VStack>",
+      "path_priority": "neutral",
+      "rank": 3,
+      "raw_score": 0.5253,
+      "reason": "High 1121 LOC",
+      "score": 0.5253,
+      "start_line": 1125
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 1.0,
+          "value": 24,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0853,
+          "value": 182,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 468,
+      "metrics": {
+        "complexity": 24,
+        "loc": 182,
+        "max_nesting_depth": 3,
+        "parameter_count": 1
+      },
+      "name": "getPanelRects",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/comics/data.server.ts::getPanelRects",
+      "path_priority": "neutral",
+      "rank": 4,
+      "raw_score": 0.5237,
+      "reason": "High complexity 24, 182 LOC, nesting depth 3",
+      "score": 0.5237,
+      "start_line": 287
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 1.0,
+          "value": 24,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0848,
+          "value": 181,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 217,
+      "metrics": {
+        "complexity": 24,
+        "loc": 181,
+        "max_nesting_depth": 3,
+        "parameter_count": 1
+      },
+      "name": "getPanelRects",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comics/comic-layouts.ts::getPanelRects",
+      "path_priority": "neutral",
+      "rank": 5,
+      "raw_score": 0.5235,
+      "reason": "High complexity 24, 181 LOC, nesting depth 3",
+      "score": 0.5235,
+      "start_line": 37
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.9583,
+          "value": 23,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0478,
+          "value": 102,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 447,
+      "metrics": {
+        "complexity": 23,
+        "loc": 102,
+        "max_nesting_depth": 3,
+        "parameter_count": 3
+      },
+      "name": "stepLayout",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::stepLayout",
+      "path_priority": "neutral",
+      "rank": 6,
+      "raw_score": 0.5016,
+      "reason": "High complexity 23, 102 LOC, nesting depth 3",
+      "score": 0.5016,
+      "start_line": 346
+    },
+    {
+      "drivers": [
+        {
+          "metric": "loc",
+          "normalized": 0.7873,
+          "value": 1680,
+          "weight": 1.1
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 2247,
+      "metrics": {
+        "complexity": 9,
+        "loc": 1680,
+        "max_nesting_depth": 3,
+        "parameter_count": 1
+      },
+      "name": "DesignSystemOverview",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx::DesignSystemOverview",
+      "path_priority": "neutral",
+      "rank": 7,
+      "raw_score": 0.4843,
+      "reason": "High complexity 9, 1680 LOC, nesting depth 3",
+      "score": 0.4843,
+      "start_line": 568
+    },
+    {
+      "drivers": [
+        {
+          "metric": "loc",
+          "normalized": 1.0,
+          "value": 2134,
+          "weight": 1.1
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "tsx_render_branching_count",
+          "normalized": 0.6364,
+          "value": 14,
+          "weight": 0.9
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.3364,
+          "value": 36,
+          "weight": 0.6
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.0897,
+          "value": 2.1538,
+          "weight": 1.5
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 2.1538,
+        "loc": 2134,
+        "max_nesting_depth": 3,
+        "parameter_count": 36,
+        "ts_import_coupling_count": 9,
+        "tsx_render_branching_count": 14
+      },
+      "name": "DesignSystemOverview.tsx",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx",
+      "path_priority": "neutral",
+      "rank": 8,
+      "raw_score": 0.4613,
+      "reason": "High complexity 2.15385, 2134 LOC, nesting depth 3",
+      "score": 0.4613,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.9167,
+          "value": 22,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0328,
+          "value": 70,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 230,
+      "metrics": {
+        "complexity": 22,
+        "loc": 70,
+        "parameter_count": 2
+      },
+      "name": "normalizePage",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/comics/data.server.ts::normalizePage",
+      "path_priority": "neutral",
+      "rank": 9,
+      "raw_score": 0.4445,
+      "reason": "High complexity 22, 70 LOC",
+      "score": 0.4445,
+      "start_line": 161
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.8,
+          "value": 4,
+          "weight": 1.0
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 1.0,
+          "value": 107,
+          "weight": 0.6
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.4564,
+          "value": 974,
+          "weight": 1.1
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1637,
+          "value": 3.9286,
+          "weight": 1.5
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.0312,
+          "value": 2,
+          "weight": 0.8
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 3.9286,
+        "loc": 974,
+        "max_nesting_depth": 4,
+        "parameter_count": 107,
+        "ts_import_coupling_count": 2
+      },
+      "name": "layout.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts",
+      "path_priority": "neutral",
+      "rank": 10,
+      "raw_score": 0.4345,
+      "reason": "High complexity 3.92857, 974 LOC, nesting depth 4",
+      "score": 0.4345,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.9167,
+          "value": 22,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0239,
+          "value": 51,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 206,
+      "metrics": {
+        "complexity": 22,
+        "loc": 51,
+        "max_nesting_depth": 2,
+        "parameter_count": 3
+      },
+      "name": "parseNodeMetadata",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/validate.ts::parseNodeMetadata",
+      "path_priority": "neutral",
+      "rank": 11,
+      "raw_score": 0.4329,
+      "reason": "High complexity 22, 51 LOC, nesting depth 2",
+      "score": 0.4329,
+      "start_line": 156
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.8333,
+          "value": 20,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0347,
+          "value": 74,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 321,
+      "metrics": {
+        "complexity": 20,
+        "loc": 74,
+        "max_nesting_depth": 2,
+        "parameter_count": 3
+      },
+      "name": "serializeJsonValue",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/llm-logging/logger.server.ts::serializeJsonValue",
+      "path_priority": "neutral",
+      "rank": 12,
+      "raw_score": 0.4059,
+      "reason": "High complexity 20, 74 LOC, nesting depth 2",
+      "score": 0.4059,
+      "start_line": 248
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.9167,
+          "value": 22,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.2,
+          "value": 1,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0351,
+          "value": 75,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 105,
+      "metrics": {
+        "complexity": 22,
+        "loc": 75,
+        "max_nesting_depth": 1,
+        "parameter_count": 2
+      },
+      "name": "parseMapNode",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/validate.ts::parseMapNode",
+      "path_priority": "neutral",
+      "rank": 13,
+      "raw_score": 0.3869,
+      "reason": "High complexity 22, 75 LOC, nesting depth 1",
+      "score": 0.3869,
+      "start_line": 31
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.8,
+          "value": 4,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0467,
+          "value": 5,
+          "weight": 0.6
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0197,
+          "value": 42,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 1008,
+      "metrics": {
+        "complexity": 9,
+        "loc": 42,
+        "max_nesting_depth": 4,
+        "parameter_count": 5
+      },
+      "name": "findNearestOpenPositionFromTarget",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::findNearestOpenPositionFromTarget",
+      "path_priority": "neutral",
+      "rank": 14,
+      "raw_score": 0.3362,
+      "reason": "High complexity 9, 42 LOC, nesting depth 4",
+      "score": 0.3362,
+      "start_line": 967
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.5,
+          "value": 12,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0455,
+          "value": 97,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 609,
+      "metrics": {
+        "complexity": 12,
+        "loc": 97,
+        "max_nesting_depth": 3,
+        "parameter_count": 2
+      },
+      "name": "runAcceptancePhase",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/source-decomposition/service.ts::runAcceptancePhase",
+      "path_priority": "neutral",
+      "rank": 15,
+      "raw_score": 0.336,
+      "reason": "High complexity 12, 97 LOC, nesting depth 3",
+      "score": 0.336,
+      "start_line": 513
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.6667,
+          "value": 16,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.2,
+          "value": 1,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.008,
+          "value": 17,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 111,
+      "metrics": {
+        "complexity": 16,
+        "loc": 17,
+        "max_nesting_depth": 1
+      },
+      "name": "fileExtension",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/markdown-renderer/markdown-code-block.tsx::MarkdownCodeBlock::fileExtension",
+      "path_priority": "neutral",
+      "rank": 16,
+      "raw_score": 0.3358,
+      "reason": "High complexity 16, 17 LOC, nesting depth 1",
+      "score": 0.3358,
+      "start_line": 95
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.8,
+          "value": 4,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0216,
+          "value": 46,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 1136,
+      "metrics": {
+        "complexity": 9,
+        "loc": 46,
+        "max_nesting_depth": 4,
+        "parameter_count": 3
+      },
+      "name": "findNearestOpenPosition",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::findNearestOpenPosition",
+      "path_priority": "neutral",
+      "rank": 17,
+      "raw_score": 0.3341,
+      "reason": "High complexity 9, 46 LOC, nesting depth 4",
+      "score": 0.3341,
+      "start_line": 1091
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.5,
+          "value": 12,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.022,
+          "value": 47,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 323,
+      "metrics": {
+        "complexity": 12,
+        "loc": 47,
+        "max_nesting_depth": 3,
+        "parameter_count": 2
+      },
+      "name": "getIsolationContinuitySet",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::getIsolationContinuitySet",
+      "path_priority": "neutral",
+      "rank": 18,
+      "raw_score": 0.3299,
+      "reason": "High complexity 12, 47 LOC, nesting depth 3",
+      "score": 0.3299,
+      "start_line": 277
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 1.0,
+          "value": 5,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1786,
+          "value": 4.2857,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0614,
+          "value": 131,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0561,
+          "value": 6,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 4.2857,
+        "loc": 131,
+        "max_nesting_depth": 5,
+        "parameter_count": 6
+      },
+      "name": "context-node-markdown.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/projects/context-node-markdown.ts",
+      "path_priority": "neutral",
+      "rank": 19,
+      "raw_score": 0.326,
+      "reason": "High complexity 4.28571, 131 LOC, nesting depth 5",
+      "score": 0.326,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.7083,
+          "value": 17,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.2,
+          "value": 1,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0206,
+          "value": 44,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 158,
+      "metrics": {
+        "complexity": 17,
+        "loc": 44,
+        "max_nesting_depth": 1,
+        "parameter_count": 3
+      },
+      "name": "normalizeForJson",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/console-log-capture/consoleLogCapture.store.ts::normalizeForJson",
+      "path_priority": "neutral",
+      "rank": 20,
+      "raw_score": 0.31,
+      "reason": "High complexity 17, 44 LOC, nesting depth 1",
+      "score": 0.31,
+      "start_line": 115
+    },
+    {
+      "drivers": [
+        {
+          "metric": "todo_count",
+          "normalized": 1.0,
+          "value": 2,
+          "weight": 0.9
+        },
+        {
+          "metric": "ts_any_usage_count",
+          "normalized": 0.6667,
+          "value": 2,
+          "weight": 0.8
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0412,
+          "value": 88,
+          "weight": 1.1
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.0278,
+          "value": 0.6667,
+          "weight": 1.5
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.0312,
+          "value": 2,
+          "weight": 0.8
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 0.6667,
+        "loc": 88,
+        "todo_count": 2,
+        "ts_any_usage_count": 2,
+        "ts_import_coupling_count": 2
+      },
+      "name": "markdown-table-components.tsx",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/markdown-renderer/markdown-table-components.tsx",
+      "path_priority": "neutral",
+      "rank": 21,
+      "raw_score": 0.303,
+      "reason": "High complexity 0.666667, 88 LOC, 2 TODOs",
+      "score": 0.303,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.4167,
+          "value": 10,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0155,
+          "value": 33,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 240,
+      "metrics": {
+        "complexity": 10,
+        "loc": 33,
+        "max_nesting_depth": 3,
+        "parameter_count": 2
+      },
+      "name": "wouldOverlapWithCandidateMoves",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/border-alignment.ts::wouldOverlapWithCandidateMoves",
+      "path_priority": "neutral",
+      "rank": 22,
+      "raw_score": 0.2984,
+      "reason": "High complexity 10, 33 LOC, nesting depth 3",
+      "score": 0.2984,
+      "start_line": 208
+    },
+    {
+      "drivers": [
+        {
+          "metric": "ts_any_usage_count",
+          "normalized": 1.0,
+          "value": 3,
+          "weight": 0.8
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1364,
+          "value": 3.2727,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.1139,
+          "value": 243,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.1869,
+          "value": 20,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 3.2727,
+        "loc": 243,
+        "max_nesting_depth": 2,
+        "parameter_count": 20,
+        "ts_any_usage_count": 3,
+        "ts_import_coupling_count": 1
+      },
+      "name": "consoleLogCapture.store.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/console-log-capture/consoleLogCapture.store.ts",
+      "path_priority": "neutral",
+      "rank": 23,
+      "raw_score": 0.2853,
+      "reason": "High complexity 3.27273, 243 LOC, nesting depth 2",
+      "score": 0.2853,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "todo_count",
+          "normalized": 1.0,
+          "value": 2,
+          "weight": 0.9
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.0417,
+          "value": 1,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0323,
+          "value": 69,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 90,
+      "metrics": {
+        "complexity": 1,
+        "loc": 69,
+        "todo_count": 2
+      },
+      "name": "object",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/markdown-renderer/markdown-table-components.tsx::object",
+      "path_priority": "neutral",
+      "rank": 24,
+      "raw_score": 0.2852,
+      "reason": "High complexity 1, 69 LOC, 2 TODOs",
+      "score": 0.2852,
+      "start_line": 22
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.5,
+          "value": 12,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0216,
+          "value": 46,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0374,
+          "value": 4,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 134,
+      "metrics": {
+        "complexity": 12,
+        "loc": 46,
+        "max_nesting_depth": 2,
+        "parameter_count": 4
+      },
+      "name": "getClosestBorderAlignment",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/border-alignment.ts::getClosestBorderAlignment",
+      "path_priority": "neutral",
+      "rank": 25,
+      "raw_score": 0.2848,
+      "reason": "High complexity 12, 46 LOC, nesting depth 2",
+      "score": 0.2848,
+      "start_line": 89
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.5,
+          "value": 12,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0239,
+          "value": 51,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 203,
+      "metrics": {
+        "complexity": 12,
+        "loc": 51,
+        "max_nesting_depth": 2,
+        "parameter_count": 1
+      },
+      "name": "updateDrag",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comics/ComicPaper.tsx::ComicPaper::updateDrag",
+      "path_priority": "neutral",
+      "rank": 26,
+      "raw_score": 0.2814,
+      "reason": "High complexity 12, 51 LOC, nesting depth 2",
+      "score": 0.2814,
+      "start_line": 153
+    },
+    {
+      "drivers": [
+        {
+          "metric": "tsx_render_branching_count",
+          "normalized": 1.0,
+          "value": 22,
+          "weight": 0.9
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.2174,
+          "value": 464,
+          "weight": 1.1
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1354,
+          "value": 3.25,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.2,
+          "value": 1,
+          "weight": 1.0
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.1094,
+          "value": 7,
+          "weight": 0.8
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 3.25,
+        "loc": 464,
+        "max_nesting_depth": 1,
+        "parameter_count": 3,
+        "ts_import_coupling_count": 7,
+        "tsx_render_branching_count": 22
+      },
+      "name": "RecipeExplorerPanel.tsx",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/RecipeExplorerPanel.tsx",
+      "path_priority": "neutral",
+      "rank": 27,
+      "raw_score": 0.2791,
+      "reason": "High complexity 3.25, 464 LOC, nesting depth 1",
+      "score": 0.2791,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.2474,
+          "value": 528,
+          "weight": 1.1
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1488,
+          "value": 3.5714,
+          "weight": 1.5
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.3551,
+          "value": 38,
+          "weight": 0.6
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.0781,
+          "value": 5,
+          "weight": 0.8
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 3.5714,
+        "loc": 528,
+        "max_nesting_depth": 3,
+        "parameter_count": 38,
+        "ts_import_coupling_count": 5
+      },
+      "name": "data.server.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/comics/data.server.ts",
+      "path_priority": "neutral",
+      "rank": 28,
+      "raw_score": 0.2742,
+      "reason": "High complexity 3.57143, 528 LOC, nesting depth 3",
+      "score": 0.2742,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.2643,
+          "value": 564,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.3084,
+          "value": 33,
+          "weight": 0.6
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.1875,
+          "value": 12,
+          "weight": 0.8
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.0962,
+          "value": 2.3077,
+          "weight": 1.5
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 2.3077,
+        "loc": 564,
+        "max_nesting_depth": 3,
+        "parameter_count": 33,
+        "ts_import_coupling_count": 12
+      },
+      "name": "service.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/source-decomposition/service.ts",
+      "path_priority": "neutral",
+      "rank": 29,
+      "raw_score": 0.274,
+      "reason": "High complexity 2.30769, 564 LOC, nesting depth 3",
+      "score": 0.274,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "loc",
+          "normalized": 0.3852,
+          "value": 822,
+          "weight": 1.1
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.4112,
+          "value": 44,
+          "weight": 0.6
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.1875,
+          "value": 12,
+          "weight": 0.8
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.0923,
+          "value": 2.2157,
+          "weight": 1.5
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 2.2157,
+        "loc": 822,
+        "max_nesting_depth": 2,
+        "parameter_count": 44,
+        "ts_import_coupling_count": 12
+      },
+      "name": "data.server.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/projects/data.server.ts",
+      "path_priority": "neutral",
+      "rank": 30,
+      "raw_score": 0.2718,
+      "reason": "High complexity 2.21569, 822 LOC, nesting depth 2",
+      "score": 0.2718,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.3333,
+          "value": 8,
+          "weight": 1.5
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0141,
+          "value": 30,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 247,
+      "metrics": {
+        "complexity": 8,
+        "loc": 30,
+        "max_nesting_depth": 3,
+        "parameter_count": 3
+      },
+      "name": "getRelatedSet",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::getRelatedSet",
+      "path_priority": "neutral",
+      "rank": 31,
+      "raw_score": 0.2696,
+      "reason": "High complexity 8, 30 LOC, nesting depth 3",
+      "score": 0.2696,
+      "start_line": 218
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.3333,
+          "value": 8,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0178,
+          "value": 38,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 56,
+      "metrics": {
+        "complexity": 8,
+        "loc": 38,
+        "max_nesting_depth": 3,
+        "parameter_count": 2
+      },
+      "name": "alignLayoutBorders",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/border-alignment.ts::alignLayoutBorders",
+      "path_priority": "neutral",
+      "rank": 32,
+      "raw_score": 0.2692,
+      "reason": "High complexity 8, 38 LOC, nesting depth 3",
+      "score": 0.2692,
+      "start_line": 19
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.4583,
+          "value": 11,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0117,
+          "value": 25,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 70,
+      "metrics": {
+        "complexity": 11,
+        "loc": 25,
+        "max_nesting_depth": 2,
+        "parameter_count": 1
+      },
+      "name": "orderPagesForBooklet",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comics/comic-print-imposition.ts::orderPagesForBooklet",
+      "path_priority": "neutral",
+      "rank": 33,
+      "raw_score": 0.2633,
+      "reason": "High complexity 11, 25 LOC, nesting depth 2",
+      "score": 0.2633,
+      "start_line": 46
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.4167,
+          "value": 10,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.2137,
+          "value": 456,
+          "weight": 1.1
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.2,
+          "value": 1,
+          "weight": 1.0
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 489,
+      "metrics": {
+        "complexity": 10,
+        "loc": 456,
+        "max_nesting_depth": 1,
+        "parameter_count": 1
+      },
+      "name": "RecipeExplorerPanel",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/RecipeExplorerPanel.tsx::RecipeExplorerPanel",
+      "path_priority": "neutral",
+      "rank": 34,
+      "raw_score": 0.2537,
+      "reason": "High complexity 10, 456 LOC, nesting depth 1",
+      "score": 0.2537,
+      "start_line": 34
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.2917,
+          "value": 7,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0127,
+          "value": 27,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 275,
+      "metrics": {
+        "complexity": 7,
+        "loc": 27,
+        "max_nesting_depth": 3,
+        "parameter_count": 2
+      },
+      "name": "getDescendantSet",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::getDescendantSet",
+      "path_priority": "neutral",
+      "rank": 35,
+      "raw_score": 0.253,
+      "reason": "High complexity 7, 27 LOC, nesting depth 3",
+      "score": 0.253,
+      "start_line": 249
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.4167,
+          "value": 10,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0089,
+          "value": 19,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 113,
+      "metrics": {
+        "complexity": 10,
+        "loc": 19,
+        "max_nesting_depth": 2,
+        "parameter_count": 2
+      },
+      "name": "formatValue",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/console-log-capture/consoleLogCapture.store.ts::formatValue",
+      "path_priority": "neutral",
+      "rank": 36,
+      "raw_score": 0.249,
+      "reason": "High complexity 10, 19 LOC, nesting depth 2",
+      "score": 0.249,
+      "start_line": 95
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.3196,
+          "value": 682,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.3458,
+          "value": 37,
+          "weight": 0.6
+        },
+        {
+          "metric": "ts_import_coupling_count",
+          "normalized": 0.1875,
+          "value": 12,
+          "weight": 0.8
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.087,
+          "value": 2.0882,
+          "weight": 1.5
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "complexity": 2.0882,
+        "loc": 682,
+        "max_nesting_depth": 2,
+        "parameter_count": 37,
+        "ts_import_coupling_count": 12
+      },
+      "name": "service.ts",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/context-note-conversion/service.ts",
+      "path_priority": "neutral",
+      "rank": 37,
+      "raw_score": 0.2479,
+      "reason": "High complexity 2.08824, 682 LOC, nesting depth 2",
+      "score": 0.2479,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.037,
+          "value": 79,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0561,
+          "value": 6,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 887,
+      "metrics": {
+        "complexity": 9,
+        "loc": 79,
+        "max_nesting_depth": 2,
+        "parameter_count": 6
+      },
+      "name": "findBestPackedPosition",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::findBestPackedPosition",
+      "path_priority": "neutral",
+      "rank": 38,
+      "raw_score": 0.2469,
+      "reason": "High complexity 9, 79 LOC, nesting depth 2",
+      "score": 0.2469,
+      "start_line": 809
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.4167,
+          "value": 10,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0061,
+          "value": 13,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 231,
+      "metrics": {
+        "complexity": 10,
+        "loc": 13
+      },
+      "name": "object",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/llm-logging/logger.server.ts::parseSessionArtifact::object",
+      "path_priority": "neutral",
+      "rank": 39,
+      "raw_score": 0.243,
+      "reason": "High complexity 10, 13 LOC",
+      "score": 0.243,
+      "start_line": 219
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.5,
+          "value": 12,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0145,
+          "value": 31,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0187,
+          "value": 2,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 228,
+      "metrics": {
+        "complexity": 12,
+        "loc": 31,
+        "parameter_count": 2
+      },
+      "name": "map(\u0192)",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/comics/data.server.ts::normalizePage::object::map(\u0192)",
+      "path_priority": "neutral",
+      "rank": 40,
+      "raw_score": 0.2429,
+      "reason": "High complexity 12, 31 LOC",
+      "score": 0.2429,
+      "start_line": 198
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.5,
+          "value": 12,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0127,
+          "value": 27,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 163,
+      "metrics": {
+        "complexity": 12,
+        "loc": 27,
+        "parameter_count": 1
+      },
+      "name": "parseArgs",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/scripts/generate-gpt-image-2-task-ui.mjs::parseArgs",
+      "path_priority": "neutral",
+      "rank": 41,
+      "raw_score": 0.2405,
+      "reason": "High complexity 12, 27 LOC",
+      "score": 0.2405,
+      "start_line": 128
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.1828,
+          "value": 390,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 435,
+      "metrics": {
+        "complexity": 9,
+        "loc": 390,
+        "parameter_count": 1
+      },
+      "name": "PopoverDemo",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/ui/popover.tsx::PopoverDemo",
+      "path_priority": "neutral",
+      "rank": 42,
+      "raw_score": 0.2404,
+      "reason": "High complexity 9, 390 LOC",
+      "score": 0.2404,
+      "start_line": 46
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1667,
+          "value": 4,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0136,
+          "value": 29,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 853,
+      "metrics": {
+        "complexity": 4,
+        "loc": 29,
+        "max_nesting_depth": 3
+      },
+      "name": "createMemo(\u0192)",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx::DesignSystemOverview::createMemo(\u0192)",
+      "path_priority": "neutral",
+      "rank": 43,
+      "raw_score": 0.2403,
+      "reason": "High complexity 4, 29 LOC, nesting depth 3",
+      "score": 0.2403,
+      "start_line": 825
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0267,
+          "value": 57,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 215,
+      "metrics": {
+        "complexity": 9,
+        "loc": 57,
+        "max_nesting_depth": 2,
+        "parameter_count": 3
+      },
+      "name": "mergeGeneratedSpatialMapData",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/projects/data.server.ts::mergeGeneratedSpatialMapData",
+      "path_priority": "neutral",
+      "rank": 44,
+      "raw_score": 0.2402,
+      "reason": "High complexity 9, 57 LOC, nesting depth 2",
+      "score": 0.2402,
+      "start_line": 159
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.375,
+          "value": 9,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0337,
+          "value": 72,
+          "weight": 1.1
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.0093,
+          "value": 1,
+          "weight": 0.6
+        }
+      ],
+      "end_line": 543,
+      "metrics": {
+        "complexity": 9,
+        "loc": 72,
+        "max_nesting_depth": 2,
+        "parameter_count": 1
+      },
+      "name": "addProjectNodeImageSourcesOnDisk",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/projects/data.server.ts::addProjectNodeImageSourcesOnDisk",
+      "path_priority": "neutral",
+      "rank": 45,
+      "raw_score": 0.2393,
+      "reason": "High complexity 9, 72 LOC, nesting depth 2",
+      "score": 0.2393,
+      "start_line": 472
+    },
+    {
+      "drivers": [
+        {
+          "metric": "loc",
+          "normalized": 0.4349,
+          "value": 928,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 0,
+      "metrics": {
+        "loc": 928
+      },
+      "name": "comic_book_creator_index.html",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/docs/idea/comic_book_creator_index.html",
+      "path_priority": "deprioritized",
+      "rank": 46,
+      "raw_score": 0.4349,
+      "reason": "High 928 LOC",
+      "score": 0.2392,
+      "start_line": 0
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.25,
+          "value": 6,
+          "weight": 1.5
+        },
+        {
+          "metric": "parameter_count",
+          "normalized": 0.028,
+          "value": 3,
+          "weight": 0.6
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0098,
+          "value": 21,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 392,
+      "metrics": {
+        "complexity": 6,
+        "loc": 21,
+        "max_nesting_depth": 3,
+        "parameter_count": 3
+      },
+      "name": "rgbToHsl",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx::rgbToHsl",
+      "path_priority": "neutral",
+      "rank": 47,
+      "raw_score": 0.2387,
+      "reason": "High complexity 6, 21 LOC, nesting depth 3",
+      "score": 0.2387,
+      "start_line": 372
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1667,
+          "value": 4,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0084,
+          "value": 18,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 71,
+      "metrics": {
+        "complexity": 4,
+        "loc": 18,
+        "max_nesting_depth": 3
+      },
+      "name": "IIFE(\u0192)",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/markdown-renderer/markdown-mermaid-block.tsx::MarkdownMermaidBlock::createEffect(\u0192)::IIFE(\u0192)",
+      "path_priority": "neutral",
+      "rank": 48,
+      "raw_score": 0.2387,
+      "reason": "High complexity 4, 18 LOC, nesting depth 3",
+      "score": 0.2387,
+      "start_line": 54
+    },
+    {
+      "drivers": [
+        {
+          "metric": "complexity",
+          "normalized": 0.2917,
+          "value": 7,
+          "weight": 1.5
+        },
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.4,
+          "value": 2,
+          "weight": 1.0
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0187,
+          "value": 40,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 68,
+      "metrics": {
+        "complexity": 7,
+        "loc": 40,
+        "max_nesting_depth": 2
+      },
+      "name": "execute",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/node-images/image-api.server.ts::generateLowCostMockupImage::execute",
+      "path_priority": "neutral",
+      "rank": 49,
+      "raw_score": 0.2384,
+      "reason": "High complexity 7, 40 LOC, nesting depth 2",
+      "score": 0.2384,
+      "start_line": 29
+    },
+    {
+      "drivers": [
+        {
+          "metric": "max_nesting_depth",
+          "normalized": 0.6,
+          "value": 3,
+          "weight": 1.0
+        },
+        {
+          "metric": "complexity",
+          "normalized": 0.1667,
+          "value": 4,
+          "weight": 1.5
+        },
+        {
+          "metric": "loc",
+          "normalized": 0.0066,
+          "value": 14,
+          "weight": 1.1
+        }
+      ],
+      "end_line": 51,
+      "metrics": {
+        "complexity": 4,
+        "loc": 14,
+        "max_nesting_depth": 3
+      },
+      "name": "it(\u0192)",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.test.ts::describe(\u0192)::it(\u0192)",
+      "path_priority": "neutral",
+      "rank": 50,
+      "raw_score": 0.2381,
+      "reason": "High complexity 4, 14 LOC, nesting depth 3",
+      "score": 0.2381,
+      "start_line": 38
+    }
+  ]
+}

@@ -1,0 +1,684 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 186,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0305,
+              "loc": 65,
+              "name": "## Data Model",
+              "path": "README.md::# Comic Book Creator::## Data Model",
+              "start_line": 122,
+              "top_metrics": {
+                "loc": 65
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 70,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0159,
+              "loc": 34,
+              "name": "## Repository Layout",
+              "path": "README.md::# Comic Book Creator::## Repository Layout",
+              "start_line": 37,
+              "top_metrics": {
+                "loc": 34
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 107,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0094,
+              "loc": 20,
+              "name": "## Environment",
+              "path": "README.md::# Comic Book Creator::## Environment",
+              "start_line": 88,
+              "top_metrics": {
+                "loc": 20
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 27,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0089,
+              "loc": 19,
+              "name": "## What You Can Do",
+              "path": "README.md::# Comic Book Creator::## What You Can Do",
+              "start_line": 9,
+              "top_metrics": {
+                "loc": 19
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 88,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0089,
+              "loc": 19,
+              "name": "## Getting Started",
+              "path": "README.md::# Comic Book Creator::## Getting Started",
+              "start_line": 70,
+              "top_metrics": {
+                "loc": 19
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 122,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0075,
+              "loc": 16,
+              "name": "## Scripts",
+              "path": "README.md::# Comic Book Creator::## Scripts",
+              "start_line": 107,
+              "top_metrics": {
+                "loc": 16
+              },
+              "type": "function"
+            }
+          ],
+          "complexity": 0,
+          "end_line": 208,
+          "file_count": 0,
+          "function_count": 0,
+          "hotspot_score": 0.0975,
+          "loc": 208,
+          "name": "# Comic Book Creator",
+          "path": "README.md::# Comic Book Creator",
+          "start_line": 1,
+          "top_metrics": {
+            "loc": 208
+          },
+          "type": "function"
+        }
+      ],
+      "complexity": 0.0,
+      "end_line": 0,
+      "file_count": 1,
+      "function_count": 1,
+      "hotspot_score": 0.0773,
+      "loc": 165,
+      "name": "README.md",
+      "path": "README.md",
+      "start_line": 0,
+      "top_metrics": {
+        "average_function_length": 208,
+        "file_count": 1,
+        "file_size": 6163,
+        "function_count": 1,
+        "loc": 165
+      },
+      "type": "file"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 24,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0103,
+              "loc": 22,
+              "name": "## Quick Rules",
+              "path": "AGENTS.md::# AGENTS.md - Working in `app/`::## Quick Rules",
+              "start_line": 3,
+              "top_metrics": {
+                "loc": 22
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 38,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.007,
+              "loc": 15,
+              "name": "## Commands",
+              "path": "AGENTS.md::# AGENTS.md - Working in `app/`::## Commands",
+              "start_line": 24,
+              "top_metrics": {
+                "loc": 15
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 89,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0066,
+              "loc": 14,
+              "name": "## Router Actions + Forms",
+              "path": "AGENTS.md::# AGENTS.md - Working in `app/`::## Router Actions + Forms",
+              "start_line": 76,
+              "top_metrics": {
+                "loc": 14
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 58,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0061,
+              "loc": 13,
+              "name": "## UI Conventions",
+              "path": "AGENTS.md::# AGENTS.md - Working in `app/`::## UI Conventions",
+              "start_line": 46,
+              "top_metrics": {
+                "loc": 13
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 70,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0061,
+              "loc": 13,
+              "name": "## Available Feature Modules",
+              "path": "AGENTS.md::# AGENTS.md - Working in `app/`::## Available Feature Modules",
+              "start_line": 58,
+              "top_metrics": {
+                "loc": 13
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 46,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0042,
+              "loc": 9,
+              "name": "## Key Paths",
+              "path": "AGENTS.md::# AGENTS.md - Working in `app/`::## Key Paths",
+              "start_line": 38,
+              "top_metrics": {
+                "loc": 9
+              },
+              "type": "function"
+            }
+          ],
+          "complexity": 0,
+          "end_line": 96,
+          "file_count": 0,
+          "function_count": 0,
+          "hotspot_score": 0.045,
+          "loc": 96,
+          "name": "# AGENTS.md - Working in `app/`",
+          "path": "AGENTS.md::# AGENTS.md - Working in `app/`",
+          "start_line": 1,
+          "top_metrics": {
+            "loc": 96
+          },
+          "type": "function"
+        }
+      ],
+      "complexity": 0.0,
+      "end_line": 0,
+      "file_count": 1,
+      "function_count": 1,
+      "hotspot_score": 0.0366,
+      "loc": 78,
+      "name": "AGENTS.md",
+      "path": "AGENTS.md",
+      "start_line": 0,
+      "top_metrics": {
+        "average_function_length": 96,
+        "file_count": 1,
+        "file_size": 5537,
+        "function_count": 1,
+        "loc": 78
+      },
+      "type": "file"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 1,
+              "end_line": 161,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.052,
+              "loc": 141,
+              "name": "object",
+              "path": "app/panda.config.ts::object",
+              "start_line": 21,
+              "top_metrics": {
+                "comment_density": 0.0426,
+                "comment_lines": 6,
+                "complexity": 1,
+                "loc": 141
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 19,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0089,
+              "loc": 19,
+              "name": "(imports)",
+              "path": "app/panda.config.ts::(imports)",
+              "start_line": 1,
+              "top_metrics": {
+                "loc": 19
+              },
+              "type": "function"
+            }
+          ],
+          "complexity": 0.5,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 2,
+          "hotspot_score": 0.1004,
+          "loc": 141,
+          "name": "panda.config.ts",
+          "path": "app/panda.config.ts",
+          "start_line": 0,
+          "top_metrics": {
+            "average_function_length": 80,
+            "comment_lines": 6,
+            "file_size": 4096,
+            "function_count": 2,
+            "loc": 141,
+            "ts_import_coupling_count": 19
+          },
+          "type": "file"
+        },
+        {
+          "children": [],
+          "complexity": 0,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 0,
+          "hotspot_score": 0.0375,
+          "loc": 80,
+          "name": "eslint.config.mjs",
+          "path": "app/eslint.config.mjs",
+          "start_line": 0,
+          "top_metrics": {
+            "file_count": 1,
+            "file_size": 2178,
+            "loc": 80
+          },
+          "type": "file"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 1,
+              "end_line": 22,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0264,
+              "loc": 12,
+              "name": "object",
+              "path": "app/app.config.ts::object",
+              "start_line": 11,
+              "top_metrics": {
+                "comment_density": 0.0833,
+                "comment_lines": 1,
+                "complexity": 1,
+                "loc": 12
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 3,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0014,
+              "loc": 3,
+              "name": "(imports)",
+              "path": "app/app.config.ts::(imports)",
+              "start_line": 1,
+              "top_metrics": {
+                "loc": 3
+              },
+              "type": "function"
+            }
+          ],
+          "complexity": 0.5,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 2,
+          "hotspot_score": 0.0233,
+          "loc": 20,
+          "name": "app.config.ts",
+          "path": "app/app.config.ts",
+          "start_line": 0,
+          "top_metrics": {
+            "average_function_length": 7.5,
+            "file_count": 1,
+            "file_size": 641,
+            "function_count": 2,
+            "loc": 20,
+            "ts_import_coupling_count": 3
+          },
+          "type": "file"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 1,
+              "end_line": 17,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.026,
+              "loc": 10,
+              "name": "object",
+              "path": "app/vitest.config.ts::object",
+              "start_line": 8,
+              "top_metrics": {
+                "complexity": 1,
+                "loc": 10
+              },
+              "type": "function"
+            },
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 3,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0014,
+              "loc": 3,
+              "name": "(imports)",
+              "path": "app/vitest.config.ts::(imports)",
+              "start_line": 1,
+              "top_metrics": {
+                "loc": 3
+              },
+              "type": "function"
+            }
+          ],
+          "complexity": 0.5,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 2,
+          "hotspot_score": 0.0225,
+          "loc": 15,
+          "name": "vitest.config.ts",
+          "path": "app/vitest.config.ts",
+          "start_line": 0,
+          "top_metrics": {
+            "average_function_length": 6.5,
+            "file_count": 1,
+            "file_size": 366,
+            "function_count": 2,
+            "loc": 15,
+            "ts_import_coupling_count": 3
+          },
+          "type": "file"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 52,
+              "file_count": 0,
+              "function_count": 0,
+              "hotspot_score": 0.0244,
+              "loc": 52,
+              "name": "# Comic Book Creator",
+              "path": "app/README.md::# Comic Book Creator",
+              "start_line": 1,
+              "top_metrics": {
+                "loc": 52
+              },
+              "type": "function"
+            }
+          ],
+          "complexity": 0.0,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 1,
+          "hotspot_score": 0.0164,
+          "loc": 35,
+          "name": "README.md",
+          "path": "app/README.md",
+          "start_line": 0,
+          "top_metrics": {
+            "average_function_length": 52,
+            "file_count": 1,
+            "file_size": 1367,
+            "function_count": 1,
+            "loc": 35
+          },
+          "type": "file"
+        },
+        {
+          "children": [],
+          "complexity": 0,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 0,
+          "hotspot_score": 0.015,
+          "loc": 32,
+          "name": "Dockerfile",
+          "path": "app/Dockerfile",
+          "start_line": 0,
+          "top_metrics": {
+            "file_count": 1,
+            "file_size": 1093,
+            "loc": 32
+          },
+          "type": "file"
+        }
+      ],
+      "complexity": 8.75,
+      "end_line": 0,
+      "file_count": 292,
+      "function_count": 1775,
+      "hotspot_score": 0.0,
+      "loc": 33483,
+      "name": "app",
+      "path": "app",
+      "start_line": 0,
+      "top_metrics": {
+        "file_size": 1075121,
+        "function_count": 1775,
+        "loc": 33483,
+        "parameter_count": 918,
+        "ts_export_count": 1137,
+        "ts_type_interface_count": 361
+      },
+      "type": "folder"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 0,
+              "file_count": 1,
+              "function_count": 0,
+              "hotspot_score": 0.2392,
+              "loc": 928,
+              "name": "comic_book_creator_index.html",
+              "path": "docs/idea/comic_book_creator_index.html",
+              "start_line": 0,
+              "top_metrics": {
+                "file_count": 1,
+                "file_size": 28332,
+                "loc": 928
+              },
+              "type": "file"
+            },
+            {
+              "children": [],
+              "complexity": 0.0,
+              "end_line": 0,
+              "file_count": 1,
+              "function_count": 0,
+              "hotspot_score": 0.0253,
+              "loc": 98,
+              "name": "chat.md",
+              "path": "docs/idea/chat.md",
+              "start_line": 0,
+              "top_metrics": {
+                "file_count": 1,
+                "file_size": 2785,
+                "loc": 98
+              },
+              "type": "file"
+            }
+          ],
+          "complexity": 0,
+          "end_line": 0,
+          "file_count": 2,
+          "function_count": 0,
+          "hotspot_score": 0.0,
+          "loc": 1026,
+          "name": "idea",
+          "path": "docs/idea",
+          "start_line": 0,
+          "top_metrics": {
+            "file_count": 2,
+            "file_size": 31117,
+            "loc": 1026
+          },
+          "type": "folder"
+        }
+      ],
+      "complexity": 0,
+      "end_line": 0,
+      "file_count": 2,
+      "function_count": 0,
+      "hotspot_score": 0.0,
+      "loc": 1026,
+      "name": "docs",
+      "path": "docs",
+      "start_line": 0,
+      "top_metrics": {
+        "file_count": 2,
+        "file_size": 31117,
+        "loc": 1026
+      },
+      "type": "folder"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "complexity": 0,
+              "end_line": 0,
+              "file_count": 1,
+              "function_count": 0,
+              "hotspot_score": 0.0037,
+              "loc": 8,
+              "name": "environment.toml",
+              "path": ".codex/environments/environment.toml",
+              "start_line": 0,
+              "top_metrics": {
+                "file_count": 1,
+                "file_size": 167,
+                "loc": 8
+              },
+              "type": "file"
+            }
+          ],
+          "complexity": 0,
+          "end_line": 0,
+          "file_count": 1,
+          "function_count": 0,
+          "hotspot_score": 0.0,
+          "loc": 8,
+          "name": "environments",
+          "path": ".codex/environments",
+          "start_line": 0,
+          "top_metrics": {
+            "file_count": 1,
+            "file_size": 167,
+            "loc": 8
+          },
+          "type": "folder"
+        }
+      ],
+      "complexity": 0,
+      "end_line": 0,
+      "file_count": 1,
+      "function_count": 0,
+      "hotspot_score": 0.0,
+      "loc": 8,
+      "name": ".codex",
+      "path": ".codex",
+      "start_line": 0,
+      "top_metrics": {
+        "file_count": 1,
+        "file_size": 167,
+        "loc": 8
+      },
+      "type": "folder"
+    }
+  ],
+  "complexity": 8.75,
+  "end_line": 0,
+  "file_count": 297,
+  "function_count": 1777,
+  "hotspot_score": 0.0,
+  "loc": 34760,
+  "name": "root",
+  "path": ".",
+  "start_line": 0,
+  "top_metrics": {
+    "file_size": 1118105,
+    "function_count": 1777,
+    "loc": 34760,
+    "parameter_count": 918,
+    "ts_export_count": 1137,
+    "ts_type_interface_count": 361
+  },
+  "type": "folder"
+}

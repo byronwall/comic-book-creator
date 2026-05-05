@@ -1,0 +1,213 @@
+{
+  "artifact_version": 1,
+  "metrics": [
+    {
+      "aggregation": "sum",
+      "description": "Lines of code excluding comments/blanks where available.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "loc",
+      "scope": "folder/file/function/scope"
+    },
+    {
+      "aggregation": "max for folders, average for files, exact for functions",
+      "description": "Cyclomatic complexity.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "complexity",
+      "scope": "folder/file/function/scope"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Detected function count.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "function_count",
+      "scope": "folder/file"
+    },
+    {
+      "aggregation": "sum",
+      "description": "File size in bytes.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "file_size",
+      "scope": "folder/file"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Number of files represented by a node.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "file_count",
+      "scope": "folder/file"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Comment lines.",
+      "higher_is_riskier": false,
+      "languages": "all",
+      "name": "comment_lines",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "derived",
+      "description": "Comment lines divided by LOC.",
+      "higher_is_riskier": false,
+      "languages": "all",
+      "name": "comment_density",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "max",
+      "description": "Maximum control-flow or syntax nesting depth.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "max_nesting_depth",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "weighted average",
+      "description": "Average function length in LOC.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "average_function_length",
+      "scope": "folder/file"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Function parameter count.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "parameter_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "TODO/FIXME-style comment count.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "todo_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Detected class count.",
+      "higher_is_riskier": true,
+      "languages": "all",
+      "name": "classes_count",
+      "scope": "folder/file"
+    },
+    {
+      "aggregation": "max",
+      "description": "Maximum JSX/TSX nesting depth.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_nesting_depth",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Render-time branch count in TSX.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_render_branching_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "React useEffect call count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_react_use_effect_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Inline/anonymous TSX handler count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_anonymous_handler_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "TSX prop count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_prop_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "`any` usage count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "ts_any_usage_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "TypeScript ignore directive count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "ts_ignore_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "TypeScript import coupling count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "ts_import_coupling_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Hardcoded TSX string volume.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_hardcoded_string_volume",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Duplicated TSX string count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "tsx_duplicated_string_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Type/interface declaration count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "ts_type_interface_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Export declaration count.",
+      "higher_is_riskier": true,
+      "languages": "TypeScript/TSX",
+      "name": "ts_export_count",
+      "scope": "folder/file/function"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Python import count.",
+      "higher_is_riskier": true,
+      "languages": "Python",
+      "name": "python_import_count",
+      "scope": "folder/file"
+    },
+    {
+      "aggregation": "sum",
+      "description": "Markdown data URL count.",
+      "higher_is_riskier": true,
+      "languages": "Markdown",
+      "name": "md_data_url_count",
+      "scope": "folder/file/function"
+    }
+  ]
+}

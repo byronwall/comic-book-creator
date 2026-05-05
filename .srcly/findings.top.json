@@ -1,0 +1,210 @@
+{
+  "findings": [
+    {
+      "agent_prompt": "Investigate this complexity finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "complexity",
+      "end_line": 147,
+      "evidence": {
+        "complexity": 24,
+        "loc": 107,
+        "max_nesting_depth": 5,
+        "parameter_count": 2
+      },
+      "id": "srcly-001",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/projects/context-node-markdown.ts::parseMarkdownHeadingSections",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.611,
+      "score": 0.611,
+      "start_line": 41,
+      "suggested_action": "Trace the control flow and identify behavior-preserving simplification points.",
+      "title": "Complexity hotspot in parseMarkdownHeadingSections"
+    },
+    {
+      "agent_prompt": "Investigate this size finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "size",
+      "end_line": 0,
+      "evidence": {
+        "loc": 1259
+      },
+      "id": "srcly-002",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comics/comic-creator.css",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.59,
+      "score": 0.59,
+      "start_line": 0,
+      "suggested_action": "Look for separable responsibilities and tests that protect behavior.",
+      "title": "Large node worth responsibility review in comic-creator.css"
+    },
+    {
+      "agent_prompt": "Investigate this size finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "size",
+      "end_line": 2245,
+      "evidence": {
+        "loc": 1121
+      },
+      "id": "srcly-003",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx::DesignSystemOverview::<VStack>",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.5253,
+      "score": 0.5253,
+      "start_line": 1125,
+      "suggested_action": "Look for separable responsibilities and tests that protect behavior.",
+      "title": "Large node worth responsibility review in <VStack>"
+    },
+    {
+      "agent_prompt": "Investigate this complexity finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "complexity",
+      "end_line": 468,
+      "evidence": {
+        "complexity": 24,
+        "loc": 182,
+        "max_nesting_depth": 3,
+        "parameter_count": 1
+      },
+      "id": "srcly-004",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/comics/data.server.ts::getPanelRects",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.5237,
+      "score": 0.5237,
+      "start_line": 287,
+      "suggested_action": "Trace the control flow and identify behavior-preserving simplification points.",
+      "title": "Complexity hotspot in getPanelRects"
+    },
+    {
+      "agent_prompt": "Investigate this complexity finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "complexity",
+      "end_line": 217,
+      "evidence": {
+        "complexity": 24,
+        "loc": 181,
+        "max_nesting_depth": 3,
+        "parameter_count": 1
+      },
+      "id": "srcly-005",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comics/comic-layouts.ts::getPanelRects",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.5235,
+      "score": 0.5235,
+      "start_line": 37,
+      "suggested_action": "Trace the control flow and identify behavior-preserving simplification points.",
+      "title": "Complexity hotspot in getPanelRects"
+    },
+    {
+      "agent_prompt": "Investigate this complexity finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "complexity",
+      "end_line": 447,
+      "evidence": {
+        "complexity": 23,
+        "loc": 102,
+        "max_nesting_depth": 3,
+        "parameter_count": 3
+      },
+      "id": "srcly-006",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts::stepLayout",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.5016,
+      "score": 0.5016,
+      "start_line": 346,
+      "suggested_action": "Trace the control flow and identify behavior-preserving simplification points.",
+      "title": "Complexity hotspot in stepLayout"
+    },
+    {
+      "agent_prompt": "Investigate this size finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "size",
+      "end_line": 2247,
+      "evidence": {
+        "complexity": 9,
+        "loc": 1680,
+        "max_nesting_depth": 3,
+        "parameter_count": 1
+      },
+      "id": "srcly-007",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx::DesignSystemOverview",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.4843,
+      "score": 0.4843,
+      "start_line": 568,
+      "suggested_action": "Look for separable responsibilities and tests that protect behavior.",
+      "title": "Large node worth responsibility review in DesignSystemOverview"
+    },
+    {
+      "agent_prompt": "Investigate this tsx finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "tsx",
+      "end_line": 0,
+      "evidence": {
+        "complexity": 2.1538,
+        "loc": 2134,
+        "max_nesting_depth": 3,
+        "parameter_count": 36,
+        "ts_import_coupling_count": 9,
+        "tsx_render_branching_count": 14
+      },
+      "id": "srcly-008",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/components/comps-explorer/DesignSystemOverview.tsx",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.4613,
+      "score": 0.4613,
+      "start_line": 0,
+      "suggested_action": "Look first for render-only child components, modal/dialog subtrees, action hooks, and derived selectors to extract; verify with type-check and targeted UI coverage.",
+      "title": "TSX surface with concentrated rendering complexity in DesignSystemOverview.tsx"
+    },
+    {
+      "agent_prompt": "Investigate this complexity finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "complexity",
+      "end_line": 230,
+      "evidence": {
+        "complexity": 22,
+        "loc": 70,
+        "parameter_count": 2
+      },
+      "id": "srcly-009",
+      "node_type": "function",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/comics/data.server.ts::normalizePage",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.4445,
+      "score": 0.4445,
+      "start_line": 161,
+      "suggested_action": "Trace the control flow and identify behavior-preserving simplification points.",
+      "title": "Complexity hotspot in normalizePage"
+    },
+    {
+      "agent_prompt": "Investigate this coupling finding. Use the metrics as triage evidence, then inspect the source and tests directly. Recommend or make the smallest behavior-preserving improvement.",
+      "category": "coupling",
+      "end_line": 0,
+      "evidence": {
+        "complexity": 3.9286,
+        "loc": 974,
+        "max_nesting_depth": 4,
+        "parameter_count": 107,
+        "ts_import_coupling_count": 2
+      },
+      "id": "srcly-010",
+      "node_type": "file",
+      "path": "/Users/byronwall/Projects/comic-books/app/src/lib/spatial-map/layout.ts",
+      "path_priority": "neutral",
+      "priority": "medium",
+      "raw_score": 0.4345,
+      "score": 0.4345,
+      "start_line": 0,
+      "suggested_action": "Inspect dependency boundaries and look for imports that can be inverted, localized, or simplified.",
+      "title": "Import coupling hotspot in layout.ts"
+    }
+  ]
+}

@@ -51,19 +51,33 @@ function orderPagesForBooklet(pages: ComicPage[]) {
 
   const lastPage = pages[pages.length - 1];
   const endCover = lastPage?.cover && lastPage.id !== frontCover.id ? lastPage : [...pages].reverse().find(isEndCoverPage);
-  const contentPages = pages.filter((page) => page.id !== frontCover.id && page.id !== endCover?.id);
-  const orderedPages: Array<ComicPage | undefined> = [endCover, frontCover, undefined, undefined];
+  const readingOrder = [frontCover, ...pages.filter((page) => page.id !== frontCover.id && page.id !== endCover?.id)];
 
-  for (const [pageIndex, page] of contentPages.entries()) {
-    const slotIndex = pageIndex === 0 ? 2 : 4 * Math.ceil(pageIndex / slotsPerSheet) + (pageIndex % slotsPerSheet === 1 ? 1 : 2);
-    while (orderedPages.length <= slotIndex) {
-      orderedPages.push(undefined);
-    }
-    orderedPages[slotIndex] = page;
+  if (endCover) {
+    readingOrder.push(endCover);
   }
 
-  while (orderedPages.length % 4 !== 0) {
-    orderedPages.push(undefined);
+  const pageCount = Math.ceil(readingOrder.length / 4) * 4;
+  const paddedPages: Array<ComicPage | undefined> = [...readingOrder];
+  while (paddedPages.length < pageCount) {
+    paddedPages.push(undefined);
+  }
+
+  const orderedPages: Array<ComicPage | undefined> = [];
+  const sheetCount = pageCount / 4;
+
+  for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex += 1) {
+    const outerLeftIndex = pageCount - 1 - sheetIndex * 2;
+    const outerRightIndex = sheetIndex * 2;
+    const innerLeftIndex = sheetIndex * 2 + 1;
+    const innerRightIndex = pageCount - 2 - sheetIndex * 2;
+
+    orderedPages.push(
+      paddedPages[outerLeftIndex],
+      paddedPages[outerRightIndex],
+      paddedPages[innerLeftIndex],
+      paddedPages[innerRightIndex],
+    );
   }
 
   return orderedPages;
