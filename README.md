@@ -83,7 +83,7 @@ The development server runs at:
 http://localhost:3000/
 ```
 
-The project requires Node `>=22` and pnpm.
+The project requires Node `>=22` and pnpm `11.9.0`.
 
 ## Environment
 

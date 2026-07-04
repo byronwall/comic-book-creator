@@ -5,7 +5,7 @@ SolidStart app with Park UI wrappers, Panda CSS, a printable comic creator UI, a
 ## Prerequisites
 
 - Node `>=22`
-- pnpm
+- pnpm `11.9.0`
 
 ## Commands
 

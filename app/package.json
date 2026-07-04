@@ -1,6 +1,7 @@
 {
   "name": "comic-book-creator",
   "type": "module",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "prepare": "panda codegen",
     "dev": "pnpm prepare && vinxi dev",
@@ -48,11 +49,5 @@
     "vite-plugin-lucide-preprocess": "^1.4.6",
     "vite-tsconfig-paths": "^6.0.3",
     "vitest": "^2.1.4"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "vinxi@0.5.10": "patches/vinxi@0.5.10.patch",
-      "@pandacss/generator@1.7.2": "patches/@pandacss__generator@1.7.2.patch"
-    }
   }
 }
