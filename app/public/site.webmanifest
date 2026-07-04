@@ -1,0 +1,21 @@
+{
+  "name": "Comic Book Creator",
+  "short_name": "Comics",
+  "icons": [
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#ffd51a",
+  "background_color": "#fff7d6",
+  "display": "standalone"
+}

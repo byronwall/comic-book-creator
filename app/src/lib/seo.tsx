@@ -1,4 +1,4 @@
-import { Meta, Title } from "@solidjs/meta";
+import { Link, Meta, Title } from "@solidjs/meta";
 import { createRenderEffect } from "solid-js";
 import { isServer } from "solid-js/web";
 
@@ -25,6 +25,11 @@ export function PageMeta(props: PageMetaProps) {
   return (
     <>
       <Title>{title()}</Title>
+      <Link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      <Link rel="alternate icon" href="/favicon.ico" />
+      <Link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+      <Link rel="manifest" href="/site.webmanifest" />
+      <Meta name="theme-color" content="#ffd51a" />
       <Meta name="description" content={description()} />
       <Meta property="og:site_name" content={SITE_NAME} />
       <Meta property="og:type" content={props.type ?? "website"} />
