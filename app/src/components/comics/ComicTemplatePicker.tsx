@@ -1,5 +1,5 @@
 import { For, Show } from "solid-js";
-import type { ComicLayoutKind, ComicPaperSize, ComicTemplateGrid, ComicTextElement } from "~/lib/comics/types";
+import type { ComicLayoutKind, ComicPageImage, ComicPaperSize, ComicTemplateGrid, ComicTextElement } from "~/lib/comics/types";
 import { getPanelRects, layoutTemplates } from "./comic-layouts";
 import { getPaperSizeOption, paperSizeOptions } from "./comic-paper-sizes";
 import { getDefaultTextHeight, speechBubblePath } from "./comic-svg-shapes";
@@ -71,6 +71,7 @@ export function TemplatePreview(props: {
   paperSize?: ComicPaperSize;
   customGrid?: ComicTemplateGrid;
   texts?: ComicTextElement[];
+  images?: ComicPageImage[];
   class: string;
 }) {
   const previewStyle = () => {
@@ -84,6 +85,23 @@ export function TemplatePreview(props: {
 
   return (
     <svg class={`${props.class} ${props.layout}`} style={previewStyle()} aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <For each={props.images ?? []}>
+        {(image) => (
+          <image
+            href={image.src}
+            x={`${image.x}%`}
+            y={`${image.y}%`}
+            width={`${image.width}%`}
+            height={`${image.height}%`}
+            preserveAspectRatio={`xMidYMid ${image.fit === "cover" ? "slice" : "meet"}`}
+            style={{
+              "transform-box": "fill-box",
+              "transform-origin": "center",
+              transform: `rotate(${image.rotation}deg)`,
+            }}
+          />
+        )}
+      </For>
       <For each={getPanelRects({ layout: props.layout, customGrid: props.customGrid })}>
         {(panel) => (
           <Show

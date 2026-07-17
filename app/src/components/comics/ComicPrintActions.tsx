@@ -44,8 +44,11 @@ export function PrintActions(props: { activePage?: ComicPage; pages?: ComicPage[
                           <ComicPaper
                             page={page()}
                             selectedTextId=""
+                            selectedImageId=""
                             onSelectText={() => undefined}
-                            onDeselectText={() => undefined}
+                            onSelectImage={() => undefined}
+                            onDeselectObjects={() => undefined}
+                            onUpdateImage={() => undefined}
                             onUpdateText={() => undefined}
                           />
                         )}

@@ -25,6 +25,29 @@ export type ComicPaperSize = "letter-portrait" | "letter-landscape" | "half-port
 
 export type ComicTextAlign = "left" | "center" | "right";
 export type ComicTextPositionScope = "panel" | "page";
+export type ComicPageMode = "comic" | "image";
+export type ComicImageTreatment = "color" | "grayscale" | "threshold";
+
+export interface ComicPageImage {
+  id: string;
+  src: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  treatment: ComicImageTreatment;
+  brightness: number;
+  contrast: number;
+  threshold: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  scale?: number;
+  offsetX?: number;
+  offsetY?: number;
+  fit: "contain" | "cover";
+}
 
 export interface ComicTextElement {
   id: string;
@@ -53,6 +76,10 @@ export interface ComicPage {
   cover?: boolean;
   status: "Blank" | "Draft" | "Ready";
   layout: ComicLayoutKind;
+  mode?: ComicPageMode;
+  images?: ComicPageImage[];
+  /** Legacy single-image field, migrated to images when read. */
+  image?: ComicPageImage;
   paperSize?: ComicPaperSize;
   customGrid?: ComicTemplateGrid;
   texts: ComicTextElement[];

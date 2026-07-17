@@ -1,11 +1,12 @@
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { resolveAppDataDir } from "~/lib/server/data-dir";
 import type {
   ComicBook,
   ComicBookSummary,
   ComicLayoutKind,
+  ComicPageImage,
   ComicPage,
   ComicPaperSize,
   ComicTemplateGrid,
@@ -14,6 +15,7 @@ import type {
 } from "./types";
 
 const COMIC_BOOKS_DIR = "comic-books";
+const COMIC_BOOK_IMAGES_DIR = "comic-book-images";
 
 export async function readComicBookFromDisk(): Promise<ComicBook> {
   const summaries = await readComicBookSummariesFromDisk();
@@ -85,6 +87,19 @@ export async function deleteComicBookOnDisk(bookId: string): Promise<void> {
   }
 
   await unlink(bookPath);
+  await rm(getComicBookImagesDir(cleanId), { recursive: true, force: true });
+}
+
+export function getComicBookImagesDir(bookId: string) {
+  return path.join(resolveAppDataDir(), COMIC_BOOK_IMAGES_DIR, slugify(bookId));
+}
+
+export function getComicBookImagePath(bookId: string, filename: string) {
+  const cleanFilename = path.basename(filename);
+  if (!cleanFilename || cleanFilename !== filename) {
+    throw new Error("Invalid image filename.");
+  }
+  return path.join(getComicBookImagesDir(bookId), cleanFilename);
 }
 
 export async function createComicBookOnDisk(input: { title?: string } = {}): Promise<ComicBook> {
@@ -154,11 +169,11 @@ function normalizeComicBook(input: ComicBook, options: { touchUpdatedAt?: boolea
     id,
     title: cleanText(input.title) || "Super Max Saves the Day",
     updatedAt: options.touchUpdatedAt ? new Date().toISOString() : cleanText(input.updatedAt) || new Date().toISOString(),
-    pages: input.pages.length > 0 ? input.pages.map(normalizePage) : createDefaultComicBook().pages,
+    pages: input.pages.length > 0 ? input.pages.map((page, index) => normalizePage(page, index, id)) : createDefaultComicBook().pages,
   };
 }
 
-function normalizePage(page: ComicBook["pages"][number], pageIndex: number): ComicPage {
+function normalizePage(page: ComicBook["pages"][number], pageIndex: number, bookId: string): ComicPage {
   const status: ComicPage["status"] =
     page.status === "Ready" || page.status === "Draft" ? page.status : "Blank";
   const layout: ComicPage["layout"] =
@@ -186,6 +201,10 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
 
   const customGrid = normalizeTemplateGrid(page.customGrid);
   const panels = getPanelRects({ layout, customGrid });
+  const imageInputs = page.images?.length ? page.images : page.image ? [page.image] : [];
+  const images = imageInputs
+    .map((image, imageIndex) => normalizePageImage(image, bookId, imageIndex))
+    .filter((image): image is ComicPageImage => Boolean(image));
 
   return {
     id: cleanText(page.id) || `page-${pageIndex + 1}`,
@@ -193,6 +212,8 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
     cover: page.cover === true || (page.cover === undefined && isLegacyCoverPage(page)),
     status,
     layout,
+    mode: page.mode === "image" && images.length > 0 ? "image" : "comic",
+    images,
     paperSize: normalizePaperSize(page.paperSize),
     customGrid,
     texts: page.texts.map((text, textIndex) => {
@@ -226,6 +247,39 @@ function normalizePage(page: ComicBook["pages"][number], pageIndex: number): Com
         autoWrap: text.autoWrap !== false,
       };
     }),
+  };
+}
+
+function normalizePageImage(image: ComicPageImage | undefined, bookId: string, imageIndex: number): ComicPageImage | undefined {
+  if (!image || !cleanText(image.filename)) {
+    return undefined;
+  }
+
+  const filename = path.basename(cleanText(image.filename));
+  const treatment =
+    image.treatment === "color" || image.treatment === "threshold" ? image.treatment : "grayscale";
+  const legacySize = clampInteger(image.scale ?? 100, 50, 160);
+  const width = clampNumber(image.width ?? legacySize, 5, 200);
+  const height = clampNumber(image.height ?? legacySize, 5, 200);
+  const x = clampNumber(image.x ?? (100 - legacySize) / 2 + (image.offsetX ?? 0), -195, 95);
+  const y = clampNumber(image.y ?? (100 - legacySize) / 2 + (image.offsetY ?? 0), -195, 95);
+
+  return {
+    id: cleanText(image.id) || `image-${imageIndex + 1}-${filename.replace(/[^a-zA-Z0-9_-]/g, "-")}`,
+    src: `/api/comic-books/${bookId}/images/${encodeURIComponent(filename)}`,
+    filename,
+    originalName: cleanText(image.originalName) || filename,
+    mimeType: cleanText(image.mimeType) || "image/jpeg",
+    treatment,
+    brightness: clampInteger(image.brightness ?? 105, 50, 150),
+    contrast: clampInteger(image.contrast ?? 125, 50, 300),
+    threshold: clampInteger(image.threshold ?? 58, 10, 90),
+    x,
+    y,
+    width,
+    height,
+    rotation: clampInteger(image.rotation ?? 0, -180, 180),
+    fit: image.fit === "cover" ? "cover" : "contain",
   };
 }
 

@@ -1,15 +1,16 @@
-import { For, Show, createMemo, onCleanup } from "solid-js";
-import type { ComicPage, ComicTextElement } from "~/lib/comics/types";
+import { For, Show, createMemo, createUniqueId, onCleanup } from "solid-js";
+import type { ComicPage, ComicPageImage, ComicTextElement } from "~/lib/comics/types";
 import { clamp, findPanelIndex, getPanelRects } from "./comic-layouts";
 import { getPaperSizeOption } from "./comic-paper-sizes";
 import { getDefaultTextHeight, lineHeightMultiplier, speechBubblePath } from "./comic-svg-shapes";
 
 type TextPatch = Partial<Pick<ComicTextElement, "height" | "fontSize" | "panelIndex" | "rotation" | "width" | "x" | "y">>;
+type ImagePatch = Partial<Pick<ComicPageImage, "height" | "rotation" | "width" | "x" | "y">>;
 type ResizeCorner = "nw" | "ne" | "sw" | "se";
 
 type DragState =
   | {
-      kind: "move";
+      kind: "text-move";
       pointerId: number;
       textId: string;
       startPointerX: number;
@@ -18,7 +19,7 @@ type DragState =
       startTextY: number;
     }
   | {
-      kind: "resize";
+      kind: "text-resize";
       pointerId: number;
       textId: string;
       startClientX: number;
@@ -30,9 +31,38 @@ type DragState =
       corner: ResizeCorner;
     }
   | {
-      kind: "rotate";
+      kind: "text-rotate";
       pointerId: number;
       textId: string;
+      centerX: number;
+      centerY: number;
+      startAngle: number;
+      startRotation: number;
+    }
+  | {
+      kind: "image-move";
+      pointerId: number;
+      startPointerX: number;
+      startPointerY: number;
+      startX: number;
+      startY: number;
+      width: number;
+      height: number;
+    }
+  | {
+      kind: "image-resize";
+      pointerId: number;
+      startClientX: number;
+      startClientY: number;
+      startX: number;
+      startY: number;
+      startWidth: number;
+      startHeight: number;
+      corner: ResizeCorner;
+    }
+  | {
+      kind: "image-rotate";
+      pointerId: number;
       centerX: number;
       centerY: number;
       startAngle: number;
@@ -42,12 +72,16 @@ type DragState =
 export function ComicPaper(props: {
   page: ComicPage;
   selectedTextId: string;
+  selectedImageId?: string;
   onSelectText: (textId: string) => void;
-  onDeselectText: () => void;
+  onSelectImage?: (imageId: string) => void;
+  onDeselectObjects: () => void;
+  onUpdateImage?: (patch: ImagePatch) => void;
   onUpdateText: (textId: string, patch: TextPatch) => void;
 }) {
   let layoutRef: SVGSVGElement | undefined;
   let dragState: DragState | null = null;
+  const imageScopeId = createUniqueId();
   const panels = createMemo(() => getPanelRects(props.page));
   const paperSize = createMemo(() => getPaperSizeOption(props.page.paperSize));
 
@@ -90,7 +124,7 @@ export function ComicPaper(props: {
 
     layout.setPointerCapture(event.pointerId);
     dragState = {
-      kind: "move",
+      kind: "text-move",
       pointerId: event.pointerId,
       textId: text.id,
       startPointerX: startPoint.x,
@@ -111,7 +145,7 @@ export function ComicPaper(props: {
 
     layout.setPointerCapture(event.pointerId);
     dragState = {
-      kind: "resize",
+      kind: "text-resize",
       pointerId: event.pointerId,
       textId: text.id,
       startClientX: event.clientX,
@@ -139,7 +173,7 @@ export function ComicPaper(props: {
     const centerX = text.x + text.width / 2;
     const centerY = text.y + height / 2;
     dragState = {
-      kind: "rotate",
+      kind: "text-rotate",
       pointerId: event.pointerId,
       textId: text.id,
       centerX,
@@ -150,12 +184,78 @@ export function ComicPaper(props: {
     addDragListeners();
   }
 
+  function dragImage(event: PointerEvent, image: ComicPageImage) {
+    event.preventDefault();
+    event.stopPropagation();
+    props.onSelectImage?.(image.id);
+    const startPoint = getPagePoint(event);
+    const layout = layoutRef;
+    if (!startPoint || !layout) return;
+
+    layout.setPointerCapture(event.pointerId);
+    dragState = {
+      kind: "image-move",
+      pointerId: event.pointerId,
+      startPointerX: startPoint.x,
+      startPointerY: startPoint.y,
+      startX: image.x,
+      startY: image.y,
+      width: image.width,
+      height: image.height,
+    };
+    addDragListeners();
+  }
+
+  function resizeImage(event: PointerEvent, image: ComicPageImage, corner: ResizeCorner) {
+    event.preventDefault();
+    event.stopPropagation();
+    props.onSelectImage?.(image.id);
+    const layout = layoutRef;
+    if (!layout) return;
+
+    layout.setPointerCapture(event.pointerId);
+    dragState = {
+      kind: "image-resize",
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startX: image.x,
+      startY: image.y,
+      startWidth: image.width,
+      startHeight: image.height,
+      corner,
+    };
+    addDragListeners();
+  }
+
+  function rotateImage(event: PointerEvent, image: ComicPageImage) {
+    event.preventDefault();
+    event.stopPropagation();
+    props.onSelectImage?.(image.id);
+    const startPoint = getPagePoint(event);
+    const layout = layoutRef;
+    if (!startPoint || !layout) return;
+
+    layout.setPointerCapture(event.pointerId);
+    const centerX = image.x + image.width / 2;
+    const centerY = image.y + image.height / 2;
+    dragState = {
+      kind: "image-rotate",
+      pointerId: event.pointerId,
+      centerX,
+      centerY,
+      startAngle: angleFromCenter(centerX, centerY, startPoint.x, startPoint.y),
+      startRotation: image.rotation,
+    };
+    addDragListeners();
+  }
+
   function updateDrag(event: PointerEvent) {
     const state = dragState;
     if (!state || state.pointerId !== event.pointerId) return;
     event.preventDefault();
 
-    if (state.kind === "move") {
+    if (state.kind === "text-move") {
       const point = getPagePoint(event);
       if (!point) return;
       const x = state.startTextX + point.x - state.startPointerX;
@@ -168,11 +268,31 @@ export function ComicPaper(props: {
       return;
     }
 
-    if (state.kind === "rotate") {
+    if (state.kind === "text-rotate") {
       const point = getPagePoint(event);
       if (!point) return;
       const angle = angleFromCenter(state.centerX, state.centerY, point.x, point.y);
       props.onUpdateText(state.textId, {
+        rotation: normalizeRotation(state.startRotation + angle - state.startAngle),
+      });
+      return;
+    }
+
+    if (state.kind === "image-move") {
+      const point = getPagePoint(event);
+      if (!point) return;
+      props.onUpdateImage?.({
+        x: clamp(state.startX + point.x - state.startPointerX, -state.width + 5, 95),
+        y: clamp(state.startY + point.y - state.startPointerY, -state.height + 5, 95),
+      });
+      return;
+    }
+
+    if (state.kind === "image-rotate") {
+      const point = getPagePoint(event);
+      if (!point) return;
+      const angle = angleFromCenter(state.centerX, state.centerY, point.x, point.y);
+      props.onUpdateImage?.({
         rotation: normalizeRotation(state.startRotation + angle - state.startAngle),
       });
       return;
@@ -187,17 +307,25 @@ export function ComicPaper(props: {
     const adjustsTop = state.corner === "nw" || state.corner === "ne";
     const widthDelta = adjustsLeft ? -pointerDeltaX : pointerDeltaX;
     const heightDelta = adjustsTop ? -pointerDeltaY : pointerDeltaY;
-    const width = clamp(state.startWidth + widthDelta, 8, 96);
-    const height = clamp(state.startHeight + heightDelta, 5, 50);
+    const isImage = state.kind === "image-resize";
+    const width = clamp(state.startWidth + widthDelta, isImage ? 5 : 8, isImage ? 200 : 96);
+    const height = clamp(state.startHeight + heightDelta, 5, isImage ? 200 : 50);
+    const x = adjustsLeft ? state.startX + state.startWidth - width : state.startX;
+    const y = adjustsTop ? state.startY + state.startHeight - height : state.startY;
+    if (isImage) {
+      props.onUpdateImage?.({ width, height, x, y });
+      return;
+    }
+
     props.onUpdateText(state.textId, {
       width,
       height,
-      x: adjustsLeft ? state.startX + state.startWidth - width : state.startX,
-      y: adjustsTop ? state.startY + state.startHeight - height : state.startY,
+      x,
+      y,
       panelIndex: findPanelIndex(
         panels(),
-        adjustsLeft ? state.startX + state.startWidth - width : state.startX,
-        adjustsTop ? state.startY + state.startHeight - height : state.startY,
+        x,
+        y,
       ),
     });
   }
@@ -214,8 +342,8 @@ export function ComicPaper(props: {
   }
 
   function handlePagePointerDown(event: PointerEvent) {
-    if ((event.target as Element).closest(".comic-svg-text")) return;
-    props.onDeselectText();
+    if ((event.target as Element).closest(".comic-svg-text, .comic-svg-image")) return;
+    props.onDeselectObjects();
   }
 
   return (
@@ -241,6 +369,18 @@ export function ComicPaper(props: {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
+        <For each={props.page.mode === "image" ? props.page.images ?? [] : []}>
+          {(image) => (
+            <ComicPageImageSvg
+              image={image}
+              scopeId={`${props.page.id}-${image.id}-${imageScopeId}`}
+              selected={props.selectedImageId === image.id}
+              onPointerDown={(event) => dragImage(event, image)}
+              onResizePointerDown={(event, corner) => resizeImage(event, image, corner)}
+              onRotatePointerDown={(event) => rotateImage(event, image)}
+            />
+          )}
+        </For>
         <For each={panels()}>
           {(panel) => (
             <Show
@@ -277,6 +417,108 @@ export function ComicPaper(props: {
         </For>
       </svg>
     </div>
+  );
+}
+
+function ComicPageImageSvg(props: {
+  image: ComicPageImage;
+  scopeId: string;
+  selected: boolean;
+  onPointerDown: (event: PointerEvent) => void;
+  onResizePointerDown: (event: PointerEvent, corner: ResizeCorner) => void;
+  onRotatePointerDown: (event: PointerEvent) => void;
+}) {
+  const filterId = () => `comic-image-${props.scopeId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  const grayscaleIntercept = () => (props.image.brightness - 100) / 100 + 0.5 - 0.5 * (props.image.contrast / 100);
+  const thresholdValues = () => {
+    const cutoff = Math.round(props.image.threshold);
+    return Array.from({ length: 101 }, (_, index) => (index < cutoff ? "0" : "1")).join(" ");
+  };
+
+  return (
+    <>
+      <defs>
+        <clipPath id={`${filterId()}-clip`}>
+          <rect x="0" y="0" width="100%" height="100%" />
+        </clipPath>
+        <filter id={filterId()} color-interpolation-filters="sRGB">
+          <feColorMatrix type="saturate" values="0" />
+          <Show
+            when={props.image.treatment === "threshold"}
+            fallback={
+              <feComponentTransfer>
+                <feFuncR type="linear" slope={props.image.contrast / 100} intercept={grayscaleIntercept()} />
+                <feFuncG type="linear" slope={props.image.contrast / 100} intercept={grayscaleIntercept()} />
+                <feFuncB type="linear" slope={props.image.contrast / 100} intercept={grayscaleIntercept()} />
+              </feComponentTransfer>
+            }
+          >
+            <feComponentTransfer>
+              <feFuncR type="discrete" tableValues={thresholdValues()} />
+              <feFuncG type="discrete" tableValues={thresholdValues()} />
+              <feFuncB type="discrete" tableValues={thresholdValues()} />
+            </feComponentTransfer>
+          </Show>
+        </filter>
+      </defs>
+      <g class="comic-svg-image" onPointerDown={(event) => {
+        if ((event.target as Element).closest(".comic-svg-image-rotate")) {
+          props.onRotatePointerDown(event);
+          return;
+        }
+        const resizeHandle = (event.target as Element).closest<SVGCircleElement>(".comic-svg-image-handle");
+        const corner = resizeHandle?.dataset.corner as ResizeCorner | undefined;
+        if (corner) props.onResizePointerDown(event, corner);
+        else props.onPointerDown(event);
+      }}>
+        <svg
+          x={`${props.image.x}%`}
+          y={`${props.image.y}%`}
+          width={`${props.image.width}%`}
+          height={`${props.image.height}%`}
+          overflow="visible"
+          style={{
+            "transform-box": "fill-box",
+            "transform-origin": "center",
+            transform: `rotate(${props.image.rotation}deg)`,
+          }}
+        >
+          <image
+            class="comic-page-image"
+            href={props.image.src}
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            preserveAspectRatio={`xMidYMid ${props.image.fit === "cover" ? "slice" : "meet"}`}
+            filter={props.image.treatment === "color" ? undefined : `url(#${filterId()})`}
+            clip-path={`url(#${filterId()}-clip)`}
+          />
+          <rect class="comic-svg-image-hitbox" x="0" y="0" width="100%" height="100%" />
+          <Show when={props.selected}>
+            <line class="comic-svg-rotate-stem" x1="50%" y1="0" x2="50%" y2="-18" />
+            <circle class="comic-svg-handle comic-svg-handle-rotate comic-svg-image-rotate" cx="50%" cy="-18" r="7" />
+            <rect class="comic-svg-image-selection" x="0" y="0" width="100%" height="100%" />
+            <ImageResizeHandle corner="nw" x="0" y="0" />
+            <ImageResizeHandle corner="ne" x="100%" y="0" />
+            <ImageResizeHandle corner="sw" x="0" y="100%" />
+            <ImageResizeHandle corner="se" x="100%" y="100%" />
+          </Show>
+        </svg>
+      </g>
+    </>
+  );
+}
+
+function ImageResizeHandle(props: { corner: ResizeCorner; x: string; y: string }) {
+  return (
+    <circle
+      class={`comic-svg-handle comic-svg-handle-resize comic-svg-image-handle comic-svg-handle-resize-${props.corner}`}
+      data-corner={props.corner}
+      cx={props.x}
+      cy={props.y}
+      r="7"
+    />
   );
 }
 
