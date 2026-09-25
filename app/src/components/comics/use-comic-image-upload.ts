@@ -23,7 +23,7 @@ export function useComicImageUpload(options: {
     input?.click();
   }
 
-  async function upload(file: File, nextTarget?: "layer" | "new" | "replace") {
+  async function upload(file: File, nextTarget?: "layer" | "new" | "replace" | "processed") {
     const uploadTarget = nextTarget ?? target;
     pendingUploads += 1;
     setState("uploading");
@@ -37,9 +37,11 @@ export function useComicImageUpload(options: {
       const image = await response.json() as ComicPageImage;
       if (uploadTarget === "replace") options.onReplaceImage(image);
       else if (uploadTarget === "layer") options.onLayerImage(image);
-      else options.onNewImage(image);
+      else if (uploadTarget === "new") options.onNewImage(image);
+      return image;
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Could not upload this photo.");
+      return null;
     } finally {
       pendingUploads -= 1;
       if (pendingUploads === 0) setState("idle");

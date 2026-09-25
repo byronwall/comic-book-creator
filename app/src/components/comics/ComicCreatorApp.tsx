@@ -6,6 +6,7 @@ import { ComicAppNav } from "./ComicAppNav";
 import { ComicTitleRenameDialog } from "./ComicTitleRenameDialog";
 import { ComicPaper } from "./ComicPaper";
 import { ComicImageTools } from "./ComicImageTools";
+import { ComicPhotoDeskewDialog } from "./ComicPhotoDeskewDialog";
 import { PrintActions } from "./ComicPrintActions";
 import { TemplatePicker, TemplatePreview } from "./ComicTemplatePicker";
 import { TextToolsPanel } from "./ComicTextTools";
@@ -30,6 +31,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
   );
   const [saveState, setSaveState] = createSignal<"saved" | "saving" | "error">("saved");
   const [renameOpen, setRenameOpen] = createSignal(false);
+  const [deskewOpen, setDeskewOpen] = createSignal(false);
   const [clearTextConfirmOpen, setClearTextConfirmOpen] = createSignal(false);
   const [deleteTextId, setDeleteTextId] = createSignal("");
   const [deletePageId, setDeletePageId] = createSignal("");
@@ -277,6 +279,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
             filename: image.filename,
             originalName: image.originalName,
             mimeType: image.mimeType,
+            crop: undefined,
           }
         : currentImage),
       status: "Draft",
@@ -461,6 +464,24 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
           onOpenChange={setRenameOpen}
           onRename={renameBook}
         />
+        <Show when={selectedImage()}>
+          {(image) => <ComicPhotoDeskewDialog
+            open={deskewOpen()}
+            image={image()}
+            onOpenChange={setDeskewOpen}
+            onSave={async (file, corners) => {
+              const uploaded = await imageUpload.upload(file, "processed");
+              if (!uploaded) return false;
+              updatePageImage({
+                src: uploaded.src,
+                filename: uploaded.filename,
+                mimeType: uploaded.mimeType,
+                crop: { sourceFilename: image().crop?.sourceFilename ?? image().filename, corners },
+              });
+              return true;
+            }}
+          />}
+        </Show>
         <ConfirmDialog
           open={clearTextConfirmOpen()}
           onOpenChange={setClearTextConfirmOpen}
@@ -588,6 +609,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
                 uploading={imageUpload.state() === "uploading"}
                 uploadError={imageUpload.error()}
                 onChooseImage={() => imageUpload.choose("replace")}
+                onDeskew={() => setDeskewOpen(true)}
                 onMoveLayer={moveSelectedImageLayer}
                 onReset={resetPageImage}
                 onUpdate={updatePageImage}

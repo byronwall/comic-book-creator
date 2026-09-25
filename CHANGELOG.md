@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed SolidStart server-function URLs at root and subpath deployments by normalizing the server base and preserving it through Vite’s resolved client configuration.
 - Improved the comic editor layout for iPad landscape widths so the comic page stays on the left and text editing controls stay on the right.
 - Moved tablet template and page-size controls beneath the page picker as progressively disclosed visual thumbnail groups.
 - Preserved the full-size desktop template and page-size layout.

@@ -1016,6 +1016,68 @@
   overflow-wrap: anywhere;
 }
 
+.comic-deskew-dialog {
+  display: grid;
+  gap: 14px;
+}
+
+.comic-deskew-frame {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: auto;
+  line-height: 0;
+}
+
+.comic-deskew-frame img {
+  display: block;
+  max-width: 100%;
+  max-height: min(65vh, 800px);
+  width: auto;
+  height: auto;
+}
+
+.comic-deskew-frame svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.comic-deskew-frame polygon {
+  fill: rgba(20, 100, 220, 0.12);
+  stroke: var(--comic-blue-600);
+  stroke-width: 2;
+  stroke-dasharray: 1.2 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-deskew-point {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--comic-blue-600);
+  box-shadow: 0 2px 8px #0006;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.comic-deskew-point:focus-visible {
+  outline: 3px solid var(--comic-blue-800);
+  outline-offset: 3px;
+}
+
+.comic-deskew-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .comic-panel-svg {
   fill: #fff;
   stroke: #111;

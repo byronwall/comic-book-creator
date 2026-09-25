@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ImageIcon, RefreshCw, RotateCcw } from "lucide-solid";
+import { ArrowDown, ArrowUp, Crop, ImageIcon, RefreshCw, RotateCcw } from "lucide-solid";
 import { Show } from "solid-js";
 import type { ComicPageImage } from "~/lib/comics/types";
 
@@ -11,6 +11,7 @@ export function ComicImageTools(props: {
   uploading: boolean;
   uploadError: string;
   onChooseImage: () => void;
+  onDeskew: () => void;
   onMoveLayer: (direction: -1 | 1) => void;
   onReset: () => void;
   onUpdate: (patch: ImagePatch) => void;
@@ -30,6 +31,9 @@ export function ComicImageTools(props: {
       </div>
       <button type="button" class="comic-btn comic-image-replace" disabled={props.uploading} onClick={props.onChooseImage}>
         <RefreshCw size={17} /> {props.uploading ? "Uploading..." : "Replace Photo"}
+      </button>
+      <button type="button" class="comic-btn comic-image-replace" disabled={props.uploading} onClick={props.onDeskew}>
+        <Crop size={17} /> Crop &amp; Deskew
       </button>
       <Show when={props.uploadError}><p class="comic-dialog-error">{props.uploadError}</p></Show>
 

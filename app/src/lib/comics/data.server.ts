@@ -263,6 +263,17 @@ function normalizePageImage(image: ComicPageImage | undefined, bookId: string, i
   const height = clampNumber(image.height ?? legacySize, 5, 200);
   const x = clampNumber(image.x ?? (100 - legacySize) / 2 + (image.offsetX ?? 0), -195, 95);
   const y = clampNumber(image.y ?? (100 - legacySize) / 2 + (image.offsetY ?? 0), -195, 95);
+  const sourceFilename = image.crop?.sourceFilename;
+  const corners = image.crop?.corners;
+  const crop = typeof sourceFilename === "string"
+    && sourceFilename.length > 0
+    && path.basename(sourceFilename) === sourceFilename
+    && Array.isArray(corners)
+    && corners.length === 4
+    && corners.every((point) => typeof point?.x === "number" && Number.isFinite(point.x) && point.x >= 0 && point.x <= 1
+      && typeof point?.y === "number" && Number.isFinite(point.y) && point.y >= 0 && point.y <= 1)
+    ? { sourceFilename, corners }
+    : undefined;
 
   return {
     id: cleanText(image.id) || `image-${imageIndex + 1}-${filename.replace(/[^a-zA-Z0-9_-]/g, "-")}`,
@@ -280,6 +291,7 @@ function normalizePageImage(image: ComicPageImage | undefined, bookId: string, i
     height,
     rotation: clampInteger(image.rotation ?? 0, -180, 180),
     fit: image.fit === "cover" ? "cover" : "contain",
+    crop,
   };
 }
 

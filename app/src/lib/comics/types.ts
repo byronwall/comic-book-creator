@@ -27,6 +27,10 @@ export type ComicTextAlign = "left" | "center" | "right";
 export type ComicTextPositionScope = "panel" | "page";
 export type ComicPageMode = "comic" | "image";
 export type ComicImageTreatment = "color" | "grayscale" | "threshold";
+export type ComicPhotoCorners = [
+  { x: number; y: number }, { x: number; y: number },
+  { x: number; y: number }, { x: number; y: number },
+];
 
 export interface ComicPageImage {
   id: string;
@@ -47,6 +51,7 @@ export interface ComicPageImage {
   offsetX?: number;
   offsetY?: number;
   fit: "contain" | "cover";
+  crop?: { sourceFilename: string; corners: ComicPhotoCorners };
 }
 
 export interface ComicTextElement {
