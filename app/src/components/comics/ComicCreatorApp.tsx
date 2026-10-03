@@ -76,8 +76,8 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
       <Show when={!draft.accountChanged()}>
         <ComicAppNav account={props.account} onBeforeLeave={draft.beforeLeave} />
       </Show>
+      <main class="comic-main">
       <Show when={draft.pause() || draft.accountChanged() || draft.leaveAction()}>
-        <div class="comic-main">
           <ComicDraftRecovery
             pause={draft.pause()}
             accountChanged={draft.accountChanged()}
@@ -91,10 +91,8 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
             onSaveAndContinue={draft.saveAndContinue}
             onStay={draft.stay}
           />
-        </div>
       </Show>
       <Show when={!draft.accountChanged()}>
-      <main class="comic-main">
         <header class="comic-topbar">
           <div>
             <div class="comic-title-row">
@@ -278,8 +276,8 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
           </Show>
         </section>
         </Show>
-      </main>
       </Show>
+      </main>
     </div>
   );
 }

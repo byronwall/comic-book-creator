@@ -1,6 +1,6 @@
 ---
 id: cb-jqfr
-status: in_progress
+status: closed
 deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -58,3 +58,11 @@ Draft implementation and code review are complete. The editor uses a single-flig
 **2026-10-03T05:57:09Z**
 
 Browser review exposed stale content after another tab changed accounts. Added a same-origin storage notification containing only a random nonce on full document loads. Existing tabs recheck the authoritative session on that event, focus, pageshow, and visibility changes. A rejected account-context save also hides the stale editor. Fixed editor remounting to depend only on book ID, preserving drafts during same-book query revalidation. Clean browser recheck is pending.
+
+**2026-10-03T06:12:46Z**
+
+Browser acceptance passed after the final fixes. Switching A to B in another tab hides A content and shows draft recovery. Signing back into A and choosing Check and resume restores the editor. A new edit showed Saved to server and survived a deliberate reload. A stale second A tab showed a revision conflict with JSON download and reload controls; Reload saved version restored the current saved text. Editor print mode hid account navigation and editor controls. Screenshots are attached to PRs5 and7. Three focused queue tests also passed.
+
+**2026-10-03T06:17:35Z**
+
+Final screenshot review found an empty grid row above the editor during conflict recovery. The notice now shares the existing main element. A browser recheck reproduced the conflict and confirmed a16px gap before the editor; the large blank row is gone. Type checks and targeted lint passed.
