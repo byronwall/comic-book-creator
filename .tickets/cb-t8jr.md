@@ -1,7 +1,7 @@
 ---
 id: cb-t8jr
 status: open
-deps: [cb-3g5e]
+deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
 type: task
@@ -30,7 +30,7 @@ No live migration, traffic change, deployment, or credential reset is authorized
 
 ## Ready Gate
 
-Migration and private-library behavior must be closed. Before ready, identify an isolated volume, stopped-copy provenance, runtime image, and required test permissions. Use pnpm type, lint, and build checks. Local rehearsal can proceed without a production target; it cannot stand in for live environment verification.
+Migration and the private server boundary must be accepted in cb-xp5r and cb-ud97. Full browser acceptance remains in cb-3g5e. Before ready, identify an isolated volume, stopped-copy provenance, runtime image, and required test permissions. Use pnpm type, lint, and build checks. Local rehearsal can proceed without a production target; it cannot stand in for live environment verification.
 
 ## Provenance
 

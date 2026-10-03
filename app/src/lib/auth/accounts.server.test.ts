@@ -4,9 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { initializeEmptyData } from "~/lib/migrations/legacy-ownership.server";
-import { addUser } from "./users.server";
+import { addUser, readUserStore } from "./users.server";
 import { hashPassword } from "./password.server";
 import { legacyEventStream } from "./legacy-stream.server";
+import { registerAccount } from "./register.server";
 import { authenticate } from "./login.server";
 import { issueSession, readSession, revokeSession, SESSION_COOKIE } from "./sessions.server";
 import { requireLegacyUser, requireMutationUser, returnDestination } from "./request.server";
@@ -82,6 +83,22 @@ describe("disk-backed account boundaries", () => {
     send({ type: "update" });
     expect((await reader.read()).done).toBe(true);
     expect(unsubscribed).toBe(true);
+  });
+
+
+  it("keeps one account when duplicate emails race and rejects invalid registration", async () => {
+    const passwordHash = await hashPassword(password);
+    const results = await Promise.allSettled([
+      addUser({ email: "Person@Example.test", passwordHash }),
+      addUser({ email: " person@example.test ", passwordHash }),
+    ]);
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    expect((await readUserStore()).users).toHaveLength(1);
+    await expect(registerAccount("PERSON@example.test", password)).rejects.toMatchObject({ status: 409 });
+    await expect(registerAccount("invalid", password)).rejects.toMatchObject({ status: 400 });
+    await expect(registerAccount("new@example.test", "too short")).rejects.toMatchObject({ status: 400 });
+    await expect(registerAccount("new@example.test", "x".repeat(129))).rejects.toMatchObject({ status: 400 });
+    expect((await readUserStore()).users).toHaveLength(1);
   });
 
 });
