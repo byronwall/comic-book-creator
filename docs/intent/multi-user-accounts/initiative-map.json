@@ -1,0 +1,1321 @@
+{
+  "schema_version": "0.5.0",
+  "initiative": {
+    "title": "Comic Book Creator accounts",
+    "slug": "multi-user-accounts",
+    "scale": "capability",
+    "current_phase": "plan",
+    "last_updated": "2026-10-03",
+    "summary": "Add disk-backed email/password accounts and a public landing page. Preserve all legacy data through an explicit, verified ownership migration.",
+    "status": "planned",
+    "next_action": "Await implementation authorization, then refine cb-xp5r against the current repository and disposable migration proof. All tickets remain open."
+  },
+  "artifacts": {
+    "intent_brief": {
+      "path": "intent-brief.md",
+      "status": "current",
+      "updated_at": "2026-10-03"
+    },
+    "brainstorm": {
+      "path": "brainstorm.md",
+      "status": "not-requested",
+      "updated_at": null
+    },
+    "shape_brief": {
+      "path": "shape-brief.md",
+      "status": "current",
+      "updated_at": "2026-10-02"
+    },
+    "implementation_plan": {
+      "path": "implementation-plan.md",
+      "status": "current",
+      "updated_at": "2026-10-03"
+    }
+  },
+  "sources": [
+    {
+      "id": "request",
+      "type": "user-request",
+      "location": "Current Codex conversation",
+      "anchor": "Review the comic book site; create a detailed plan; legacy email ENV var; email/password; no verification or reset flows; Do not implement.",
+      "authority": "Direct user instruction"
+    },
+    {
+      "id": "rules",
+      "type": "repository-instructions",
+      "location": "AGENTS.md and user-supplied project instructions",
+      "anchor": "One server, simple implementation, pnpm; browser/tests only on explicit request; no worktree without request.",
+      "authority": "User and repository instructions"
+    },
+    {
+      "id": "books",
+      "type": "repository-code",
+      "location": "app/src/lib/comics/data.server.ts",
+      "anchor": "readComicBookSummariesFromDisk:30; writeComicBookByIdToDisk:68; ensureComicBooksDir:137; normalizeComicBook:166; normalizePageImage:253",
+      "authority": "Current repository at 54282e8"
+    },
+    {
+      "id": "types",
+      "type": "repository-code",
+      "location": "app/src/lib/comics/types.ts",
+      "anchor": "ComicBook, ComicPage, ComicPageImage, crop.sourceFilename",
+      "authority": "Current repository"
+    },
+    {
+      "id": "transport",
+      "type": "repository-code",
+      "location": "app/src/lib/comics/data.ts; app/src/routes/api/comic-books.ts; app/src/routes/api/comic-books/[bookId].ts",
+      "anchor": "fetchJson has no incoming-cookie forwarding; unguarded list/create/get/put/delete.",
+      "authority": "Current repository"
+    },
+    {
+      "id": "media",
+      "type": "repository-code",
+      "location": "app/src/routes/api/comic-books/[bookId]/images/[filename].ts",
+      "anchor": "GET:12; public max-age=31536000 immutable response",
+      "authority": "Current repository"
+    },
+    {
+      "id": "editor",
+      "type": "repository-code",
+      "location": "app/src/components/comics/ComicCreatorApp.tsx",
+      "anchor": "350 ms debounce:95; timer cleanup:125; full-book saveBook:128",
+      "authority": "Current repository"
+    },
+    {
+      "id": "inherited",
+      "type": "repository-code",
+      "location": "app/src/lib/projects/data.ts; app/src/routes/api/projects/; app/src/routes/api/spatial-map.ts; app/src/ws/jobs.ts",
+      "anchor": "Project server actions and API routes lack account guards; job snapshots/SSE; websocket source registration not confirmed.",
+      "authority": "Current repository"
+    },
+    {
+      "id": "storage",
+      "type": "repository-code",
+      "location": "app/src/lib/server/data-dir.ts; app/Dockerfile; app/docker-compose.yml",
+      "anchor": "APP_DATA_DIR and fallback paths; one comic-book-data volume; Node 22 runtime copy list.",
+      "authority": "Current repository"
+    },
+    {
+      "id": "inventory",
+      "type": "read-only-observation",
+      "location": "app/data",
+      "anchor": "Local filesystem inventory on 2026-10-02; 6 books, 30 pages, 66 texts, 9 comic image files; 5 displayed image entries, 1 crop source, zero missing references.",
+      "authority": "Observed local data only; no production claim"
+    },
+    {
+      "id": "ui",
+      "type": "repository-code-and-image",
+      "location": "app/src/routes/index.tsx; app/src/routes/books.tsx; docs/screenshots/comic-books-index.png",
+      "anchor": "Home is library; books layout pass-through; saved screenshot is historical appearance evidence.",
+      "authority": "Current code and repository screenshot; no live browser validation"
+    },
+    {
+      "id": "crypto-doc",
+      "type": "primary-documentation",
+      "location": "https://nodejs.org/docs/latest-v22.x/api/crypto.html#cryptoscryptpassword-salt-keylen-options-callback",
+      "anchor": "crypto.scrypt options, salt, maxmem, asynchronous API",
+      "authority": "Node.js documentation checked during planning"
+    },
+    {
+      "id": "password-doc",
+      "type": "primary-guidance",
+      "location": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "anchor": "scrypt cost combinations and password hashing guidance",
+      "authority": "OWASP guidance checked during planning"
+    },
+    {
+      "id": "session-doc",
+      "type": "primary-guidance",
+      "location": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+      "anchor": "Session token and cookie controls",
+      "authority": "OWASP guidance checked during planning"
+    },
+    {
+      "id": "solid-doc",
+      "type": "primary-documentation",
+      "location": "https://docs.solidjs.com/solid-start/v1/advanced/session",
+      "anchor": "Server-side session/cookie helpers; custom persistence for server session state",
+      "authority": "SolidStart documentation checked during planning"
+    },
+    {
+      "id": "query-doc",
+      "type": "primary-documentation",
+      "location": "https://docs.solidjs.com/solid-router/reference/data-apis/query",
+      "anchor": "Argument-based keys, request-scoped SSR cache, client cache and history reuse; installed query.clear confirmed.",
+      "authority": "Solid documentation and installed code"
+    },
+    {
+      "id": "ticket-request",
+      "type": "user-request",
+      "location": "Current Codex conversation",
+      "anchor": "Invoked ticket-fan-out: Go ahead and create tickets for the implementation.",
+      "authority": "Direct user instruction; tickets only, not execution"
+    }
+  ],
+  "intent": {
+    "claims": [
+      {
+        "id": "preserve",
+        "type": "outcome",
+        "statement": "All existing books and related data survive the account transition.",
+        "commitment": "explicit",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "legacy-email",
+        "type": "required behavior",
+        "statement": "An environment variable supplies the legacy account email.",
+        "commitment": "explicit",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "accounts",
+        "type": "outcome",
+        "statement": "Separate users register and sign in with email and password.",
+        "commitment": "explicit",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "landing",
+        "type": "desired experience",
+        "statement": "A public landing page explains the site.",
+        "commitment": "explicit",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "disk",
+        "type": "constraint",
+        "statement": "The first release may continue saving to disk.",
+        "commitment": "explicit",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "no-email",
+        "type": "anti-goal",
+        "statement": "No Resend, verification, or password-reset flows.",
+        "commitment": "explicit",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "planning-only",
+        "type": "constraint",
+        "statement": "Produce the detailed plan and local implementation tickets; do not implement.",
+        "commitment": "explicit",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "proof",
+        "sources": [
+          "request",
+          "ticket-request"
+        ]
+      },
+      {
+        "id": "ownership",
+        "type": "derived implication",
+        "statement": "Book and image access must check the server-resolved owner on every path.",
+        "commitment": "derived",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request",
+          "books",
+          "media"
+        ]
+      },
+      {
+        "id": "bootstrap",
+        "type": "implementation hypothesis",
+        "statement": "Set a legacy password through a hidden offline prompt; never use public email matching to claim data.",
+        "commitment": "derived",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "request"
+        ]
+      },
+      {
+        "id": "in-place",
+        "type": "implementation hypothesis",
+        "statement": "Add ownerUserId and revision in existing book files while preserving disk paths and IDs.",
+        "commitment": "derived",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "books",
+          "types"
+        ]
+      },
+      {
+        "id": "inherited-scope",
+        "type": "implementation hypothesis",
+        "statement": "Preserve inherited project and spatial data behind a legacy-account guard.",
+        "commitment": "derived",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "inherited",
+          "inventory"
+        ]
+      },
+      {
+        "id": "single-process",
+        "type": "constraint",
+        "statement": "Use one server process and one account-aware storage version.",
+        "commitment": "explicit",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "first release",
+        "sources": [
+          "rules"
+        ]
+      },
+      {
+        "id": "seeding",
+        "type": "current repository reality",
+        "statement": "Reading an empty comic store creates three seed books.",
+        "commitment": "derived",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "proof",
+        "sources": [
+          "books"
+        ]
+      },
+      {
+        "id": "raw-migration",
+        "type": "derived implication",
+        "statement": "Migration must bypass normalizers that rebuild objects and transform older fields.",
+        "commitment": "derived",
+        "importance": "core",
+        "status": "active",
+        "time_horizon": "proof",
+        "sources": [
+          "books",
+          "types"
+        ]
+      },
+      {
+        "id": "isolation",
+        "type": "implementation hypothesis",
+        "statement": "Use isolated copies and synthetic fixtures for mutation and browser checks.",
+        "commitment": "derived",
+        "importance": "supporting",
+        "status": "active",
+        "time_horizon": "proof",
+        "sources": [
+          "rules",
+          "inventory"
+        ]
+      }
+    ],
+    "themes": [
+      "Data preservation",
+      "Server ownership boundary",
+      "Small disk-backed accounts",
+      "Public explanation and onboarding"
+    ],
+    "conflicts": [
+      {
+        "statements": [
+          "Build it now",
+          "Do not implement"
+        ],
+        "resolution": "The final explicit instruction limits this task to planning. Build now defines the desired first-release scope.",
+        "status": "resolved",
+        "source": "request"
+      }
+    ],
+    "human_questions": []
+  },
+  "brainstorm": {
+    "status": "not-requested",
+    "requested_count": 7,
+    "options": [],
+    "selected_option": null
+  },
+  "shape": {
+    "status": "current",
+    "appetite": "Small first release for one personal-project server. Reuse the comic editor and disk volume.",
+    "problem": "The shared library has no user identity or ownership boundary.",
+    "recommended_shape": {
+      "storage": "One user registry, per-session files, existing book/image paths.",
+      "ownership": "Stable UUID user IDs; ownerUserId and revision in books; images inherit book ownership.",
+      "migration": "Explicit stopped-writer migration with full verified backup, journal, raw additive transforms, and completion marker.",
+      "auth": "Node scrypt, opaque random session tokens, disk session lookup, same-origin writes.",
+      "public_routes": [
+        "/",
+        "/sign-up",
+        "/sign-in"
+      ],
+      "private_routes": [
+        "/books",
+        "/books/:bookId"
+      ],
+      "inherited": "Legacy-account-only project/spatial tools."
+    },
+    "success_moves": [
+      "Prove content preservation on a disposable copy before account UI.",
+      "Keep IDs and storage paths stable.",
+      "Require server-resolved identity inside every comic store operation.",
+      "Guard inherited APIs and actions without expanding their product scope.",
+      "Retain drafts and reject saves after account change or revision conflict."
+    ],
+    "first_proof": {
+      "question": "Can ownership be added without changing any existing creative content or image bytes?",
+      "artifact": "Offline migration rehearsal, complete comparison report, repeat run, and interrupted-run recovery.",
+      "decision_rule": "Every file accounted for; nested JSON unchanged except ownerUserId/revision; image hashes unchanged; stable assignment; abort on unexplained differences."
+    },
+    "rabbit_holes": [
+      "Per-user folder relocation",
+      "Database or auth-provider introduction",
+      "Full multi-user conversion of inherited project tools",
+      "Dual storage authority",
+      "Verification/reset flows"
+    ],
+    "open_decisions": []
+  },
+  "implementation": {
+    "status": "current",
+    "repository_snapshot": {
+      "root": "/Users/byronwall/Projects/comic-books",
+      "revision": "54282e8ef9348b33544d6ff0a9ffeb286b0d8cab",
+      "branch": "main",
+      "worktree_status": "Clean before planning; only new docs/intent/multi-user-accounts artifacts authored.",
+      "subsystems": [
+        "Comic disk store and normalizers",
+        "Comic image uploads and private reads",
+        "SolidStart query/action/SSR transport",
+        "Comic editor autosave and print",
+        "Inherited project APIs and background jobs",
+        "Docker persistent volume"
+      ],
+      "test_commands": [
+        "pnpm type-check",
+        "pnpm lint",
+        "pnpm build",
+        "Focused pnpm test only when explicitly authorized"
+      ],
+      "deployment_surfaces": [
+        "app/Dockerfile",
+        "app/docker-compose.yml",
+        "APP_DATA_DIR",
+        "BASE_PATH"
+      ],
+      "inspection_limits": [
+        "No live browser flow",
+        "No test suite run",
+        "No production data inventory",
+        "Local listener on 3000 observed; its data target not established"
+      ],
+      "local_inventory": {
+        "comic_books": {
+          "files": 6,
+          "bytes": 38711,
+          "pages": 30,
+          "texts": 66
+        },
+        "comic_images": {
+          "files": 9,
+          "bytes": 14961389,
+          "displayed_references": 5,
+          "crop_sources": 1,
+          "missing_references": 0
+        },
+        "auxiliary_images": {
+          "files": 9,
+          "bytes": 2038709
+        },
+        "projects": {
+          "files": 21,
+          "bytes": 6131970
+        },
+        "spatial_map": {
+          "files": 1,
+          "bytes": 10704
+        }
+      }
+    },
+    "dependencies": [
+      {
+        "id": "disk",
+        "name": "Legacy JSON and image files",
+        "material": true,
+        "application_seam": "Explicit data-root migration plus atomic JSON replacement and owner-scoped comic store functions.",
+        "first_proof_role": {
+          "mode": "real",
+          "rationale": "A disposable real filesystem is required to prove rename, interrupted-write recovery, and byte preservation. Production is absent."
+        },
+        "failure_modes": [
+          "Malformed JSON",
+          "Missing crop-source image",
+          "Wrong migration target",
+          "Unexpected concurrent file change",
+          "Partial migration",
+          "Disk write failure",
+          "Duplicate email race",
+          "Stale book save"
+        ],
+        "proof_rungs": [
+          "local-filesystem-fixture",
+          "contract-test",
+          "stopped-volume-rehearsal",
+          "deployed-operational-proof"
+        ],
+        "local_proof": "Synthetic fixture and consistent copied data; compare raw values and bytes; repeat and interrupt migration.",
+        "live_proof": "Future authorized stopped-volume backup/migration/comparison only.",
+        "rollout": "One maintenance window; completion marker gates runtime; pre-write backup restore or post-write forward repair."
+      },
+      {
+        "id": "crypto",
+        "name": "Node 22 password hashing",
+        "material": true,
+        "application_seam": "Small server-only hashPassword and verifyPassword functions.",
+        "first_proof_role": {
+          "mode": "absent",
+          "rationale": "Inventory dry-run does not require credentials; real crypto is used when preparing the rehearsal account."
+        },
+        "failure_modes": [
+          "Wrong password",
+          "Invalid hash encoding",
+          "Insufficient scrypt maxmem",
+          "Concurrent memory pressure"
+        ],
+        "proof_rungs": [
+          "real-local-crypto",
+          "runtime-container-smoke"
+        ],
+        "local_proof": "Correct/wrong credential checks with real hashing; bound input and hash concurrency.",
+        "live_proof": "No provider smoke required. Confirm actual runtime image supports selected cost before deployment.",
+        "rollout": "Self-describing hashes; no runtime password ENV and no public legacy-claim flow."
+      },
+      {
+        "id": "solid-auth",
+        "name": "SolidStart request context, cookies, and query caching",
+        "material": true,
+        "application_seam": "requireUser, named FormData actions, direct server queries, and cookie/session helpers.",
+        "first_proof_role": {
+          "mode": "absent",
+          "rationale": "Offline migration proof needs no web transport."
+        },
+        "failure_modes": [
+          "Cookie not attached to SSR self-fetch",
+          "Stale client/history data",
+          "Expired or revoked session",
+          "Wrong Origin or base path",
+          "Old-tab account change"
+        ],
+        "proof_rungs": [
+          "local-http-integration",
+          "authorized-browser-flow",
+          "deployed-https-smoke"
+        ],
+        "local_proof": "Disposable accounts and two browser sessions when authorized; direct negative API checks.",
+        "live_proof": "Future canonical-origin, base-path, Secure-cookie, and reverse-proxy confirmation through HTTPS.",
+        "rollout": "Enable public registration only after all private and inherited paths are guarded; full navigation at auth changes."
+      }
+    ],
+    "fast_local_loop": {
+      "command": "Proposed: pnpm accounts:migrate --data-dir /absolute/disposable-data --dry-run; then apply and accounts:verify on the same isolated target.",
+      "network_required": false,
+      "shared_infrastructure_required": false,
+      "failure_injection": [
+        "Malformed JSON",
+        "Missing image reference",
+        "Interrupted migration after one committed book",
+        "Modified source hash",
+        "Concurrent duplicate signup",
+        "Stale revision",
+        "Expired session"
+      ],
+      "test_execution": "Future focused tests and browser checks require explicit authorization under AGENTS.md."
+    },
+    "milestones": [
+      {
+        "id": "1",
+        "title": "A copied library gains an owner without content loss",
+        "outcome": "Verified additive ownership migration and recovery report.",
+        "dependencies_introduced": [],
+        "proof": "Full manifest and semantic comparison; rerun and interrupted-run checks.",
+        "valid_intermediate_state": "Offline tool and migrated disposable copy; production remains untouched.",
+        "rollback": "Discard rehearsal output or restore its verified backup; do not touch live data.",
+        "status": "planned",
+        "evidence": [],
+        "ticket_ids": [
+          "cb-xp5r"
+        ]
+      },
+      {
+        "id": "2",
+        "title": "The legacy account can sign in and use a private library",
+        "outcome": "Authenticated legacy editing and guarded image/API/action paths.",
+        "dependencies_introduced": [
+          "solid-auth"
+        ],
+        "proof": "Legacy login/open/save/images/restart and unauthenticated access denial.",
+        "valid_intermediate_state": "Account-aware build uses migrated disposable data with registration unavailable.",
+        "rollback": "Revert the isolated build and copy together; old code never uses migrated live files.",
+        "status": "planned",
+        "evidence": [],
+        "ticket_ids": [
+          "cb-3g5e"
+        ]
+      },
+      {
+        "id": "3",
+        "title": "A second account cannot read or overwrite another library",
+        "outcome": "Signup, independent data, persistent sessions, and stale-save protection.",
+        "dependencies_introduced": [],
+        "proof": "A/B/anonymous access matrix; concurrent email and revision checks; two-tab account switch.",
+        "valid_intermediate_state": "Two accounts can complete separate comic workflows locally.",
+        "rollback": "Close signup while retaining all created account/book files; fix forward in any non-disposable environment.",
+        "status": "planned",
+        "evidence": [],
+        "ticket_ids": [
+          "cb-tt7r",
+          "cb-jqfr"
+        ]
+      },
+      {
+        "id": "4",
+        "title": "Visitors understand the site and can start a comic",
+        "outcome": "Public landing and account navigation support the comic workflow.",
+        "dependencies_introduced": [],
+        "proof": "Authorized narrow-screen/keyboard/browser flow and private-query absence on landing.",
+        "valid_intermediate_state": "Complete local product flow with account boundaries.",
+        "rollback": "Revert public UI while retaining auth and private data contracts.",
+        "status": "planned",
+        "evidence": [],
+        "ticket_ids": [
+          "cb-f2t6"
+        ]
+      },
+      {
+        "id": "5",
+        "title": "The deployment volume migrates with a checked recovery path",
+        "outcome": "Authorized rollout transfers legacy ownership with preservation proof.",
+        "dependencies_introduced": [],
+        "proof": "Rehearsed stopped-volume comparison, legacy sign-in, image checks, HTTPS cookies, and restart.",
+        "valid_intermediate_state": "One account-aware release serves persistent data after verified cutover.",
+        "rollback": "Before new writes: whole backup plus old release. After new writes: preserve current volume and repair forward or reconcile later changes.",
+        "status": "planned",
+        "evidence": [],
+        "ticket_ids": [
+          "cb-t8jr",
+          "cb-irrm"
+        ]
+      }
+    ],
+    "cut_line": [
+      "Email delivery, verification, and reset flows",
+      "Social login and magic links",
+      "Teams, roles, sharing, and admin UI",
+      "Profile/email changes and account deletion",
+      "Database/object storage/multiple servers",
+      "Multi-user inherited project tools",
+      "Offline editing and automatic draft merge",
+      "Broad editor or print redesign",
+      "Automatic backup or orphan-file deletion"
+    ],
+    "open_decisions": [
+      {
+        "topic": "Deployment facts",
+        "output": "Verified target volume, proxy, canonical origin, and base path.",
+        "evidence": "Operator deployment inspection before cutover.",
+        "fallback": "Stop at local proof."
+      },
+      {
+        "topic": "Crypto budget",
+        "output": "Measured scrypt memory/latency and bounded hash concurrency.",
+        "evidence": "Real runtime image measurement.",
+        "fallback": "Use another documented scrypt work combination; never a fast hash."
+      },
+      {
+        "topic": "Inherited tools scope",
+        "output": "Legacy-only guard unless explicitly expanded.",
+        "evidence": "Current comic-only route UI and user scope.",
+        "fallback": "Keep existing data and restrict inherited tools to the legacy account."
+      }
+    ],
+    "ticket_graph": {
+      "tracker": "tk",
+      "directory": ".tickets",
+      "mode": "tickets",
+      "created_at": "2026-10-03",
+      "epic_id": "cb-pix7",
+      "epic_path": ".tickets/cb-pix7.md",
+      "tickets": [
+        {
+          "id": "cb-xp5r",
+          "key": "migration",
+          "path": ".tickets/cb-xp5r.md",
+          "milestones": [
+            "1"
+          ],
+          "claims": [
+            "preserve",
+            "legacy-email",
+            "disk",
+            "bootstrap",
+            "in-place",
+            "single-process",
+            "seeding",
+            "raw-migration",
+            "isolation"
+          ]
+        },
+        {
+          "id": "cb-3g5e",
+          "key": "private",
+          "path": ".tickets/cb-3g5e.md",
+          "milestones": [
+            "2"
+          ],
+          "claims": [
+            "accounts",
+            "ownership",
+            "disk",
+            "legacy-email",
+            "bootstrap",
+            "in-place",
+            "inherited-scope",
+            "single-process",
+            "seeding",
+            "isolation"
+          ]
+        },
+        {
+          "id": "cb-tt7r",
+          "key": "signup",
+          "path": ".tickets/cb-tt7r.md",
+          "milestones": [
+            "3"
+          ],
+          "claims": [
+            "accounts",
+            "ownership",
+            "bootstrap",
+            "disk",
+            "single-process",
+            "seeding",
+            "inherited-scope",
+            "isolation",
+            "no-email"
+          ]
+        },
+        {
+          "id": "cb-jqfr",
+          "key": "drafts",
+          "path": ".tickets/cb-jqfr.md",
+          "milestones": [
+            "3"
+          ],
+          "claims": [
+            "preserve",
+            "accounts",
+            "ownership",
+            "in-place",
+            "single-process",
+            "isolation"
+          ]
+        },
+        {
+          "id": "cb-f2t6",
+          "key": "landing",
+          "path": ".tickets/cb-f2t6.md",
+          "milestones": [
+            "4"
+          ],
+          "claims": [
+            "landing",
+            "accounts",
+            "ownership",
+            "no-email",
+            "preserve",
+            "isolation"
+          ]
+        },
+        {
+          "id": "cb-t8jr",
+          "key": "rehearsal",
+          "path": ".tickets/cb-t8jr.md",
+          "milestones": [
+            "5"
+          ],
+          "claims": [
+            "preserve",
+            "legacy-email",
+            "bootstrap",
+            "disk",
+            "single-process",
+            "inherited-scope",
+            "no-email",
+            "isolation"
+          ]
+        },
+        {
+          "id": "cb-irrm",
+          "key": "cutover",
+          "path": ".tickets/cb-irrm.md",
+          "milestones": [
+            "5"
+          ],
+          "claims": [
+            "preserve",
+            "legacy-email",
+            "accounts",
+            "landing",
+            "ownership",
+            "bootstrap",
+            "single-process",
+            "inherited-scope",
+            "planning-only"
+          ]
+        }
+      ],
+      "frontier_at_creation": [
+        "cb-xp5r"
+      ],
+      "refinement": "All tickets were created open. Refine each frontier ticket just before execution; ticket creation does not authorize implementation.",
+      "dependency_rationale": [
+        {
+          "ticket": "cb-3g5e",
+          "prerequisite": "cb-xp5r",
+          "reason": "Private requests need the proved account/owner contract and completed migrated fixture."
+        },
+        {
+          "ticket": "cb-tt7r",
+          "prerequisite": "cb-3g5e",
+          "reason": "Registration must not open before all private paths enforce accounts."
+        },
+        {
+          "ticket": "cb-jqfr",
+          "prerequisite": "cb-3g5e",
+          "reason": "Draft expiry/switch proof needs sessions and atomic revision checks; fixture accounts avoid a signup dependency."
+        },
+        {
+          "ticket": "cb-t8jr",
+          "prerequisite": "cb-3g5e",
+          "reason": "Runtime rehearsal needs both the packaged migration and authenticated startup; public UI is not required."
+        },
+        {
+          "ticket": "cb-f2t6",
+          "prerequisite": "cb-tt7r",
+          "reason": "Visitor onboarding needs working registration and isolated libraries."
+        },
+        {
+          "ticket": "cb-f2t6",
+          "prerequisite": "cb-jqfr",
+          "reason": "Account navigation must finish or preserve pending edits."
+        },
+        {
+          "ticket": "cb-irrm",
+          "prerequisite": "cb-f2t6",
+          "reason": "The complete account and visitor behavior must pass before reopening traffic."
+        },
+        {
+          "ticket": "cb-irrm",
+          "prerequisite": "cb-t8jr",
+          "reason": "Live migration requires a checked command, backup procedure, and runtime rehearsal."
+        }
+      ],
+      "coverage": [
+        {
+          "topic": "User goals and planning-only boundary",
+          "tickets": [
+            "cb-pix7",
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-f2t6",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "request; intent Boundaries"
+        },
+        {
+          "topic": "Stable user identity, unique normalized email, private user projection",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r"
+          ],
+          "source": "plan Ownership and storage contract"
+        },
+        {
+          "topic": "Keep disk storage, one process, one version",
+          "tickets": [
+            "cb-pix7",
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "shape Core shape; plan Disk writes and saves"
+        },
+        {
+          "topic": "LEGACY_USER_EMAIL once, hidden password, no public claim or runtime fallback",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan milestone 1; password/bootstrap strategy"
+        },
+        {
+          "topic": "Raw additive metadata; bypass normalizers and seed reads",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e"
+          ],
+          "source": "books source; plan milestones 1 and 2"
+        },
+        {
+          "topic": "Full preservation includes unknown files, auxiliary data, unreferenced images and crop originals",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "inventory; plan migration procedure"
+        },
+        {
+          "topic": "Explicit target, stopped writer, backup outside root, restricted credentials",
+          "tickets": [
+            "cb-xp5r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan migration procedure and rollout"
+        },
+        {
+          "topic": "Hash journal, source/target resume, idempotence, conflicting email",
+          "tickets": [
+            "cb-xp5r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan milestone 1 recovery"
+        },
+        {
+          "topic": "Malformed JSON, missing image, conflicting owner, invalid path, duplicate ID and third hash",
+          "tickets": [
+            "cb-xp5r"
+          ],
+          "source": "plan milestone 1 verification"
+        },
+        {
+          "topic": "Fresh-store explicit initialization, no request seeding, invalid storage is error",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r"
+          ],
+          "source": "plan milestones 1 and 2"
+        },
+        {
+          "topic": "Stable book IDs/paths, authoritative ownership/revision, new UUID IDs, repeat titles",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr"
+          ],
+          "source": "plan storage and disk contracts"
+        },
+        {
+          "topic": "Atomic replacement, mutation queues, duplicate signup and stale save races",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr"
+          ],
+          "source": "plan Disk writes and saves"
+        },
+        {
+          "topic": "Real crypto, memory/latency spike, bounded auth work",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-t8jr"
+          ],
+          "source": "plan Passwords and sessions; crypto spike"
+        },
+        {
+          "topic": "Opaque token hashes, session cookies, expiry, logout revocation, restart",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan Passwords and sessions"
+        },
+        {
+          "topic": "Exact mutation Origin, safe returns, base path, no credential exposure",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-f2t6",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan Runtime boundaries; milestone 4"
+        },
+        {
+          "topic": "Ownership on every book/image operation; client context is never authority",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr"
+          ],
+          "source": "plan Runtime boundaries"
+        },
+        {
+          "topic": "401/404/409/403/503 meanings; deny corruption instead of empty initialization",
+          "tickets": [
+            "cb-3g5e",
+            "cb-jqfr",
+            "cb-irrm"
+          ],
+          "source": "plan Runtime boundaries"
+        },
+        {
+          "topic": "SSR self-fetch missing cookie; direct guarded reads, safe HTML and cache identities",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-f2t6"
+          ],
+          "source": "transport; plan milestone 2"
+        },
+        {
+          "topic": "Inherited actions, APIs, exports, jobs/SSE and websocket inspection; no broader product",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "inherited; plan Close all exposed paths"
+        },
+        {
+          "topic": "Retire singleton safely after caller check",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r"
+          ],
+          "source": "plan milestone 2"
+        },
+        {
+          "topic": "New private media URLs, preserved disk paths, public-cache limit",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "media; plan milestone 2"
+        },
+        {
+          "topic": "Form action conventions, pending/errors, password handling and no mail/reset",
+          "tickets": [
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-f2t6"
+          ],
+          "source": "plan milestones 2–4"
+        },
+        {
+          "topic": "Persisted account plus failed session is partial success",
+          "tickets": [
+            "cb-tt7r"
+          ],
+          "source": "plan milestone 3"
+        },
+        {
+          "topic": "Authentication full navigation, restored-page/focus recheck, cache clearing",
+          "tickets": [
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-f2t6"
+          ],
+          "source": "plan milestone 3"
+        },
+        {
+          "topic": "Old-tab creates/uploads/saves/deletes blocked under new account",
+          "tickets": [
+            "cb-jqfr"
+          ],
+          "source": "plan milestone 3"
+        },
+        {
+          "topic": "One in-flight save, newest snapshot, confirmed revision, delayed acknowledgment",
+          "tickets": [
+            "cb-jqfr"
+          ],
+          "source": "editor; plan milestone 3"
+        },
+        {
+          "topic": "Expiry/conflict draft retained; same-account revision check; no blind retry",
+          "tickets": [
+            "cb-jqfr"
+          ],
+          "source": "plan milestone 3"
+        },
+        {
+          "topic": "Pending navigation/logout, recovery download, explicit discard and dirty-close limitation",
+          "tickets": [
+            "cb-jqfr",
+            "cb-f2t6"
+          ],
+          "source": "plan milestone 3"
+        },
+        {
+          "topic": "Landing explains layout/text/photos/print; synthetic assets only; no private query",
+          "tickets": [
+            "cb-f2t6"
+          ],
+          "source": "plan milestone 4"
+        },
+        {
+          "topic": "Route map, existing deep links, responsive keyboard forms, print exclusion and indexing",
+          "tickets": [
+            "cb-f2t6"
+          ],
+          "source": "plan milestone 4"
+        },
+        {
+          "topic": "Built image currently lacks source/scripts; ship runner and verify standalone command",
+          "tickets": [
+            "cb-t8jr"
+          ],
+          "source": "storage; plan milestone 5"
+        },
+        {
+          "topic": "Runtime configuration, no session secret, READMEs and no-reset operator expectations",
+          "tickets": [
+            "cb-t8jr"
+          ],
+          "source": "plan milestone 5"
+        },
+        {
+          "topic": "Cutover authorization, real volume/proxy/permissions facts, private smoke then reopen",
+          "tickets": [
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan milestone 5"
+        },
+        {
+          "topic": "Rollback before writes vs forward repair after new work; never old code on migrated volume",
+          "tickets": [
+            "cb-pix7",
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "shape Plan handoff; plan milestone 5"
+        },
+        {
+          "topic": "Disposable proof; local counts are observations; no assumed localhost target",
+          "tickets": [
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-f2t6",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan Local proof and Cross-cutting verification"
+        },
+        {
+          "topic": "pnpm checks; focused test/browser authorization; no production work during preparation",
+          "tickets": [
+            "cb-pix7",
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-jqfr",
+            "cb-f2t6",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "rules; plan Cross-cutting verification"
+        },
+        {
+          "topic": "Cut: email/identity services, verification/reset, profiles, roles, teams, sharing",
+          "tickets": [
+            "cb-pix7",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-f2t6",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan Below the cut line"
+        },
+        {
+          "topic": "Cut: database/object storage/distributed writers/general migration/dual authority",
+          "tickets": [
+            "cb-pix7",
+            "cb-xp5r",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-t8jr"
+          ],
+          "source": "plan Below the cut line"
+        },
+        {
+          "topic": "Cut: multi-user inherited tools",
+          "tickets": [
+            "cb-pix7",
+            "cb-3g5e",
+            "cb-tt7r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan Below the cut line"
+        },
+        {
+          "topic": "Cut: offline/merge/history/sync and broad editor/print redesign",
+          "tickets": [
+            "cb-pix7",
+            "cb-jqfr",
+            "cb-f2t6"
+          ],
+          "source": "plan Below the cut line"
+        },
+        {
+          "topic": "Cut: automatic backup/unknown-file/image cleanup",
+          "tickets": [
+            "cb-pix7",
+            "cb-xp5r",
+            "cb-t8jr",
+            "cb-irrm"
+          ],
+          "source": "plan Below the cut line"
+        }
+      ],
+      "verification": {
+        "all_open": true,
+        "ready_count": 0,
+        "cycles": 0,
+        "root_count": 1,
+        "child_count": 7,
+        "epic_depends_on_all_children": true,
+        "implementation_started": false,
+        "production_authorized": false
+      }
+    }
+  },
+  "history": [
+    {
+      "date": "2026-10-02",
+      "event": "initiative-created",
+      "status": "planned",
+      "reason": "User requested detailed review and plan, explicitly forbidding implementation.",
+      "evidence": [
+        "request"
+      ]
+    },
+    {
+      "date": "2026-10-02",
+      "event": "plan-completed",
+      "reason": "Repository-grounded intent, shape, implementation sequence, schemas, migration/recovery procedure, and diagrams prepared.",
+      "evidence": [
+        "books",
+        "transport",
+        "media",
+        "editor",
+        "inherited",
+        "storage",
+        "inventory"
+      ],
+      "implementation_started": false
+    },
+    {
+      "date": "2026-10-03",
+      "event": "ticket-graph-created",
+      "reason": "User requested local implementation tickets from the current plan. Created one epic and seven coarse open children with real prerequisite edges.",
+      "epic_id": "cb-pix7",
+      "ticket_ids": [
+        "cb-xp5r",
+        "cb-3g5e",
+        "cb-tt7r",
+        "cb-jqfr",
+        "cb-f2t6",
+        "cb-t8jr",
+        "cb-irrm"
+      ],
+      "evidence": [
+        "ticket-request"
+      ],
+      "implementation_started": false,
+      "plan_changed": false
+    }
+  ],
+  "closure": null,
+  "verification": {
+    "planning_validator": "Passed; one length warning retained because the user requested a very detailed plan.",
+    "heuristic_audit": "Completed; no substantive repair flagged. Structural checks do not prove migration or account correctness.",
+    "documents": "Planning artifacts and eight local ticket files only; application code and saved data remain unchanged.",
+    "diagrams": {
+      "count": 5,
+      "additional": "One landing-page text wireframe",
+      "syntax": "ER and sequence diagrams parsed with installed Mermaid. Flow diagrams manually reviewed; automatic headless parse was unavailable because DOMPurify requires a DOM.",
+      "rendered": false
+    },
+    "tests_run": [],
+    "browser_run": false,
+    "production_access": false,
+    "ticket_graph": "tk frontier exposes only cb-xp5r. No ready tickets or dependency cycles. Epic depends on all seven children."
+  }
+}
