@@ -1,0 +1,14 @@
+.comic-draft-recovery {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid #b45309;
+  border-radius: 0.75rem;
+  background: #fffbeb;
+  color: #422006;
+}
+
+.comic-draft-recovery h2 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+.comic-draft-recovery p { margin: 0 0 0.75rem; }
+.comic-draft-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+@media print { .comic-draft-recovery { display: none !important; } }
