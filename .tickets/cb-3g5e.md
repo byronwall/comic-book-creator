@@ -96,3 +96,7 @@ Browser review caught an SSR redirect timing failure. Middleware now redirects b
 **2026-10-03T04:59:35Z**
 
 Execution decision: keep this ticket open for the remaining browser proof. Its server contract has passed integration and production-restart checks. Continue dependent implementation on checkpoint branches while browser access is unavailable. This changes execution order only; it does not remove any acceptance check or authorize deployment. Keep dependent outcomes unfinished until their browser proof passes.
+
+**2026-10-03T05:57:09Z**
+
+Browser review found that a foreign book URL displayed the global Unknown error view. The page now returns404 with Book not found and a link to the current library, without exposing book identity. Type checks and targeted lint passed; HTTP and browser rechecks continue.

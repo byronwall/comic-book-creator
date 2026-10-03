@@ -14,7 +14,6 @@ export const getComicBookById = query(async (bookId: string) => {
   const { readComicBookByIdFromDisk } = await import("./data.server");
   const user = await requirePageUser();
   const book = await readComicBookByIdFromDisk(user.id, bookId);
-  if (!book) throw new Response("Book not found.", { status: 404 });
   return book;
 }, "comic-book-by-id");
 
