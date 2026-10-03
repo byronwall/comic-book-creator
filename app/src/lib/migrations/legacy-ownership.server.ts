@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { mkdir, readFile, readdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { hashPassword } from "../auth/password.server.ts";
 import { replaceUserStore, readUserStore } from "../auth/users.server.ts";
 import type { DataState, User, UserStore } from "../auth/types.ts";
@@ -203,4 +203,3 @@ async function verifyCompleted(root: string, files: string[], records: Array<{re
   await compareMigrated(root, files, records, journal);
   await verifyBackup(journal);
 }
-

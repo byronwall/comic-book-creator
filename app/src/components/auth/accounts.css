@@ -1,0 +1,14 @@
+.account-page { min-height: 100vh; display: grid; align-content: center; justify-items: center; gap: var(--spacing-8, 2rem); padding: var(--spacing-8, 2rem) var(--spacing-4, 1rem); background: #f6f0df; color: #1b1b1b; }
+.account-brand { font-family: Impact, "Arial Black", sans-serif; font-size: 2rem; color: inherit; text-decoration: none; }
+.account-form-panel { width: min(100%, 28rem); border: 3px solid currentColor; padding: var(--spacing-8, 2rem); background: white; box-shadow: 6px 6px 0 #1b1b1b; }
+.account-form-panel h1 { font-size: 2rem; font-weight: 800; line-height: 1.15; margin-bottom: var(--spacing-3, .75rem); }
+.account-form-panel > p { margin-bottom: var(--spacing-6, 1.5rem); }
+.account-form { display: grid; gap: var(--spacing-4, 1rem); }
+.account-form input { width: 100%; min-height: 44px; }
+.account-error { color: #a02020; font-weight: 600; }
+.account-error:empty { display: none; }
+.comic-account { margin-top: auto; padding: var(--spacing-4, 1rem); overflow-wrap: anywhere; font-size: .875rem; }
+.comic-account form { margin-top: var(--spacing-3, .75rem); }
+.comic-account .comic-btn { width: 100%; }
+@media (max-width: 760px) { .comic-account { margin: 0; padding: var(--spacing-2, .5rem); } }
+@media print { .comic-account, .account-page { display: none !important; } }

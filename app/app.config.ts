@@ -18,6 +18,7 @@ const solidServerBaseUrlPlugin = {
 };
 
 export default defineConfig({
+  middleware: "./src/middleware.ts",
   server: {
     baseURL: normalizedBasePath,
   },

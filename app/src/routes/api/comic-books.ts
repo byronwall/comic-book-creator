@@ -1,38 +1,37 @@
 import type { APIEvent } from "@solidjs/start/server";
+import { requireMutationUser, requireUser } from "~/lib/auth/request.server";
+import { apiResponse, fail, privateJson } from "~/lib/auth/http.server";
+import { appPath } from "~/lib/router/app-path";
 import { createComicBookOnDisk, readComicBookSummariesFromDisk } from "~/lib/comics/data.server";
 
-export async function GET(_event: APIEvent) {
-  const books = await readComicBookSummariesFromDisk();
-
-  return json(books);
+export function GET(event: APIEvent) {
+  return apiResponse(async () => {
+    const user = await requireUser(event.request);
+    return privateJson(await readComicBookSummariesFromDisk(user.id));
+  });
 }
 
-export async function POST(event: APIEvent) {
-  const contentType = event.request.headers.get("content-type") || "";
-  const payload = contentType.includes("application/json")
-    ? ((await event.request.json().catch(() => ({}))) as { title?: string })
-    : await readFormPayload(event.request);
-  const book = await createComicBookOnDisk({ title: payload.title });
-
-  if (!contentType.includes("application/json")) {
-    return Response.redirect(new URL(`/books/${book.id}`, event.request.url), 303);
-  }
-
-  return json(book, 201);
-}
-
-async function readFormPayload(request: Request) {
-  const formData = await request.formData();
-  const title = formData.get("title");
-  return { title: typeof title === "string" ? title : undefined };
-}
-
-function json(value: unknown, status = 200) {
-  return new Response(JSON.stringify(value), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-    },
+export function POST(event: APIEvent) {
+  return apiResponse(async () => {
+    const isJson = (event.request.headers.get("content-type") || "").includes("application/json");
+    let title: string | undefined;
+    let expectedUserId: FormDataEntryValue | null = null;
+    if (isJson) {
+      let payload: unknown;
+      try { payload = await event.request.json(); } catch { return fail(400, "Invalid request body"); }
+      if (!payload || typeof payload !== "object") return fail(400, "Invalid request body");
+      title = typeof (payload as { title?: unknown }).title === "string" ? (payload as { title: string }).title : undefined;
+    } else {
+      let form: FormData;
+      try { form = await event.request.formData(); } catch { return fail(400, "Invalid form data"); }
+      const formTitle = form.get("title");
+      title = typeof formTitle === "string" ? formTitle : undefined;
+      expectedUserId = form.get("userId");
+      if (typeof expectedUserId !== "string") return fail(400, "Account context is required");
+    }
+    const user = await requireMutationUser(event.request, expectedUserId);
+    const book = await createComicBookOnDisk(user.id, { title });
+    if (!isJson) return Response.redirect(new URL(appPath(`/books/${book.id}`), event.request.url), 303);
+    return privateJson(book, 201);
   });
 }

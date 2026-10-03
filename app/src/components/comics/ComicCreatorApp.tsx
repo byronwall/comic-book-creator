@@ -1,3 +1,5 @@
+import type { Account } from "~/lib/auth/sessions.server";
+import { appPath } from "~/lib/router/app-path";
 import { ArrowLeft, ArrowRight, Camera, Check, Eraser, FilePlus2, MessageCircle, Pencil, Sparkles, Trash2, Type } from "lucide-solid";
 import { For, Show, createEffect, createMemo, createSignal, onCleanup, onMount, untrack } from "solid-js";
 import type { ComicBook, ComicLayoutKind, ComicPage, ComicPageImage, ComicPaperSize, ComicTextElement, ComicTextKind } from "~/lib/comics/types";
@@ -22,7 +24,7 @@ type TextPatch = Partial<
 
 export { PrintActions } from "./ComicPrintActions";
 
-export function ComicCreatorApp(props: { initialBook: ComicBook }) {
+export function ComicCreatorApp(props: { account: Account; initialBook: ComicBook }) {
   const [book, setBook] = createSignal(untrack(() => props.initialBook));
   const [activePageId, setActivePageId] = createSignal(props.initialBook.pages[0]?.id ?? "");
   const [selectedTextId, setSelectedTextId] = createSignal(props.initialBook.pages[0]?.texts[0]?.id ?? "");
@@ -39,6 +41,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
   let acceptingServerEcho = true;
   const imageUpload = useComicImageUpload({
     bookId: () => book().id,
+    userId: () => props.account.id,
     onLayerImage: addImageLayer,
     onNewImage: addImagePage,
     onReplaceImage: replaceImage,
@@ -127,9 +130,9 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
 
   function saveBook(nextBook: ComicBook) {
     const savedSnapshot = JSON.stringify(nextBook);
-    return fetch(`/api/comic-books/${nextBook.id}`, {
+    return fetch(appPath(`/api/comic-books/${nextBook.id}`), {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", "x-comic-user": props.account.id },
       body: JSON.stringify(nextBook),
     })
       .then((response) => {
@@ -433,7 +436,7 @@ export function ComicCreatorApp(props: { initialBook: ComicBook }) {
           if (file) void imageUpload.upload(file);
         }}
       />
-      <ComicAppNav />
+      <ComicAppNav account={props.account} />
 
       <main class="comic-main">
         <header class="comic-topbar">

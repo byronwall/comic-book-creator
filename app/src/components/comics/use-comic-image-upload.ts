@@ -1,8 +1,10 @@
+import { appPath } from "~/lib/router/app-path";
 import { createSignal } from "solid-js";
 import type { ComicPageImage } from "~/lib/comics/types";
 
 export function useComicImageUpload(options: {
   bookId: () => string;
+  userId: () => string;
   onLayerImage: (image: ComicPageImage) => void;
   onNewImage: (image: ComicPageImage) => void;
   onReplaceImage: (image: ComicPageImage) => void;
@@ -32,7 +34,7 @@ export function useComicImageUpload(options: {
     formData.set("image", file);
 
     try {
-      const response = await fetch(`/api/comic-books/${options.bookId()}/images`, { method: "POST", body: formData });
+      const response = await fetch(appPath(`/api/comic-books/${options.bookId()}/images`), { method: "POST", headers: { "x-comic-user": options.userId() }, body: formData });
       if (!response.ok) throw new Error((await response.text()) || `Upload failed: ${response.status}`);
       const image = await response.json() as ComicPageImage;
       if (uploadTarget === "replace") options.onReplaceImage(image);

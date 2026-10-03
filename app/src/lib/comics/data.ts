@@ -1,33 +1,36 @@
-import { query } from "@solidjs/router";
-import { getRequestEvent } from "solid-js/web";
-import type { ComicBook, ComicBookSummary } from "./types";
+import { action, query, redirect } from "@solidjs/router";
 
-async function fetchJson<T>(pathname: string): Promise<T> {
-  const requestEvent = getRequestEvent();
-  const requestUrl = requestEvent?.request.url;
-  const url = requestUrl
-    ? new URL(pathname, requestUrl)
-    : new URL(pathname, window.location.origin);
-  const response = await fetch(url);
+export const getComicBooks = query(async () => {
+  "use server";
+  const { requirePageUser } = await import("~/lib/auth/request.server");
+  const { readComicBookSummariesFromDisk } = await import("./data.server");
+  const user = await requirePageUser();
+  return readComicBookSummariesFromDisk(user.id);
+}, "comic-books");
 
-  if (!response.ok) {
-    throw new Error(`Failed to load ${pathname}: ${response.status}`);
+export const getComicBookById = query(async (bookId: string) => {
+  "use server";
+  const { requirePageUser } = await import("~/lib/auth/request.server");
+  const { readComicBookByIdFromDisk } = await import("./data.server");
+  const user = await requirePageUser();
+  const book = await readComicBookByIdFromDisk(user.id, bookId);
+  if (!book) throw new Response("Book not found.", { status: 404 });
+  return book;
+}, "comic-book-by-id");
+
+export const createComicBook = action(async (formData: FormData) => {
+  "use server";
+  const { currentRequest, requireMutationUser, appOrigin } = await import("~/lib/auth/request.server");
+  const { appPath } = await import("~/lib/router/app-path");
+  const { createComicBookOnDisk } = await import("./data.server");
+  let destination: string;
+  try {
+    const user = await requireMutationUser(currentRequest(), formData.get("userId"));
+    const title = formData.get("title");
+    const book = await createComicBookOnDisk(user.id, { title: typeof title === "string" ? title : undefined });
+    destination = new URL(appPath(`/books/${book.id}`), appOrigin()).href;
+  } catch (error) {
+    return { error: error instanceof Response ? await error.text() : "Could not create this book. Try again." };
   }
-
-  return response.json() as Promise<T>;
-}
-
-export const getComicBook = query(
-  async () => fetchJson<ComicBook>("/api/comic-book"),
-  "comic-book",
-);
-
-export const getComicBooks = query(
-  async () => fetchJson<ComicBookSummary[]>("/api/comic-books"),
-  "comic-books",
-);
-
-export const getComicBookById = query(
-  async (bookId: string) => fetchJson<ComicBook>(`/api/comic-books/${bookId}`),
-  "comic-book-by-id",
-);
+  throw redirect(destination, 303);
+}, "create-comic-book");

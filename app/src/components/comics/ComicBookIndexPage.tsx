@@ -1,14 +1,18 @@
-import { A, revalidate } from "@solidjs/router";
+import type { Account } from "~/lib/auth/sessions.server";
+import { appPath } from "~/lib/router/app-path";
+import { normalizeActionUrl } from "~/lib/router/action-url";
+import { A, revalidate, useSubmission } from "@solidjs/router";
 import { BookOpen, FilePlus2, Trash2 } from "lucide-solid";
 import { For, createSignal } from "solid-js";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
-import { getComicBooks } from "~/lib/comics/data";
+import { createComicBook, getComicBooks } from "~/lib/comics/data";
 import type { ComicBookSummary } from "~/lib/comics/types";
 import { ComicAppNav } from "./ComicAppNav";
 import { PrintActions } from "./ComicPrintActions";
 import "./comic-creator.css";
 
-export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
+export function ComicBookIndexPage(props: { account: Account; books: ComicBookSummary[] }) {
+  const createSubmission = useSubmission(createComicBook);
   const [title, setTitle] = createSignal("Untitled Comic Book");
   const [deleteBookId, setDeleteBookId] = createSignal("");
   const [deleteDialogOpen, setDeleteDialogOpen] = createSignal(false);
@@ -22,8 +26,9 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
     setDeleteError("");
 
     try {
-      const response = await fetch(`/api/comic-books/${encodeURIComponent(bookId)}`, {
+      const response = await fetch(appPath(`/api/comic-books/${encodeURIComponent(bookId)}`), {
         method: "DELETE",
+        headers: { "x-comic-user": props.account.id },
       });
 
       if (!response.ok) {
@@ -43,7 +48,7 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
 
   return (
     <div class="comic-app">
-      <ComicAppNav />
+      <ComicAppNav account={props.account} />
 
       <main class="comic-main">
         <header class="comic-topbar">
@@ -64,7 +69,7 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
                     </span>
                     <strong>{book.title}</strong>
                     <span>{book.pageCount} pages</span>
-                    <small>Updated {new Date(book.updatedAt).toLocaleDateString()}</small>
+                    <small>Updated {book.updatedAt.slice(0, 10)}</small>
                   </A>
                   <button
                     type="button"
@@ -87,9 +92,10 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
 
           <form
             method="post"
-            action="/api/comic-books"
+            action={normalizeActionUrl(createComicBook.toString())}
             class="comic-card comic-create-book"
           >
+            <input type="hidden" name="userId" value={props.account.id} />
             <h2>Create New Book</h2>
             <label class="comic-field">
               <span>Book Title</span>
@@ -101,10 +107,12 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
             </label>
             <button
               type="submit"
+              disabled={createSubmission.pending}
               class="comic-btn primary"
             >
-              <FilePlus2 size={18} /> Create New Book
+              <FilePlus2 size={18} /> {createSubmission.pending ? "Creating…" : "Create New Book"}
             </button>
+            <p role="alert" class="account-error">{createSubmission.result?.error}</p>
           </form>
         </section>
         <PrintActions />
