@@ -40,7 +40,7 @@ Local tracker epic: [cb-pix7](../../../.tickets/cb-pix7.md). Seven child tickets
 | [cb-t8jr](../../../.tickets/cb-t8jr.md) | Package and rehearse the account migration release | [cb-3g5e](../../../.tickets/cb-3g5e.md) |
 | [cb-irrm](../../../.tickets/cb-irrm.md) | Migrate the live library after explicit rollout approval | [cb-f2t6](../../../.tickets/cb-f2t6.md), [cb-t8jr](../../../.tickets/cb-t8jr.md) |
 
-The first frontier is [cb-xp5r](../../../.tickets/cb-xp5r.md). Signup, draft protection, and deployment rehearsal can proceed separately after private-library access is proven. Live migration requires explicit rollout authorization. Creating this graph does not start implementation.
+Migration precedes private-library access. Signup, draft protection, and release rehearsal follow that boundary. The user has authorized implementation and stacked pull requests. Tickets own current status and proof. Live migration requires separate rollout approval.
 
 ## Review of the current site
 

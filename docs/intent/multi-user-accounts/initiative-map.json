@@ -4,11 +4,11 @@
     "title": "Comic Book Creator accounts",
     "slug": "multi-user-accounts",
     "scale": "capability",
-    "current_phase": "plan",
+    "current_phase": "execution",
     "last_updated": "2026-10-03",
     "summary": "Add disk-backed email/password accounts and a public landing page. Preserve all legacy data through an explicit, verified ownership migration.",
-    "status": "planned",
-    "next_action": "Await implementation authorization, then refine cb-xp5r against the current repository and disposable migration proof. All tickets remain open."
+    "status": "active",
+    "next_action": "Implement and verify the frontier in tk. Tickets own live status. Live migration remains unauthorized."
   },
   "artifacts": {
     "intent_brief": {
@@ -151,6 +151,13 @@
       "location": "Current Codex conversation",
       "anchor": "Invoked ticket-fan-out: Go ahead and create tickets for the implementation.",
       "authority": "Direct user instruction; tickets only, not execution"
+    },
+    {
+      "id": "implementation-request",
+      "type": "user-request",
+      "location": "Current Codex conversation",
+      "anchor": "Go implement all that work. Commit after each ticket or chunk. Issue stacked PRs. Run focused tests and browser checks on disposable data.",
+      "authority": "Direct user instruction"
     }
   ],
   "intent": {
@@ -230,14 +237,15 @@
       {
         "id": "planning-only",
         "type": "constraint",
-        "statement": "Produce the detailed plan and local implementation tickets; do not implement.",
+        "statement": "The initial planning-only limit ended with explicit implementation authorization. Live rollout still requires separate approval.",
         "commitment": "explicit",
         "importance": "core",
         "status": "active",
         "time_horizon": "proof",
         "sources": [
           "request",
-          "ticket-request"
+          "ticket-request",
+          "implementation-request"
         ]
       },
       {
@@ -355,7 +363,7 @@
           "Build it now",
           "Do not implement"
         ],
-        "resolution": "The final explicit instruction limits this task to planning. Build now defines the desired first-release scope.",
+        "resolution": "The initial planning-only scope controlled planning. A later user request authorized implementation, commits, stacked PRs, and disposable checks.",
         "status": "resolved",
         "source": "request"
       }
@@ -807,10 +815,7 @@
           ]
         }
       ],
-      "frontier_at_creation": [
-        "cb-xp5r"
-      ],
-      "refinement": "All tickets were created open. Refine each frontier ticket just before execution; ticket creation does not authorize implementation.",
+      "refinement": "Refine executable tickets in tk; live state is authoritative there.",
       "dependency_rationale": [
         {
           "ticket": "cb-3g5e",
@@ -1069,7 +1074,7 @@
             "cb-tt7r",
             "cb-f2t6"
           ],
-          "source": "plan milestones 2–4"
+          "source": "plan milestones 2\u20134"
         },
         {
           "topic": "Persisted account plus failed session is partial success",
@@ -1243,17 +1248,7 @@
           ],
           "source": "plan Below the cut line"
         }
-      ],
-      "verification": {
-        "all_open": true,
-        "ready_count": 0,
-        "cycles": 0,
-        "root_count": 1,
-        "child_count": 7,
-        "epic_depends_on_all_children": true,
-        "implementation_started": false,
-        "production_authorized": false
-      }
+      ]
     }
   },
   "history": [
@@ -1300,6 +1295,12 @@
       ],
       "implementation_started": false,
       "plan_changed": false
+    },
+    {
+      "date": "2026-10-03",
+      "event": "implementation-authorized",
+      "reason": "User requested all implementation with chunk commits and stacked PRs; separately authorized focused tests/browser checks on disposable data.",
+      "production_authorized": false
     }
   ],
   "closure": null,
@@ -1315,7 +1316,6 @@
     },
     "tests_run": [],
     "browser_run": false,
-    "production_access": false,
-    "ticket_graph": "tk frontier exposes only cb-xp5r. No ready tickets or dependency cycles. Epic depends on all seven children."
+    "production_access": false
   }
 }

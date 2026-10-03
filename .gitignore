@@ -1,0 +1,3 @@
+# Local tool caches and review evidence
+.pnpm-store/
+tmp/

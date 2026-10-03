@@ -12,7 +12,10 @@
     "type-check": "tsc --noEmit",
     "build": "vinxi build",
     "start": "vinxi start",
-    "panda": "panda codegen"
+    "panda": "panda codegen",
+    "accounts:migrate": "node --experimental-strip-types scripts/accounts/cli.ts migrate",
+    "accounts:verify": "node --experimental-strip-types scripts/accounts/cli.ts verify",
+    "accounts:init-empty": "node --experimental-strip-types scripts/accounts/cli.ts init-empty"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.24",

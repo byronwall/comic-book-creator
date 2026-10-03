@@ -16,7 +16,7 @@ The first priority is the data model and the safe transfer of existing work. The
 
 The requested account system uses email and password. Disk storage remains acceptable. There is no requirement for a database, external identity service, Resend, verification email, or password reset flow. This release should establish a sound account boundary without building a larger account-management product.
 
-The current request authorizes review, planning, and local implementation tickets. “Build it now” defines the desired first-release scope; “Do not implement” still controls execution. This initiative remains planned. No app code, account, deployment, or stored book will change during ticket preparation.
+The initial request limited work to planning. The later request authorizes implementation, checkpoint commits, and stacked pull requests. The user also approved focused tests and browser checks on disposable data. Live migration and deployment require separate rollout approval. Tickets own the current execution state.
 
 ## What matters most
 
