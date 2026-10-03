@@ -813,6 +813,21 @@
             "inherited-scope",
             "planning-only"
           ]
+        },
+        {
+          "id": "cb-ud97",
+          "key": "server-contract",
+          "path": ".tickets/cb-ud97.md",
+          "milestones": [
+            "2"
+          ],
+          "claims": [
+            "accounts",
+            "ownership",
+            "disk",
+            "isolation",
+            "inherited-scope"
+          ]
         }
       ],
       "refinement": "Refine executable tickets in tk; live state is authoritative there.",
@@ -823,31 +838,6 @@
           "reason": "Private requests need the proved account/owner contract and completed migrated fixture."
         },
         {
-          "ticket": "cb-tt7r",
-          "prerequisite": "cb-3g5e",
-          "reason": "Registration must not open before all private paths enforce accounts."
-        },
-        {
-          "ticket": "cb-jqfr",
-          "prerequisite": "cb-3g5e",
-          "reason": "Draft expiry/switch proof needs sessions and atomic revision checks; fixture accounts avoid a signup dependency."
-        },
-        {
-          "ticket": "cb-t8jr",
-          "prerequisite": "cb-3g5e",
-          "reason": "Runtime rehearsal needs both the packaged migration and authenticated startup; public UI is not required."
-        },
-        {
-          "ticket": "cb-f2t6",
-          "prerequisite": "cb-tt7r",
-          "reason": "Visitor onboarding needs working registration and isolated libraries."
-        },
-        {
-          "ticket": "cb-f2t6",
-          "prerequisite": "cb-jqfr",
-          "reason": "Account navigation must finish or preserve pending edits."
-        },
-        {
           "ticket": "cb-irrm",
           "prerequisite": "cb-f2t6",
           "reason": "The complete account and visitor behavior must pass before reopening traffic."
@@ -856,6 +846,31 @@
           "ticket": "cb-irrm",
           "prerequisite": "cb-t8jr",
           "reason": "Live migration requires a checked command, backup procedure, and runtime rehearsal."
+        },
+        {
+          "ticket": "cb-tt7r",
+          "prerequisite": "cb-ud97",
+          "reason": "Construction uses the accepted private server contract. Original browser and combined-flow acceptance stays in each ticket."
+        },
+        {
+          "ticket": "cb-jqfr",
+          "prerequisite": "cb-ud97",
+          "reason": "Construction uses the accepted private server contract. Original browser and combined-flow acceptance stays in each ticket."
+        },
+        {
+          "ticket": "cb-f2t6",
+          "prerequisite": "cb-ud97",
+          "reason": "Construction uses the accepted private server contract. Original browser and combined-flow acceptance stays in each ticket."
+        },
+        {
+          "ticket": "cb-t8jr",
+          "prerequisite": "cb-ud97",
+          "reason": "Construction uses the accepted private server contract. Original browser and combined-flow acceptance stays in each ticket."
+        },
+        {
+          "ticket": "cb-ud97",
+          "prerequisite": "cb-xp5r",
+          "reason": "The server contract requires a checked migration fixture."
         }
       ],
       "coverage": [
@@ -1301,21 +1316,29 @@
       "event": "implementation-authorized",
       "reason": "User requested all implementation with chunk commits and stacked PRs; separately authorized focused tests/browser checks on disposable data.",
       "production_authorized": false
+    },
+    {
+      "date": "2026-10-03",
+      "event": "server-contract-proof-separated",
+      "reason": "Server acceptance became an explicit child of the private-library ticket. Browser criteria remain required. This permits independent construction on the proved contract.",
+      "evidence": [
+        ".tickets/cb-ud97.md",
+        ".tickets/cb-3g5e.md"
+      ]
     }
   ],
   "closure": null,
   "verification": {
     "planning_validator": "Passed; one length warning retained because the user requested a very detailed plan.",
     "heuristic_audit": "Completed; no substantive repair flagged. Structural checks do not prove migration or account correctness.",
-    "documents": "Planning artifacts and eight local ticket files only; application code and saved data remain unchanged.",
+    "documents": "Planning artifacts describe intent and milestone links. Implementation and current acceptance evidence live in tk.",
     "diagrams": {
       "count": 5,
       "additional": "One landing-page text wireframe",
       "syntax": "ER and sequence diagrams parsed with installed Mermaid. Flow diagrams manually reviewed; automatic headless parse was unavailable because DOMPurify requires a DOM.",
       "rendered": false
     },
-    "tests_run": [],
-    "browser_run": false,
-    "production_access": false
+    "production_access": false,
+    "execution_evidence": "See ticket execution notes for code checks, disposable data proof, browser results, and unresolved release gates."
   }
 }

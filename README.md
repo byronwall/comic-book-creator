@@ -74,6 +74,9 @@ Run commands from `app/`.
 ```bash
 cd app
 pnpm install
+export APP_ORIGIN=http://localhost:3000
+# For a new empty data directory only:
+pnpm accounts:init-empty --data-dir "$PWD/data"
 pnpm dev
 ```
 
@@ -83,11 +86,11 @@ The development server runs at:
 http://localhost:3000/
 ```
 
-The project requires Node `>=22` and pnpm `11.9.0`.
+The project requires Node `>=22.6` and pnpm `11.9.0`.
 
 ## Environment
 
-Copy `app/.env.example` if you need AI-backed server workflows:
+Configure `app/.env.example` for the canonical origin and optional AI workflows:
 
 ```bash
 cp .env.example .env
@@ -100,9 +103,14 @@ OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-5-mini
 OPENAI_HEAVY_MODEL=gpt-5.4
 APP_DATA_DIR=/app/data
+APP_ORIGIN=https://comics.example.com
+LEGACY_USER_EMAIL=legacy@example.com
+BASE_PATH=/
 ```
 
-For local development, the app falls back to `app/data` when `APP_DATA_DIR` is not set.
+For local development, the app uses `app/data` when `APP_DATA_DIR` is not set.
+
+Existing data requires the checked offline migration. Do not run empty initialization on an existing library. See [account setup and migration](docs/account-migration.md).
 
 ## Scripts
 
@@ -126,6 +134,8 @@ Comic books are persisted as JSON records with this shape:
 ```ts
 interface ComicBook {
   id: string;
+  ownerUserId: string;
+  revision: number;
   title: string;
   updatedAt: string;
   pages: ComicPage[];
@@ -192,7 +202,7 @@ cd app
 docker compose up --build
 ```
 
-The container stores persistent app data in the `comic-book-data` named volume and exposes the app on container port `3000`. Set `APP_PORT_EXPOSE` to bind a host port, for example:
+The container stores persistent app data in the `comic-book-data` named volume and exposes the app on container port `3000`. Compose binds host port `3000` to loopback. Set `APP_PORT_EXPOSE` to change that port, for example:
 
 ```bash
 APP_PORT_EXPOSE=3000 docker compose up --build
