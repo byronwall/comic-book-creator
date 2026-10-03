@@ -1,7 +1,7 @@
 ---
 id: cb-f2t6
-status: open
-deps: [cb-tt7r, cb-jqfr]
+status: in_progress
+deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
 type: feature
@@ -36,3 +36,19 @@ Signup/isolation and draft-safe account transitions must be closed. Before ready
 
 [Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 4. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: landing, accounts, ownership, no-email, preserve, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
+
+## Execution packet
+
+Owner: landing worker. The public page depends on stable account URLs and the accepted server boundary. Registration POST behavior is verified. The draft worker owns private navigation and recovery. The public page can proceed on separate files while their browser proof remains open.
+
+Change construction dependencies to cb-ud97. Retain every original acceptance criterion, including the complete visitor/account/book flow, responsive layout, keyboard access, base path, and printing. The epic still requires registration, draft protection, and private-library browser acceptance. Do not close this outcome before the combined flow passes.
+
+Scope: public home route, reusable public-page components, a synthetic comic example, and route metadata. Reuse established comic colors and visual style. Never read private books or images. Parent already applied Impeccable and Solid SSR safety, with product/design context in app/PRODUCT.md and app/DESIGN.md. Use shared CSS variables now available on .comic-landing. Account forms and draft controls belong to other owners.
+
+Proof: type-check and lint owned files; confirm the public page has no private query; run the Impeccable detector. Browser checks and PR screenshots remain required and currently wait for browser access.
+
+## Notes
+
+**2026-10-03T05:41:36Z**
+
+The landing page is implemented with a synthetic comic illustration and no private library query. Targeted lint, type checks, and the Impeccable detector passed. Browser review confirmed mobile layout at 390x844 and working account entry. Auth button contrast was repaired after the first screenshot exposed missing comic variables outside the editor. New signup reached an empty library. Final combined editor and print checks continue.
