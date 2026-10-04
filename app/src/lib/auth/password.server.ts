@@ -15,8 +15,8 @@ const keyLength = 64;
 const maxmem = 256 * 1024 * 1024;
 
 export async function hashPassword(password: string): Promise<string> {
-  if (typeof password !== "string" || password.length < 15 || password.length > 128) {
-    throw new Error("Password must contain 15 to 128 characters.");
+  if (typeof password !== "string" || password.length < 6) {
+    throw new Error("Password must contain at least 6 characters.");
   }
   const salt = randomBytes(16);
   const key = await derive(password, salt, keyLength, { N, r, p, maxmem });

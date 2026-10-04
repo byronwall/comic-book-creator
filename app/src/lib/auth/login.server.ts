@@ -18,7 +18,7 @@ export async function passwordWork<T>(work: () => Promise<T>) {
 }
 export async function authenticate(username: string, password: string) {
   const { store } = await preparedAccounts();
-  if (!validUsername(normalizeUsername(username)) || password.length > 128 || password.length < 15) return null;
+  if (!validUsername(normalizeUsername(username)) || password.length < 6) return null;
   return passwordWork(async () => {
     const user = store.users.find((item) => item.username === normalizeUsername(username));
     const valid = await verifyPassword(password, user?.passwordHash ?? dummyHash);

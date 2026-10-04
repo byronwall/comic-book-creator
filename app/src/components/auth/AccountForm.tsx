@@ -29,8 +29,8 @@ export function AccountForm(props: { mode: "sign-in" | "sign-up" }) {
           <Field.Root required>
             <Field.Label>Password</Field.Label>
             <Input name="password" type="password" autocomplete={signup() ? "new-password" : "current-password"}
-              required minlength={signup() ? 15 : undefined} maxlength={128} aria-describedby={signup() ? "password-help account-error" : "account-error"} />
-            <Show when={signup()}><Field.HelperText id="password-help">Use 15–128 characters. Spaces are welcome. Password resets are not available yet.</Field.HelperText></Show>
+              required minlength={signup() ? 6 : undefined} aria-describedby={signup() ? "password-help account-error" : "account-error"} />
+            <Show when={signup()}><Field.HelperText id="password-help">Use at least 6 characters. No other password rules apply. Password resets are not available yet.</Field.HelperText></Show>
           </Field.Root>
           <p id="account-error" class="account-error" role="alert">{submission.result?.error || (submission.error ? "The request failed. Try again." : "")}</p>
           <button class="comic-btn primary" type="submit" disabled={submission.pending || created()}>

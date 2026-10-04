@@ -12,7 +12,7 @@ import { prepareStartupStorage } from "../migrations/startup.server.ts";
 export async function registerAccount(usernameInput: string, password: string) {
   const username = normalizeUsername(usernameInput);
   if (!validUsername(username)) fail(400, "Use 1–40 letters, numbers, dots, dashes, or underscores. Start with a letter or number.");
-  if (password.length < 15 || password.length > 128) fail(400, "Use a password with 15 to 128 characters.");
+  if (password.length < 6) fail(400, "Use a password with at least 6 characters.");
   const dataDir = resolveAppDataDir();
   if (!await pathExists(path.join(dataDir, "data-state.json"))) {
     const legacy = normalizeUsername(process.env.LEGACY_USERNAME ?? "");

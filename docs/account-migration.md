@@ -15,7 +15,7 @@ Docker holds a kernel file lock throughout service on the Compose named volumes.
 
 User names use 1–40 letters, numbers, dots, dashes, or underscores.
 Start with a letter or number. Comparison trims outer spaces and ignores case.
-Stored user names use lowercase. Passwords use 15–128 characters; spaces are allowed.
+Stored user names use lowercase. Passwords require at least 6 characters, with no maximum length or composition rules.
 The website has no password reset or user name change flow.
 Use Node 22.6 or later and pnpm 11.9.0.
 
