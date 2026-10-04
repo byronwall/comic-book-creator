@@ -265,7 +265,7 @@
       {
         "id": "bootstrap",
         "type": "implementation hypothesis",
-        "statement": "Set a legacy password through a hidden offline prompt; never use public email matching to claim data.",
+        "statement": "Generate a private random legacy password during startup; store it in the persistent backup volume and never use public email matching to claim data.",
         "commitment": "derived",
         "importance": "supporting",
         "status": "active",
@@ -383,7 +383,7 @@
     "recommended_shape": {
       "storage": "One user registry, per-session files, existing book/image paths.",
       "ownership": "Stable UUID user IDs; ownerUserId and revision in books; images inherit book ownership.",
-      "migration": "Explicit stopped-writer migration with full verified backup, journal, raw additive transforms, and completion marker.",
+      "migration": "Automatic pre-listen migration with a full verified persistent copy, journal, raw additive transforms, and completion marker.",
       "auth": "Node scrypt, opaque random session tokens, disk session lookup, same-origin writes.",
       "public_routes": [
         "/",
@@ -405,7 +405,7 @@
     ],
     "first_proof": {
       "question": "Can ownership be added without changing any existing creative content or image bytes?",
-      "artifact": "Offline migration rehearsal, complete comparison report, repeat run, and interrupted-run recovery.",
+      "artifact": "Disposable startup migration rehearsal, complete comparison report, ordinary restart, and interrupted-run recovery.",
       "decision_rule": "Every file accounted for; nested JSON unchanged except ownerUserId/revision; image hashes unchanged; stable assignment; abort on unexplained differences."
     },
     "rabbit_holes": [

@@ -1,6 +1,6 @@
 ---
 id: cb-t8jr
-status: partially_implemented
+status: closed
 deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -80,3 +80,17 @@ Implementation and isolated Linux rehearsal are complete. Keep this ticket parti
 **2026-10-03T06:05:42Z**
 
 Final committed source passed the isolated Linux production build again after browser fixes. The final image served the editor and clear404 page correctly, and retained the earlier session, saved revision, and private crop-original access. The disposable container is stopped. The clean declared-base build remains the only packaging proof gap.
+
+## Automatic startup proof — 2026-10-03
+
+The declared Node 22 Dockerfile built successfully with pnpm 11.9.0. Its actual entrypoint ran against disposable named data and backup volumes.
+
+Missing email and a read-only backup volume stopped before any source file changed. File accounting and SHA-256 comparisons matched all original bytes.
+Generated-password login, legacy ownership, private crop-original reads, book edits, second-account isolation, and sessions passed. Container replacement preserved the saved data and session.
+A second writer exited with code 73. A real SIGKILL during a 1,500-book migration resumed with the same journal, owner, and original backup hashes.
+
+Host bind mounts on Docker Desktop did not share the same advisory lock across separate containers. The accepted check uses the production Compose named-volume storage. Keep that storage configuration.
+
+Type checking, linting, focused filesystem tests, and the production build passed. Lint retains existing warnings and required Node CLI relative-import warnings.
+Evidence scripts and logs remain under root tmp/auto-migration-proof/ and tmp/auto-migration-build.log. No real app/data or production storage was used.
+The prior clean Docker build gap is resolved. Live volume mapping and proxy/HTTPS checks remain in cb-irrm.

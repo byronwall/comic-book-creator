@@ -46,3 +46,10 @@ Exclude new product features, cleanup, account recovery flows, and multi-user in
 
 [Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 5 authorized cutover and rollback. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-email, accounts, landing, ownership, bootstrap, single-process, inherited-scope, planning-only. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
+
+## Startup release constraints — 2026-10-03
+
+Set the intended legacy email before the normal Compose deployment. Preserve the existing project name, named data volume, and persistent backup volume.
+Stop the old container before startup. The old release does not honor the new writer lock. Keep enough disk space for the full copy.
+Read the private generated password from the reported backup path after startup. No manual migration command or terminal prompt is required.
+No live migration, deployment, or main merge was performed during implementation.
