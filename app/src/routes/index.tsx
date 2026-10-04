@@ -1,18 +1,13 @@
-import { createAsync } from "@solidjs/router";
-import { ComicBookIndexPage } from "~/components/comics/ComicBookIndexPage";
-import { getComicBooks } from "~/lib/comics/data";
+import { A } from "@solidjs/router";
 import { PageMeta } from "~/lib/seo";
+import "~/components/auth/accounts.css";
 
 export default function HomeRoute() {
-  const books = createAsync(() => getComicBooks());
-
-  return (
-    <>
-      <PageMeta
-        title="My Comic Books"
-        description="Open a saved comic book or create a new printable comic book."
-      />
-      <ComicBookIndexPage books={books() ?? []} />
-    </>
-  );
+  return <main class="account-page">
+    <PageMeta title="Comic Book Creator" description="Make and print your own comic books." />
+    <h1>Comic Book Creator</h1>
+    <p>Make a story. Build a book. Print it.</p>
+    <A href="/books">Open your comic books</A>
+    <A href="/sign-in">Sign in</A>
+  </main>;
 }

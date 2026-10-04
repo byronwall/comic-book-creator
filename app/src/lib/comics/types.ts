@@ -92,6 +92,8 @@ export interface ComicPage {
 
 export interface ComicBook {
   id: string;
+  ownerUserId: string;
+  revision: number;
   title: string;
   updatedAt: string;
   pages: ComicPage[];

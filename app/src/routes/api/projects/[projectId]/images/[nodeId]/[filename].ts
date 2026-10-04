@@ -24,7 +24,7 @@ export async function GET(event: APIEvent) {
 
   return new Response(new Uint8Array(imageBuffer), {
     headers: {
-      "cache-control": "public, max-age=31536000, immutable",
+      "cache-control": "private, no-store",
       "content-length": String(imageBuffer.byteLength),
       "content-type": image.mimeType,
     },

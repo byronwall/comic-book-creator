@@ -1,19 +1,47 @@
-import { A, revalidate } from "@solidjs/router";
+import type { Account } from "~/lib/auth/sessions.server";
+import { appPath } from "~/lib/router/app-path";
+import { normalizeActionUrl } from "~/lib/router/action-url";
+import { A, revalidate, useSubmission } from "@solidjs/router";
 import { BookOpen, FilePlus2, Trash2 } from "lucide-solid";
-import { For, createSignal } from "solid-js";
+import { For, Show, createSignal, onCleanup, onMount, untrack } from "solid-js";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
-import { getComicBooks } from "~/lib/comics/data";
+import { createComicBook, getComicBooks } from "~/lib/comics/data";
 import type { ComicBookSummary } from "~/lib/comics/types";
 import { ComicAppNav } from "./ComicAppNav";
 import { PrintActions } from "./ComicPrintActions";
 import "./comic-creator.css";
 
-export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
+export function ComicBookIndexPage(props: { account: Account; books: ComicBookSummary[] }) {
+  const account = untrack(() => props.account);
+  const createSubmission = useSubmission(createComicBook);
   const [title, setTitle] = createSignal("Untitled Comic Book");
   const [deleteBookId, setDeleteBookId] = createSignal("");
   const [deleteDialogOpen, setDeleteDialogOpen] = createSignal(false);
   const [deletePendingBookId, setDeletePendingBookId] = createSignal("");
   const [deleteError, setDeleteError] = createSignal("");
+  const [accountChanged, setAccountChanged] = createSignal(false);
+
+  onMount(() => {
+    let checking = false;
+    const checkAccount = async () => {
+      if (checking) return;
+      checking = true;
+      try {
+        const response = await fetch(appPath("/api/auth/session"), { cache: "no-store" });
+        const session = response.ok ? await response.json() as { id?: string } | null : null;
+        if (session?.id !== account.id) setAccountChanged(true);
+      } catch { setAccountChanged(true); }
+      finally { checking = false; }
+    };
+    const refresh = () => { void checkAccount(); };
+    window.addEventListener("focus", refresh);
+    window.addEventListener("pageshow", refresh);
+    void checkAccount();
+    onCleanup(() => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("pageshow", refresh);
+    });
+  });
 
   const pendingDeleteBook = () => props.books.find((book) => book.id === deleteBookId());
   const isDeleting = () => Boolean(deletePendingBookId());
@@ -22,8 +50,9 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
     setDeleteError("");
 
     try {
-      const response = await fetch(`/api/comic-books/${encodeURIComponent(bookId)}`, {
+      const response = await fetch(appPath(`/api/comic-books/${encodeURIComponent(bookId)}`), {
         method: "DELETE",
+        headers: { "x-comic-user": account.id },
       });
 
       if (!response.ok) {
@@ -43,7 +72,17 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
 
   return (
     <div class="comic-app">
-      <ComicAppNav />
+      <Show when={!accountChanged()}>
+        <ComicAppNav account={account} />
+      </Show>
+      <Show when={accountChanged()}>
+        <main class="comic-main comic-draft-recovery">
+          <h1>Account changed</h1>
+          <p>This library belongs to a different account. Reload the page after you sign in.</p>
+          <a href={appPath("/sign-in")} target="_blank" rel="noreferrer">Sign in in another tab</a>
+        </main>
+      </Show>
+      <Show when={!accountChanged()}>
 
       <main class="comic-main">
         <header class="comic-topbar">
@@ -64,7 +103,7 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
                     </span>
                     <strong>{book.title}</strong>
                     <span>{book.pageCount} pages</span>
-                    <small>Updated {new Date(book.updatedAt).toLocaleDateString()}</small>
+                    <small>Updated {book.updatedAt.slice(0, 10)}</small>
                   </A>
                   <button
                     type="button"
@@ -87,9 +126,10 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
 
           <form
             method="post"
-            action="/api/comic-books"
+            action={normalizeActionUrl(createComicBook.toString())}
             class="comic-card comic-create-book"
           >
+            <input type="hidden" name="userId" value={account.id} />
             <h2>Create New Book</h2>
             <label class="comic-field">
               <span>Book Title</span>
@@ -101,10 +141,12 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
             </label>
             <button
               type="submit"
+              disabled={createSubmission.pending}
               class="comic-btn primary"
             >
-              <FilePlus2 size={18} /> Create New Book
+              <FilePlus2 size={18} /> {createSubmission.pending ? "Creating…" : "Create New Book"}
             </button>
+            <p role="alert" class="account-error">{createSubmission.result?.error}</p>
           </form>
         </section>
         <PrintActions />
@@ -132,6 +174,7 @@ export function ComicBookIndexPage(props: { books: ComicBookSummary[] }) {
       >
         {deleteError() ? <p class="comic-dialog-error">{deleteError()}</p> : null}
       </ConfirmDialog>
+      </Show>
     </div>
   );
 }

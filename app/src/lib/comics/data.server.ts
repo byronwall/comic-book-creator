@@ -1,654 +1,195 @@
-import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdir, readFile, readdir, rm } from "node:fs/promises";
 import path from "node:path";
+import { readDataState } from "~/lib/auth/data-state.server";
+import { readUserStore } from "~/lib/auth/users.server";
 import { resolveAppDataDir } from "~/lib/server/data-dir";
-import type {
-  ComicBook,
-  ComicBookSummary,
-  ComicLayoutKind,
-  ComicPageImage,
-  ComicPage,
-  ComicPaperSize,
-  ComicTemplateGrid,
-  ComicTextAlign,
-  ComicTextKind,
-} from "./types";
+import { writeFileAtomic } from "~/lib/server/atomic-file";
+import { normalizeComicBook } from "./normalize";
+import type { ComicBook, ComicBookSummary } from "./types";
 
-const COMIC_BOOKS_DIR = "comic-books";
-const COMIC_BOOK_IMAGES_DIR = "comic-book-images";
+const BOOKS = "comic-books";
+const IMAGES = "comic-book-images";
+const queues = new Map<string, Promise<unknown>>();
 
-export async function readComicBookFromDisk(): Promise<ComicBook> {
-  const summaries = await readComicBookSummariesFromDisk();
-  const book = await readComicBookByIdFromDisk(summaries[0]?.id || "super-max");
-  return book ?? createDefaultComicBook();
+export async function readComicBookSummariesFromDisk(userId: string): Promise<ComicBookSummary[]> {
+  await assertPrepared(userId);
+  await ensureBooksDir();
+  const files = (await readdir(booksDir())).filter((name) => name.endsWith(".json"));
+  const books = await Promise.all(files.map((name) => readStoredBook(path.join(booksDir(), name))));
+  return books.filter((book): book is ComicBook => book !== null && book.ownerUserId === userId).map((book) => ({
+    id: book.id, title: book.title, updatedAt: book.updatedAt, pageCount: book.pages.length,
+  })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
-export async function writeComicBookToDisk(input: ComicBook): Promise<ComicBook> {
-  return writeComicBookByIdToDisk(input.id, input);
+export async function readComicBookByIdFromDisk(userId: string, bookId: string): Promise<ComicBook | null> {
+  await assertPrepared(userId);
+  const book = await readById(bookId);
+  return book?.ownerUserId === userId ? book : null;
 }
 
-export async function readComicBookSummariesFromDisk(): Promise<ComicBookSummary[]> {
-  await ensureComicBooksDir();
-  const filenames = await readdir(getComicBooksDir());
-  const books = await Promise.all(
-    filenames
-      .filter((filename) => filename.endsWith(".json"))
-      .map(async (filename) => {
-        const fileContents = await readFile(path.join(getComicBooksDir(), filename), "utf8");
-        return normalizeComicBook(JSON.parse(fileContents) as ComicBook, { touchUpdatedAt: false });
-      }),
-  );
-
-  return books
-    .map((book) => ({
-      id: book.id,
-      title: book.title,
-      updatedAt: book.updatedAt,
-      pageCount: book.pages.length,
-    }))
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-}
-
-export async function readComicBookByIdFromDisk(bookId: string): Promise<ComicBook | null> {
-  await ensureComicBooksDir();
-  const cleanId = slugify(bookId);
-  if (!cleanId) {
-    return null;
-  }
-
-  const bookPath = getComicBookPath(cleanId);
-  if (!existsSync(bookPath)) {
-    return null;
-  }
-
-  const fileContents = await readFile(bookPath, "utf8");
-  return normalizeComicBook(JSON.parse(fileContents) as ComicBook, { touchUpdatedAt: false });
-}
-
-export async function writeComicBookByIdToDisk(bookId: string, input: ComicBook): Promise<ComicBook> {
-  await ensureComicBooksDir();
-  const nextBook = normalizeComicBook(input, { touchUpdatedAt: true });
-  const id = slugify(bookId) || nextBook.id;
-  const book = { ...nextBook, id };
-  await writeFile(getComicBookPath(id), `${JSON.stringify(book, null, 2)}\n`, "utf8");
+export async function createComicBookOnDisk(userId: string, input: { title?: string } = {}): Promise<ComicBook> {
+  await assertPrepared(userId);
+  await ensureBooksDir();
+  const id = randomUUID();
+  const title = text(input.title) || "Untitled Comic Book";
+  const now = new Date().toISOString();
+  const book = normalizeComicBook({
+    id, ownerUserId: userId, revision: 1, title, updatedAt: now,
+    pages: [{ id: "page-1", title: "Page 1", status: "Blank", layout: "four", paperSize: "letter-portrait", texts: [] }],
+  });
+  await writeFileAtomic(bookPath(id), serialize(book));
   return book;
 }
 
-export async function deleteComicBookOnDisk(bookId: string): Promise<void> {
-  await ensureComicBooksDir();
-  const cleanId = slugify(bookId);
-  if (!cleanId) {
-    throw new Error("A book id is required.");
-  }
-
-  const bookPath = getComicBookPath(cleanId);
-  if (!existsSync(bookPath)) {
-    return;
-  }
-
-  await unlink(bookPath);
-  await rm(getComicBookImagesDir(cleanId), { recursive: true, force: true });
-}
-
-export function getComicBookImagesDir(bookId: string) {
-  return path.join(resolveAppDataDir(), COMIC_BOOK_IMAGES_DIR, slugify(bookId));
-}
-
-export function getComicBookImagePath(bookId: string, filename: string) {
-  const cleanFilename = path.basename(filename);
-  if (!cleanFilename || cleanFilename !== filename) {
-    throw new Error("Invalid image filename.");
-  }
-  return path.join(getComicBookImagesDir(bookId), cleanFilename);
-}
-
-export async function createComicBookOnDisk(input: { title?: string } = {}): Promise<ComicBook> {
-  await ensureComicBooksDir();
-  const seed = createDefaultComicBook();
-  const title = cleanText(input.title || "") || "Untitled Comic Book";
-  const id = await createAvailableBookId(slugify(title) || "comic-book");
-  const nextBook = normalizeComicBook({
-    ...seed,
-    id,
-    title,
-    pages: [
-      {
-        id: "page-1",
-        title: "Page 1",
-        status: "Blank",
-        layout: "four",
-        paperSize: "letter-portrait",
-        texts: [],
-      },
-    ],
+export async function writeComicBookByIdToDisk(userId: string, bookId: string, input: unknown): Promise<ComicBook | null> {
+  await assertPrepared(userId);
+  const cleanId = validId(bookId);
+  return serializeBook(cleanId, async () => {
+    const current = await readById(cleanId);
+    if (!current || current.ownerUserId !== userId) return null;
+    const payload = validateBook(input);
+    if (payload.revision !== current.revision) throw new Response("Comic book revision is stale", { status: 409 });
+    const next = normalizeComicBook({
+      ...payload,
+      id: current.id,
+      ownerUserId: current.ownerUserId,
+      revision: current.revision + 1,
+      updatedAt: new Date().toISOString(),
+    });
+    await writeFileAtomic(bookPath(cleanId), serialize(next));
+    return next;
   });
-  await writeFile(getComicBookPath(id), `${JSON.stringify(nextBook, null, 2)}\n`, "utf8");
-  return nextBook;
 }
 
-function getComicBooksDir() {
-  return path.join(resolveAppDataDir(), COMIC_BOOKS_DIR);
+export async function deleteComicBookOnDisk(userId: string, bookId: string): Promise<boolean> {
+  await assertPrepared(userId);
+  const cleanId = validId(bookId);
+  return serializeBook(cleanId, async () => {
+    const book = await readById(cleanId);
+    if (!book || book.ownerUserId !== userId) return false;
+    await rm(bookPath(cleanId), { force: true });
+    await rm(imageDir(cleanId), { recursive: true, force: true });
+    return true;
+  });
 }
 
-function getComicBookPath(bookId: string) {
-  return path.join(getComicBooksDir(), `${slugify(bookId)}.json`);
+export async function saveComicBookImage(
+  userId: string,
+  bookId: string,
+  filename: string,
+  mimeType: string,
+  bytes: Uint8Array,
+): Promise<void> {
+  await assertPrepared(userId);
+  const cleanId = validId(bookId);
+  const cleanFilename = validFilename(filename);
+  await serializeBook(cleanId, async () => {
+    const book = await readById(cleanId);
+    if (!book || book.ownerUserId !== userId) throw new Response("Not found", { status: 404 });
+    const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
+    if (!allowed.has(mimeType) || bytes.byteLength > 25 * 1024 * 1024) throw new Response("Invalid image", { status: 400 });
+    const dir = imageDir(cleanId);
+    await mkdir(dir, { recursive: true });
+    await writeFileAtomic(path.join(dir, cleanFilename), bytes);
+  });
 }
 
-async function ensureComicBooksDir() {
-  await mkdir(resolveAppDataDir(), { recursive: true });
-  await mkdir(getComicBooksDir(), { recursive: true });
-
-  const filenames = await readdir(getComicBooksDir());
-  if (filenames.some((filename) => filename.endsWith(".json"))) {
-    return;
+export async function readComicBookImage(userId: string, bookId: string, filename: string) {
+  await assertPrepared(userId);
+  const cleanId = validId(bookId);
+  const cleanFilename = validFilename(filename);
+  const book = await readById(cleanId);
+  if (!book || book.ownerUserId !== userId) return null;
+  try {
+    const bytes = await readFile(path.join(imageDir(cleanId), cleanFilename));
+    const extension = cleanFilename.split(".").pop()?.toLowerCase();
+    const mimeType = extension === "jpg" || extension === "jpeg" ? "image/jpeg"
+      : extension === "png" ? "image/png" : extension === "webp" ? "image/webp" : "application/octet-stream";
+    return { bytes, mimeType };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw storageUnavailable();
   }
-
-  const seedBooks = [
-    createDefaultComicBook(),
-    createDefaultComicBookVariant("space-adventure", "Space Adventure", "bigTop"),
-    createDefaultComicBookVariant("dino-expedition", "Dino Expedition", "four"),
-  ];
-  await Promise.all(
-    seedBooks.map((book) => writeFile(getComicBookPath(book.id), `${JSON.stringify(book, null, 2)}\n`, "utf8")),
-  );
 }
 
-async function createAvailableBookId(baseId: string) {
-  let candidate = baseId;
-  let index = 2;
-  while (existsSync(getComicBookPath(candidate))) {
-    candidate = `${baseId}-${index}`;
-    index += 1;
+async function assertPrepared(userId: string) {
+  try {
+    await readDataState();
+    const store = await readUserStore();
+    if (!store.users.some((user) => user.id === userId)) throw storageUnavailable();
+  } catch {
+    throw storageUnavailable();
   }
-  return candidate;
 }
 
-function normalizeComicBook(input: ComicBook, options: { touchUpdatedAt?: boolean } = {}): ComicBook {
-  const id = slugify(input.id) || "super-max";
-  return {
-    id,
-    title: cleanText(input.title) || "Super Max Saves the Day",
-    updatedAt: options.touchUpdatedAt ? new Date().toISOString() : cleanText(input.updatedAt) || new Date().toISOString(),
-    pages: input.pages.length > 0 ? input.pages.map((page, index) => normalizePage(page, index, id)) : createDefaultComicBook().pages,
-  };
+async function readById(bookId: string) {
+  const cleanId = validId(bookId);
+  await ensureBooksDir();
+  return readStoredBook(bookPath(cleanId));
 }
 
-function normalizePage(page: ComicBook["pages"][number], pageIndex: number, bookId: string): ComicPage {
-  const status: ComicPage["status"] =
-    page.status === "Ready" || page.status === "Draft" ? page.status : "Blank";
-  const layout: ComicPage["layout"] =
-    page.layout === "bigTop" ||
-    page.layout === "threeStack" ||
-    page.layout === "wideMiddle" ||
-    page.layout === "splashLeft" ||
-    page.layout === "six" ||
-    page.layout === "splashInset" ||
-    page.layout === "threeVertical" ||
-    page.layout === "fourStrip" ||
-    page.layout === "revealBottom" ||
-    page.layout === "heroRight" ||
-    page.layout === "diagonalAction" ||
-    page.layout === "diagonalGrid" ||
-    page.layout === "cinematicSlant" ||
-    page.layout === "letterbox" ||
-    page.layout === "establishingDialogue" ||
-    page.layout === "webtoonStack" ||
-    page.layout === "doubleFeature" ||
-    page.layout === "blank" ||
-    page.layout === "custom"
-      ? page.layout
-      : "four";
-
-  const customGrid = normalizeTemplateGrid(page.customGrid);
-  const panels = getPanelRects({ layout, customGrid });
-  const imageInputs = page.images?.length ? page.images : page.image ? [page.image] : [];
-  const images = imageInputs
-    .map((image, imageIndex) => normalizePageImage(image, bookId, imageIndex))
-    .filter((image): image is ComicPageImage => Boolean(image));
-
-  return {
-    id: cleanText(page.id) || `page-${pageIndex + 1}`,
-    title: cleanText(page.title) || `Page ${pageIndex + 1}`,
-    cover: page.cover === true || (page.cover === undefined && isLegacyCoverPage(page)),
-    status,
-    layout,
-    mode: page.mode === "image" && images.length > 0 ? "image" : "comic",
-    images,
-    paperSize: normalizePaperSize(page.paperSize),
-    customGrid,
-    texts: page.texts.map((text, textIndex) => {
-      const kind = normalizeTextKind(text.kind);
-      const textValue = typeof text.text === "string" ? text.text : "";
-      const fontSize = clampInteger(text.fontSize, 12, 54);
-      const panelIndex = clampInteger(text.panelIndex, 0, Math.max(0, panels.length - 1));
-      const panel = panels[panelIndex] ?? panels[0] ?? { x: 0, y: 0, width: 100, height: 100 };
-      const isPageScoped = text.positionScope === "page";
-      const x = isPageScoped ? clampNumber(text.x, -8, 98) : panel.x + (panel.width * clampNumber(text.x, 0, 88)) / 100;
-      const y = isPageScoped ? clampNumber(text.y, -8, 98) : panel.y + (panel.height * clampNumber(text.y, 0, 88)) / 100;
-      const width = isPageScoped ? clampNumber(text.width, 8, 96) : (panel.width * clampNumber(text.width, 16, 92)) / 100;
-      const height = isPageScoped
-        ? clampNumber(text.height ?? getDefaultTextHeight(kind, textValue, fontSize), 5, 50)
-        : (panel.height * clampNumber(text.height ?? getDefaultTextHeight(kind, textValue, fontSize), 5, 50)) / 100;
-      const rotation = typeof text.rotation === "number" ? clampNumber(text.rotation, -180, 180) : kind === "sfx" ? -9 : 0;
-
-      return {
-        id: cleanText(text.id) || `text-${pageIndex + 1}-${textIndex + 1}`,
-        kind,
-        text: textValue,
-        panelIndex,
-        positionScope: "page" as const,
-        x,
-        y,
-        width,
-        height,
-        fontSize,
-        rotation,
-        align: normalizeTextAlign(text.align),
-        autoWrap: text.autoWrap !== false,
-      };
-    }),
-  };
+async function readStoredBook(file: string): Promise<ComicBook | null> {
+  try {
+    const parsed: unknown = JSON.parse(await readFile(file, "utf8"));
+    if (!isStoredBook(parsed)) throw storageUnavailable();
+    if (path.basename(file, ".json") !== parsed.id) throw storageUnavailable();
+    return normalizeComicBook(parsed);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    if (error instanceof Response) throw error;
+    throw storageUnavailable();
+  }
 }
 
-function normalizePageImage(image: ComicPageImage | undefined, bookId: string, imageIndex: number): ComicPageImage | undefined {
-  if (!image || !cleanText(image.filename)) {
-    return undefined;
+function validateBook(input: unknown): ComicBook {
+  if (!input || typeof input !== "object") throw new Response("Invalid comic book", { status: 400 });
+  const book = input as Partial<ComicBook>;
+  if (!Number.isSafeInteger(book.revision) || (book.revision ?? 0) < 1 || typeof book.title !== "string"
+    || !Array.isArray(book.pages) || book.pages.length === 0 || !book.pages.every((page) => {
+      if (!page || typeof page !== "object" || !Array.isArray(page.texts)
+        || !page.texts.every((item) => !!item && typeof item === "object")
+        || (page.images !== undefined && !Array.isArray(page.images))) return false;
+      const grid = page.customGrid;
+      return grid === undefined || (!!grid && Array.isArray(grid.verticalLines) && Array.isArray(grid.horizontalLines));
+    })) {
+    throw new Response("Invalid comic book", { status: 400 });
   }
-
-  const filename = path.basename(cleanText(image.filename));
-  const treatment =
-    image.treatment === "color" || image.treatment === "threshold" ? image.treatment : "grayscale";
-  const legacySize = clampInteger(image.scale ?? 100, 50, 160);
-  const width = clampNumber(image.width ?? legacySize, 5, 200);
-  const height = clampNumber(image.height ?? legacySize, 5, 200);
-  const x = clampNumber(image.x ?? (100 - legacySize) / 2 + (image.offsetX ?? 0), -195, 95);
-  const y = clampNumber(image.y ?? (100 - legacySize) / 2 + (image.offsetY ?? 0), -195, 95);
-  const sourceFilename = image.crop?.sourceFilename;
-  const corners = image.crop?.corners;
-  const crop = typeof sourceFilename === "string"
-    && sourceFilename.length > 0
-    && path.basename(sourceFilename) === sourceFilename
-    && Array.isArray(corners)
-    && corners.length === 4
-    && corners.every((point) => typeof point?.x === "number" && Number.isFinite(point.x) && point.x >= 0 && point.x <= 1
-      && typeof point?.y === "number" && Number.isFinite(point.y) && point.y >= 0 && point.y <= 1)
-    ? { sourceFilename, corners }
-    : undefined;
-
-  return {
-    id: cleanText(image.id) || `image-${imageIndex + 1}-${filename.replace(/[^a-zA-Z0-9_-]/g, "-")}`,
-    src: `/api/comic-books/${bookId}/images/${encodeURIComponent(filename)}`,
-    filename,
-    originalName: cleanText(image.originalName) || filename,
-    mimeType: cleanText(image.mimeType) || "image/jpeg",
-    treatment,
-    brightness: clampInteger(image.brightness ?? 105, 50, 150),
-    contrast: clampInteger(image.contrast ?? 125, 50, 300),
-    threshold: clampInteger(image.threshold ?? 58, 10, 90),
-    x,
-    y,
-    width,
-    height,
-    rotation: clampInteger(image.rotation ?? 0, -180, 180),
-    fit: image.fit === "cover" ? "cover" : "contain",
-    crop,
-  };
+  return book as ComicBook;
 }
 
-function isLegacyCoverPage(page: ComicBook["pages"][number]) {
-  const marker = `${page.title ?? ""} ${page.id ?? ""}`
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return marker.includes("cover");
+function isStoredBook(value: unknown): value is ComicBook {
+  if (!value || typeof value !== "object") return false;
+  const book = value as Partial<ComicBook>;
+  return typeof book.id === "string" && typeof book.ownerUserId === "string" && !!book.ownerUserId
+    && Number.isSafeInteger(book.revision) && (book.revision ?? 0) > 0
+    && typeof book.title === "string" && typeof book.updatedAt === "string" && Array.isArray(book.pages);
 }
 
-function normalizeTemplateGrid(grid: ComicTemplateGrid | undefined): ComicTemplateGrid | undefined {
-  if (!grid) {
-    return undefined;
-  }
-
-  const cleanLines = (lines: number[]) =>
-    [...new Set(lines.map((line) => clampInteger(line, 12, 88)))]
-      .sort((a, b) => a - b)
-      .slice(0, 4);
-
-  return {
-    verticalLines: cleanLines(grid.verticalLines || []),
-    horizontalLines: cleanLines(grid.horizontalLines || []),
-  };
+function validId(value: string) {
+  const clean = value.trim();
+  if (!/^[a-zA-Z0-9-]{1,100}$/.test(clean)) throw new Response("Invalid book id", { status: 404 });
+  return clean;
 }
 
-function normalizeTextKind(kind: ComicTextKind): ComicTextKind {
-  return kind === "thought" || kind === "caption" || kind === "sfx" ? kind : "speech";
+function validFilename(value: string) {
+  if (!value || path.basename(value) !== value || !/^[a-zA-Z0-9._-]{1,180}$/.test(value)) {
+    throw new Response("Invalid image filename", { status: 404 });
+  }
+  return value;
 }
 
-function normalizeTextAlign(align: ComicTextAlign): ComicTextAlign {
-  return align === "left" || align === "right" ? align : "center";
-}
+function booksDir() { return path.join(resolveAppDataDir(), BOOKS); }
+function bookPath(id: string) { return path.join(booksDir(), `${id}.json`); }
+function imageDir(id: string) { return path.join(resolveAppDataDir(), IMAGES, id); }
+async function ensureBooksDir() { await mkdir(booksDir(), { recursive: true }); }
+function serialize(book: ComicBook) { return `${JSON.stringify(book, null, 2)}\n`; }
+function text(value?: string) { return typeof value === "string" ? value.trim() : ""; }
+function storageUnavailable() { return new Response("Comic storage unavailable", { status: 503 }); }
 
-function getDefaultTextHeight(kind: ComicTextKind, text: string, fontSize: number) {
-  const lineHeightMultiplier = 1.08;
-  const lineCount = Math.max(1, text.split("\n").length);
-  const contentHeight = lineCount * fontSize * lineHeightMultiplier;
-  const legacyPixelHeight =
-    kind === "speech"
-      ? Math.max(52, contentHeight + 24) + 24
-      : kind === "thought"
-        ? Math.max(48, contentHeight + 26) + 34
-        : kind === "caption"
-          ? Math.max(38, contentHeight + 18) + 10
-          : Math.max(56, contentHeight + 8) + 10;
-
-  return Math.min(50, Math.max(5, legacyPixelHeight / 7));
-}
-
-function normalizePaperSize(paperSize: ComicPaperSize | undefined): ComicPaperSize {
-  return paperSize === "letter-landscape" || paperSize === "half-portrait" || paperSize === "half-landscape"
-    ? paperSize
-    : "letter-portrait";
-}
-
-function getPanelRects(page: {
-  layout: ComicLayoutKind;
-  customGrid?: ComicTemplateGrid;
-}): { x: number; y: number; width: number; height: number }[] {
-  if (page.layout === "blank") {
-    return [];
-  }
-
-  if (page.layout === "bigTop") {
-    return [
-      { x: 0, y: 0, width: 100, height: 34 },
-      { x: 0, y: 37, width: 48, height: 29 },
-      { x: 52, y: 37, width: 48, height: 29 },
-      { x: 0, y: 69, width: 100, height: 31 },
-    ];
-  }
-
-  if (page.layout === "threeStack") {
-    return [
-      { x: 0, y: 0, width: 100, height: 31 },
-      { x: 0, y: 34.5, width: 100, height: 31 },
-      { x: 0, y: 69, width: 100, height: 31 },
-    ];
-  }
-
-  if (page.layout === "wideMiddle") {
-    return [
-      { x: 0, y: 0, width: 48, height: 25 },
-      { x: 52, y: 0, width: 48, height: 25 },
-      { x: 0, y: 29, width: 100, height: 42 },
-      { x: 0, y: 75, width: 48, height: 25 },
-      { x: 52, y: 75, width: 48, height: 25 },
-    ];
-  }
-
-  if (page.layout === "splashLeft") {
-    return [
-      { x: 0, y: 0, width: 62, height: 100 },
-      { x: 66, y: 0, width: 34, height: 31 },
-      { x: 66, y: 34.5, width: 34, height: 31 },
-      { x: 66, y: 69, width: 34, height: 31 },
-    ];
-  }
-
-  if (page.layout === "six") {
-    return [
-      { x: 0, y: 0, width: 48, height: 31 },
-      { x: 52, y: 0, width: 48, height: 31 },
-      { x: 0, y: 34.5, width: 48, height: 31 },
-      { x: 52, y: 34.5, width: 48, height: 31 },
-      { x: 0, y: 69, width: 48, height: 31 },
-      { x: 52, y: 69, width: 48, height: 31 },
-    ];
-  }
-
-  if (page.layout === "splashInset") {
-    return [
-      { x: 0, y: 0, width: 100, height: 100 },
-      { x: 62, y: 6, width: 32, height: 24 },
-    ];
-  }
-
-  if (page.layout === "threeVertical") {
-    return [
-      { x: 0, y: 0, width: 30.5, height: 100 },
-      { x: 34.75, y: 0, width: 30.5, height: 100 },
-      { x: 69.5, y: 0, width: 30.5, height: 100 },
-    ];
-  }
-
-  if (page.layout === "fourStrip") {
-    return [
-      { x: 0, y: 0, width: 22, height: 100 },
-      { x: 26, y: 0, width: 22, height: 100 },
-      { x: 52, y: 0, width: 22, height: 100 },
-      { x: 78, y: 0, width: 22, height: 100 },
-    ];
-  }
-
-  if (page.layout === "revealBottom") {
-    return [
-      { x: 0, y: 0, width: 30.5, height: 28 },
-      { x: 34.75, y: 0, width: 30.5, height: 28 },
-      { x: 69.5, y: 0, width: 30.5, height: 28 },
-      { x: 0, y: 32, width: 100, height: 68 },
-    ];
-  }
-
-  if (page.layout === "heroRight") {
-    return [
-      { x: 0, y: 0, width: 34, height: 31 },
-      { x: 0, y: 34.5, width: 34, height: 31 },
-      { x: 0, y: 69, width: 34, height: 31 },
-      { x: 38, y: 0, width: 62, height: 100 },
-    ];
-  }
-
-  if (page.layout === "diagonalAction") {
-    return [
-      { x: 0, y: 0, width: 100, height: 48 },
-      { x: 0, y: 52, width: 100, height: 48 },
-    ];
-  }
-
-  if (page.layout === "diagonalGrid") {
-    return [
-      { x: 0, y: 0, width: 64, height: 41 },
-      { x: 48, y: 0, width: 52, height: 72 },
-      { x: 0, y: 20, width: 54, height: 80 },
-      { x: 40, y: 53, width: 60, height: 47 },
-    ];
-  }
-
-  if (page.layout === "cinematicSlant") {
-    return [
-      { x: 0, y: 0, width: 100, height: 40 },
-      { x: 0, y: 38, width: 52, height: 46 },
-      { x: 56, y: 30, width: 44, height: 46 },
-      { x: 0, y: 75, width: 100, height: 25 },
-    ];
-  }
-
-  if (page.layout === "letterbox") {
-    return [
-      { x: 0, y: 0, width: 100, height: 29 },
-      { x: 0, y: 35.5, width: 100, height: 29 },
-      { x: 0, y: 71, width: 100, height: 29 },
-    ];
-  }
-
-  if (page.layout === "establishingDialogue") {
-    return [
-      { x: 0, y: 0, width: 100, height: 35 },
-      { x: 0, y: 39, width: 48, height: 28.5 },
-      { x: 52, y: 39, width: 48, height: 28.5 },
-      { x: 0, y: 71.5, width: 48, height: 28.5 },
-      { x: 52, y: 71.5, width: 48, height: 28.5 },
-    ];
-  }
-
-  if (page.layout === "webtoonStack") {
-    return [
-      { x: 0, y: 0, width: 100, height: 16 },
-      { x: 0, y: 20, width: 100, height: 20 },
-      { x: 0, y: 48, width: 100, height: 32 },
-      { x: 0, y: 88, width: 100, height: 12 },
-    ];
-  }
-
-  if (page.layout === "doubleFeature") {
-    return [
-      { x: 0, y: 0, width: 100, height: 48 },
-      { x: 0, y: 52, width: 100, height: 48 },
-    ];
-  }
-
-  if (page.layout === "custom") {
-    const verticalCuts = [0, ...(page.customGrid?.verticalLines ?? [50]), 100].sort((a, b) => a - b);
-    const horizontalCuts = [0, ...(page.customGrid?.horizontalLines ?? [50]), 100].sort((a, b) => a - b);
-    const rects: { x: number; y: number; width: number; height: number }[] = [];
-    for (let row = 0; row < horizontalCuts.length - 1; row += 1) {
-      for (let column = 0; column < verticalCuts.length - 1; column += 1) {
-        const x = verticalCuts[column];
-        const y = horizontalCuts[row];
-        rects.push({
-          x,
-          y,
-          width: verticalCuts[column + 1] - x,
-          height: horizontalCuts[row + 1] - y,
-        });
-      }
-    }
-    return rects;
-  }
-
-  return [
-    { x: 0, y: 0, width: 48, height: 48 },
-    { x: 52, y: 0, width: 48, height: 48 },
-    { x: 0, y: 52, width: 48, height: 48 },
-    { x: 52, y: 52, width: 48, height: 48 },
-  ];
-}
-
-function clampInteger(value: number, min: number, max: number) {
-  return Math.round(clampNumber(value, min, max));
-}
-
-function clampNumber(value: number, min: number, max: number) {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-  return Math.min(max, Math.max(min, value));
-}
-
-function cleanText(value: string) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function slugify(value: string) {
-  return cleanText(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-}
-
-function createDefaultComicBook(): ComicBook {
-  return {
-    id: "super-max",
-    title: "Super Max Saves the Day",
-    updatedAt: new Date().toISOString(),
-    pages: [
-      {
-        id: "cover",
-        title: "Cover",
-        status: "Ready",
-        layout: "four",
-        paperSize: "letter-portrait",
-        texts: [
-          createText("caption", "MEANWHILE, IN MEGACITY...", 0, 10, 8, 15),
-          createText("speech", "WE NEED\nTO STOP\nDR. DOOM!", 1, 14, 16, 18),
-          createText("thought", "I HOPE MY\nPLAN WORKS!", 2, 12, 18, 15),
-          createText("sfx", "POW!", 3, 22, 22, 46),
-        ],
-      },
-      {
-        id: "big-battle",
-        title: "Big Battle",
-        status: "Draft",
-        layout: "bigTop",
-        paperSize: "letter-portrait",
-        texts: [
-          createText("caption", "THE CITY SHOOK!", 0, 8, 8, 15),
-          createText("speech", "WOW!", 2, 16, 18, 20),
-          createText("thought", "WE'D BETTER\nBE CAREFUL.", 3, 22, 18, 15),
-        ],
-      },
-      {
-        id: "ending",
-        title: "Ending",
-        status: "Blank",
-        layout: "four",
-        paperSize: "letter-portrait",
-        texts: [],
-      },
-    ],
-  };
-}
-
-function createDefaultComicBookVariant(
-  id: string,
-  title: string,
-  layout: ComicPage["layout"],
-): ComicBook {
-  return {
-    ...createDefaultComicBook(),
-    id,
-    title,
-    pages: [
-      {
-        id: "page-1",
-        title: "Opening",
-        status: "Draft",
-        layout,
-        paperSize: "letter-portrait",
-        texts: [createText("caption", title.toUpperCase(), 0, 8, 8, 15)],
-      },
-      {
-        id: "page-2",
-        title: "Next Scene",
-        status: "Blank",
-        layout: "four",
-        paperSize: "letter-portrait",
-        texts: [],
-      },
-    ],
-  };
-}
-
-function createText(
-  kind: ComicTextKind,
-  text: string,
-  panelIndex: number,
-  x: number,
-  y: number,
-  fontSize: number,
-) {
-  return {
-    id: `${kind}-${panelIndex}-${x}-${y}`,
-    kind,
-    text,
-    panelIndex,
-    x,
-    y,
-    width: kind === "sfx" ? 34 : 42,
-    height: getDefaultTextHeight(kind, text, fontSize),
-    fontSize,
-    rotation: kind === "sfx" ? -9 : 0,
-    align: "center" as const,
-    autoWrap: true,
-  };
+function serializeBook<T>(id: string, action: () => Promise<T>): Promise<T> {
+  const prior = (queues.get(id) ?? Promise.resolve()).catch(() => undefined);
+  const next = prior.then(action);
+  queues.set(id, next);
+  return next.finally(() => { if (queues.get(id) === next) queues.delete(id); });
 }
