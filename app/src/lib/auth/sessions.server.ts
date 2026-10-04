@@ -26,7 +26,7 @@ export async function preparedAccounts() {
       throw new Error("Legacy account is missing.");
     }
     return { state, store };
-  } catch { return fail(503, "Account storage is not ready. Run the offline setup command."); }
+  } catch { return fail(503, "Account storage is unavailable. Ask the site owner to check account setup."); }
 }
 
 export function requestToken(request: Request) {
