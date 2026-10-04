@@ -65,7 +65,7 @@ Run inside `app/`:
   - Panel entry: `ConsoleLogCapturePanel.tsx`
   - In-module store: `consoleLogCapture.store.ts`
   - Keep related UI/state/utils in this single module folder.
-- Sticker art lives in `app/public/art/*.webp` (sources in `output/branding/comicbam/`). Render it with `ComicArt` from `app/src/components/comics/ComicArt.tsx`.
+- Sticker art lives in `app/public/art/*.webp`, cut from the ComicBam image-gen sheets (kept outside git in the main checkout's `output/branding/comicbam/`). Render it with `ComicArt` from `app/src/components/comics/ComicArt.tsx`.
 - Markdown rendering stack is available at `app/src/components/markdown-renderer/`.
   - Main entry: `MarkdownRenderer.tsx`
   - Shared exports: `index.ts`
