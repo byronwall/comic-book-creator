@@ -45,6 +45,9 @@ async function journal(root: string): Promise<MigrationJournal> {
 describe("automatic startup migration", () => {
   it("copies every file and empty directory before ownership changes, with private random credentials", async () => {
     const input = await fixture();
+    const raw = (await readFile(path.join(input.dataDir, "comic-books/old.json"), "utf8"))
+      .replace('"extension":', '"large":90071992547409931234567890,"extension":');
+    await writeFile(path.join(input.dataDir, "comic-books/old.json"), raw);
     const before = await hashes(input.dataDir);
     const state = await prepareStartupStorage(input);
     const saved = await journal(input.dataDir);
@@ -52,7 +55,8 @@ describe("automatic startup migration", () => {
     expect(saved.source).toEqual(before);
     expect((await stat(path.join(saved.backupDir, "files/projects/empty"))).isDirectory()).toBe(true);
     const { ownerUserId, revision, ...values } = JSON.parse(await readFile(path.join(input.dataDir, "comic-books/old.json"), "utf8"));
-    expect(values).toEqual(input.book);
+    expect(values).toEqual(JSON.parse(raw));
+    expect(await readFile(path.join(input.dataDir, "comic-books/old.json"), "utf8")).toContain('"large":90071992547409931234567890');
     expect(ownerUserId).toBe(state.legacyUserId);
     expect(revision).toBe(1);
     const secret = (await readFile(path.join(saved.backupDir, "owner-password.txt"), "utf8")).trim();

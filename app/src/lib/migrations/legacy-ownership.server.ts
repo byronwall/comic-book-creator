@@ -124,8 +124,7 @@ export async function migrateLegacyData(input: {
     }
     const targets: Record<string, string> = {};
     for (const record of records) {
-      const next = { ...record.book, ownerUserId: user.id, revision: 1 };
-      targets[record.relative] = sha256(`${JSON.stringify(next, null, 2)}\n`);
+      targets[record.relative] = sha256(addOwnership(record.raw, user.id));
     }
     targets["auth/users.json"] = sha256(`${JSON.stringify({ schemaVersion: 1, users: [user] }, null, 2)}\n`);
     journal = {
@@ -151,12 +150,13 @@ export async function migrateLegacyData(input: {
   }
   await checkHashes(root, journal, files);
   let committed = 0;
-  for (const { relative, book } of records) {
+  for (const { relative, raw } of records) {
     const target = journal.targets[relative];
     const currentHash = sha256(await readFile(path.join(root, relative)));
     if (currentHash !== target) {
-      const next = { ...book, ownerUserId: journal.user.id, revision: 1 };
-      await writeMigrationFile(root, relative, `${JSON.stringify(next, null, 2)}\n`);
+      const next = addOwnership(raw, journal.user.id);
+      if (sha256(next) !== target) throw new Error(`Migration target changed: ${relative}`);
+      await writeMigrationFile(root, relative, next);
     }
     committed += 1;
     if (input.interruptAfterBooks === committed) throw new Error(`Simulated interruption after ${committed} book(s).`);
@@ -225,6 +225,12 @@ function checkRecordOwners(records: Array<{relative:string;book:Record<string,un
 }
 
 function normalizeEmail(email: string) { return email.trim().toLowerCase(); }
+function addOwnership(raw: string, userId: string) {
+  // Preserve original JSON tokens too: parsing and reserializing can change
+  // unknown numbers, duplicate keys, or formatting in inherited records.
+  const end = raw.lastIndexOf("}");
+  return `${raw.slice(0, end)},\n  "ownerUserId": ${JSON.stringify(userId)},\n  "revision": 1\n${raw.slice(end)}`;
+}
 async function verifyCompleted(root: string, files: string[], records: Array<{relative:string;book:Record<string,unknown>}>, state: DataState, user: User) {
   const journal = await readOptionalJson(path.join(root, "migrations", "legacy-ownership", "journal.json")) as MigrationJournal | null;
   if (!journal || journal.migrationId !== state.migrationId || journal.user.id !== user.id) throw new Error("Completed migration journal is missing or inconsistent.");
