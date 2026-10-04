@@ -29,9 +29,9 @@ pnpm start
 - Comic persistence: `src/lib/comics/*` and `data/comic-books/*.json`
 - Private comic API: `src/routes/api/comic-books/`
 - Accounts and sessions: `src/lib/auth/`
-- Offline migration: `scripts/accounts/cli.ts`
+- Automatic startup migration: `scripts/accounts/start.ts`; optional maintenance CLI: `scripts/accounts/cli.ts`
 
-Before starting, follow [account setup and migration](../docs/account-migration.md). Existing data requires migration. New empty data requires explicit initialization.
+Before starting, follow [account setup and migration](../docs/account-migration.md). Docker startup migrates existing data when `LEGACY_USER_EMAIL` is set. New empty data requires explicit initialization.
 
 ## Reconciled Additions
 

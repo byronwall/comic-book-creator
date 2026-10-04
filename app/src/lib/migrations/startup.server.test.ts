@@ -1,0 +1,142 @@
+import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { addUser, readUserStore } from "../auth/users.server.ts";
+import { verifyPassword } from "../auth/password.server.ts";
+import { issueSession, readSession } from "../auth/sessions.server";
+import { inventory, sha256, type MigrationJournal } from "./legacy-ownership-files.ts";
+import { migrateLegacyData } from "./legacy-ownership.server.ts";
+import { prepareStartupStorage } from "./startup.server.ts";
+
+const roots: string[] = [];
+afterEach(async () => {
+  await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
+});
+
+async function fixture() {
+  const base = await mkdtemp(path.join(os.tmpdir(), "comic-startup-"));
+  roots.push(base);
+  const dataDir = path.join(base, "data");
+  const backupDir = path.join(base, "backups");
+  await mkdir(path.join(dataDir, "comic-books"), { recursive: true });
+  await mkdir(path.join(dataDir, "comic-book-images", "old"), { recursive: true });
+  await mkdir(path.join(dataDir, "projects", "empty"), { recursive: true });
+  const book = {
+    id: "old", title: " Keep all values ", updatedAt: "2025-01-01", extension: { keep: [null, 3] },
+    pages: [{ id: "p1", texts: [], images: [{ id: "i1", filename: "crop.png", crop: { sourceFilename: "source.jpg", unknown: true } }] }],
+  };
+  await writeFile(path.join(dataDir, "comic-books", "old.json"), JSON.stringify(book));
+  await writeFile(path.join(dataDir, "comic-book-images", "old", "crop.png"), Buffer.from([0, 255, 2]));
+  await writeFile(path.join(dataDir, "comic-book-images", "old", "source.jpg"), Buffer.from([255, 0, 3]));
+  await writeFile(path.join(dataDir, "projects", "unknown.bin"), Buffer.from([0, 128, 250]));
+  await writeFile(path.join(dataDir, ".manifest.json"), "unknown source metadata");
+  return { dataDir, backupDir, email: "legacy@example.com", book };
+}
+
+async function hashes(root: string) {
+  const files = await inventory(root, true);
+  return Object.fromEntries(await Promise.all(files.map(async (file) => [file, sha256(await readFile(path.join(root, file)))])));
+}
+async function journal(root: string): Promise<MigrationJournal> {
+  return JSON.parse(await readFile(path.join(root, "migrations/legacy-ownership/journal.json"), "utf8"));
+}
+
+describe("automatic startup migration", () => {
+  it("copies every file and empty directory before ownership changes, with private random credentials", async () => {
+    const input = await fixture();
+    const before = await hashes(input.dataDir);
+    const state = await prepareStartupStorage(input);
+    const saved = await journal(input.dataDir);
+    expect(await hashes(path.join(saved.backupDir, "files"))).toEqual(before);
+    expect(saved.source).toEqual(before);
+    expect((await stat(path.join(saved.backupDir, "files/projects/empty"))).isDirectory()).toBe(true);
+    const { ownerUserId, revision, ...values } = JSON.parse(await readFile(path.join(input.dataDir, "comic-books/old.json"), "utf8"));
+    expect(values).toEqual(input.book);
+    expect(ownerUserId).toBe(state.legacyUserId);
+    expect(revision).toBe(1);
+    const secret = (await readFile(path.join(saved.backupDir, "owner-password.txt"), "utf8")).trim();
+    expect(secret.length).toBe(43);
+    expect((await stat(path.join(saved.backupDir, "owner-password.txt"))).mode & 0o777).toBe(0o600);
+    expect(await verifyPassword(secret, saved.user.passwordHash)).toBe(true);
+    expect(await verifyPassword(input.email, saved.user.passwordHash)).toBe(false);
+    for (const [file, hash] of Object.entries(before)) {
+      if (!file.startsWith("comic-books/")) expect(sha256(await readFile(path.join(input.dataDir, file)))).toBe(hash);
+    }
+  });
+
+  it("fails before source writes on missing email, bad backup location, and malformed records", async () => {
+    const input = await fixture();
+    const before = await hashes(input.dataDir);
+    await expect(prepareStartupStorage({ ...input, email: undefined })).rejects.toThrow(/Set LEGACY_USER_EMAIL/);
+    await writeFile(input.backupDir, "not a directory");
+    await expect(prepareStartupStorage(input)).rejects.toThrow();
+    expect(await hashes(input.dataDir)).toEqual(before);
+    await expect(prepareStartupStorage({ ...input, backupDir: path.join(input.dataDir, "backups") })).rejects.toThrow(/outside/);
+    expect(await hashes(input.dataDir)).toEqual(before);
+    await writeFile(path.join(input.dataDir, "comic-books/old.json"), "{");
+    const malformed = await hashes(input.dataDir);
+    await expect(prepareStartupStorage(input)).rejects.toThrow(/Malformed JSON/);
+    expect(await hashes(input.dataDir)).toEqual(malformed);
+  });
+
+  it("resumes checked commits and abandoned staged writes using the original backup and owner", async () => {
+    const input = await fixture();
+    await expect(migrateLegacyData({ ...input, generatePassword: true, interruptAfterBooks: 1 })).rejects.toThrow(/interruption/);
+    const first = await journal(input.dataDir);
+    const backupBefore = await hashes(path.join(first.backupDir, "files"));
+    const secretBefore = await readFile(path.join(first.backupDir, "owner-password.txt"));
+    await writeFile(path.join(input.dataDir, "migrations/legacy-ownership/stage/next.123.tmp"), "partial staged write");
+    // Rehearse an interrupted source journal publication. The external recovery
+    // record must retain the original account and backup.
+    await rm(path.join(input.dataDir, "migrations/legacy-ownership/journal.json"));
+    await expect(prepareStartupStorage({ ...input, email: "wrong@example.com" })).rejects.toThrow(/email does not match/);
+    await prepareStartupStorage(input);
+    const next = await journal(input.dataDir);
+    expect(next).toEqual(first);
+    expect(await hashes(path.join(first.backupDir, "files"))).toEqual(backupBefore);
+    expect(await readFile(path.join(first.backupDir, "owner-password.txt"))).toEqual(secretBefore);
+    expect((await readdir(input.backupDir)).filter((name) => name.includes(".backup-")).length).toBe(1);
+    expect((await readUserStore(input.dataDir)).users[0].id).toBe(first.user.id);
+  });
+
+  it("starts repeatedly after registrations, sessions, and edits without replacing or re-migrating data", async () => {
+    const input = await fixture();
+    await prepareStartupStorage(input);
+    const first = await journal(input.dataDir);
+    await addUser({ email: "new@example.com", passwordHash: first.user.passwordHash }, input.dataDir);
+    const oldDir = process.env.APP_DATA_DIR;
+    process.env.APP_DATA_DIR = input.dataDir;
+    try {
+      const { token } = await issueSession(first.user.id, new Request("http://comic.test"));
+      await prepareStartupStorage(input);
+      expect((await readSession(new Request("http://comic.test", { headers: { cookie: `comic_session=${token}` } })))?.account.id).toBe(first.user.id);
+    } finally {
+      if (oldDir === undefined) delete process.env.APP_DATA_DIR; else process.env.APP_DATA_DIR = oldDir;
+    }
+    await writeFile(path.join(input.dataDir, "comic-books/old.json"), JSON.stringify({ ...input.book, title: "Edited later", ownerUserId: first.user.id, revision: 4 }));
+    await writeFile(path.join(input.dataDir, "projects/unknown.bin"), "later inherited work");
+    const beforeRestart = await hashes(input.dataDir);
+    await prepareStartupStorage(input);
+    await prepareStartupStorage({ ...input, email: undefined });
+    expect(await hashes(input.dataDir)).toEqual(beforeRestart);
+    expect(await journal(input.dataDir)).toEqual(first);
+    expect((await readdir(input.backupDir)).filter((name) => name.includes(".backup-")).length).toBe(1);
+    await expect(prepareStartupStorage({ ...input, email: "wrong@example.com" })).rejects.toThrow(/owner or journal/);
+    expect(await hashes(input.dataDir)).toEqual(beforeRestart);
+  });
+
+  it("stops on damaged backup bytes and refuses to initialize an empty mount", async () => {
+    const input = await fixture();
+    await prepareStartupStorage(input);
+    const saved = await journal(input.dataDir);
+    await rm(path.join(saved.backupDir, "files/projects/unknown.bin"));
+    const before = await hashes(input.dataDir);
+    await expect(prepareStartupStorage(input)).rejects.toThrow(/accounting/);
+    expect(await hashes(input.dataDir)).toEqual(before);
+    const empty = path.join(path.dirname(input.dataDir), "empty");
+    await mkdir(empty);
+    await expect(prepareStartupStorage({ ...input, dataDir: empty })).rejects.toThrow(/Storage is empty/);
+    expect(await readdir(empty)).toEqual([]);
+  });
+});

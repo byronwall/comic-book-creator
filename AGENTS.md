@@ -77,7 +77,7 @@ Run inside `app/`:
 ## Accounts + Migration
 
 - Follow `docs/account-migration.md` for empty initialization, legacy migration, and release checks.
-- Requests require prepared storage. Never seed accounts, migrate books, or use `LEGACY_USER_EMAIL` as a runtime fallback.
+- Requests require prepared storage. Startup can migrate legacy data before listening, after a complete verified persistent backup. Never seed accounts or use `LEGACY_USER_EMAIL` as a request ownership fallback.
 - Pass the authenticated user ID into comic storage. Client account IDs detect stale tabs; they never grant ownership.
 - Keep one writer per data directory. Rehearse with disposable copies and separate backup storage.
 - Use private image routes. Keep obsolete public routes as explicit 404 handlers; missing routes can return fallback HTML.

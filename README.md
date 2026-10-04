@@ -110,7 +110,7 @@ BASE_PATH=/
 
 For local development, the app uses `app/data` when `APP_DATA_DIR` is not set.
 
-Existing data requires the checked offline migration. Do not run empty initialization on an existing library. See [account setup and migration](docs/account-migration.md).
+Existing data migrates automatically at Docker startup when `LEGACY_USER_EMAIL` is supplied, after a complete verified persistent backup. Do not run empty initialization on an existing library. See [account setup and migration](docs/account-migration.md).
 
 ## Scripts
 

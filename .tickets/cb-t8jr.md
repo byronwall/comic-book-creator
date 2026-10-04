@@ -12,6 +12,14 @@ tags: [multi-user-accounts]
 ---
 # Package and rehearse the account migration release
 
+## Automatic migration update — 2026-10-03
+
+The current release uses automatic startup migration when LEGACY_USER_EMAIL is supplied.
+A verified persistent copy precedes all source changes. A private random password replaces the deployment password prompt.
+Normal requests never migrate data. Completion checks permit later account and book changes.
+The [current migration guide](../docs/account-migration.md) supersedes offline-only startup and manual cutover instructions below.
+Backups and recovery records are permanent. No live operation is authorized by this implementation.
+
 ## Outcome
 
 An operator can run the release's migration tool against an isolated copied volume and recover it using documented steps. The built runtime contains the required command and preserves accounts, sessions, books, and images across restart.

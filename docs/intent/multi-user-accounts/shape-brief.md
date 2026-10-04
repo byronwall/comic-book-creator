@@ -12,7 +12,7 @@ last_updated: "2026-10-02"
 
 Add accounts and server-side sessions to the existing disk store. Add `ownerUserId` and a save `revision` to each book. Keep book filenames, book IDs, image directories, and editor URLs. Images inherit ownership from their containing book.
 
-Use `LEGACY_USER_EMAIL` during an explicit offline migration. Create a stable user ID and set the account password through a hidden local prompt. Back up the whole data directory before adding ownership fields. Record the completed assignment so a later environment change cannot transfer the books.
+Use `LEGACY_USER_EMAIL` during automatic startup migration, before serving requests. Create a stable user ID and a private random password in the persistent backup volume. Back up the whole data directory before adding ownership fields. Record the completed assignment so a later environment change cannot transfer the books.
 
 Make `/` the public landing page, `/books` the private library, and `/books/:bookId` the existing editor. Provide registration, sign-in, and sign-out. Keep verification, password reset, and email services outside this release.
 
@@ -42,13 +42,13 @@ flowchart LR
 
 The account registry is the authority for unique email addresses. Book records are the authority for comic ownership. A session file connects a random token hash to a user ID. The browser receives only the opaque token and a safe account summary.
 
-Normal requests never use `LEGACY_USER_EMAIL` to choose an owner. They use a verified session. An offline migration record identifies the legacy owner of inherited non-comic data.
+Normal requests never use `LEGACY_USER_EMAIL` to choose an owner. They use a verified session. A completed migration record identifies the legacy owner of inherited non-comic data.
 
 ## Current fit
 
 Reuse `lib/server/data-dir.ts`, the Docker volume, comic types, image paths, the editor, print tools, shared form controls, and action URL normalization.
 
-Add a small `lib/auth/` module, atomic disk writes, an offline migration command, and landing/account components. Split the growing comic persistence and autosave code at the affected boundaries.
+Add a small `lib/auth/` module, atomic disk writes, a startup migration gate and optional maintenance command, and landing/account components. Split the growing comic persistence and autosave code at the affected boundaries.
 
 Replace three unsafe assumptions. An empty directory must stop creating sample books. A `PUT` must stop creating a missing book. A private image must stop returning a public, year-long cache policy.
 

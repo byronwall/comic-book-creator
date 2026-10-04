@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { readDataState } from "../auth/data-state.server";
 import { hashPassword, verifyPassword } from "../auth/password.server.ts";
+import { recoveryPath } from "./legacy-ownership-files.ts";
 import { initializeEmptyData, migrateLegacyData, preflightLegacyData, verifyData } from "./legacy-ownership.server.ts";
 
 const roots: string[] = [];
@@ -13,6 +14,7 @@ afterEach(async () => {
       const journal = JSON.parse(await readFile(path.join(root, "migrations", "legacy-ownership", "journal.json"), "utf8"));
       await rm(journal.backupDir, { recursive: true, force: true });
     } catch {}
+    await rm(await recoveryPath(root), { force: true });
     await rm(root, { recursive: true, force: true });
   }));
 });

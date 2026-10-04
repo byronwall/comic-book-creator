@@ -1,11 +1,12 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import path from "node:path";
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, open, readFile } from "node:fs/promises";
 import { hashPassword } from "../auth/password.server.ts";
 import { replaceUserStore, readUserStore } from "../auth/users.server.ts";
 import type { DataState, User, UserStore } from "../auth/types.ts";
 import { writeFileAtomic } from "../server/atomic-file.ts";
-import { backupLocation, checkHashes, compareMigrated, createBackup, inventory, pathExists, readOptionalJson, requireAbsolute, sha256, validateImages, verifyBackup, type MigrationJournal } from "./legacy-ownership-files.ts";
+import { writeMigrationFile } from "./migration-write.ts";
+import { backupLocation, checkHashes, compareMigrated, createBackup, inventory, pathExists, readOptionalJson, recoveryPath, requireAbsolute, sha256, syncPath, validateImages, verifyBackup, type MigrationJournal } from "./legacy-ownership-files.ts";
 
 export interface MigrationReport {
   dataDir: string;
@@ -17,7 +18,7 @@ export interface MigrationReport {
   completed: boolean;
 }
 
-export async function inspectLegacyData(dataDir: string) {
+export async function inspectLegacyData(dataDir: string, prepared = false) {
   requireAbsolute(dataDir);
   const root = path.resolve(dataDir);
   const files = await inventory(root);
@@ -39,7 +40,9 @@ export async function inspectLegacyData(dataDir: string) {
     if (book.ownerUserId !== undefined && (typeof book.ownerUserId !== "string" || !book.ownerUserId)) {
       throw new Error(`Invalid book owner: ${relative}`);
     }
-    if (book.ownerUserId !== undefined && book.revision !== 1) throw new Error(`Invalid existing book revision: ${relative}`);
+    if (book.ownerUserId !== undefined && (prepared
+      ? !Number.isSafeInteger(book.revision) || Number(book.revision) < 1
+      : book.revision !== 1)) throw new Error(`Invalid existing book revision: ${relative}`);
     if (!Array.isArray(book.pages) || book.pages.length === 0) throw new Error(`Book pages are invalid: ${relative}`);
     const pageIds = new Set<string>();
     for (const pageValue of book.pages) {
@@ -74,7 +77,8 @@ export async function preflightLegacyData(dataDir: string, emailInput: string, b
     await verifyCompleted(root, files, records, state, user);
     return { inspected, email, journal: null, completed: true };
   }
-  const journal = await readOptionalJson(journalPath) as MigrationJournal | null;
+  const journal = (await readOptionalJson(journalPath)
+    ?? await readOptionalJson(await recoveryPath(root, backupDir))) as MigrationJournal | null;
   if (journal) {
     if (journal.schemaVersion !== 1 || journal.email !== email) throw new Error("Migration journal email does not match LEGACY_USER_EMAIL.");
     await checkHashes(root, journal, files);
@@ -83,6 +87,9 @@ export async function preflightLegacyData(dataDir: string, emailInput: string, b
     return { inspected, email, journal, completed: false };
   }
   if (await pathExists(statePath)) throw new Error("Data state exists without a completed migration journal.");
+  if (await pathExists(path.join(root, "migrations", "legacy-ownership"))) {
+    throw new Error("Migration directory exists without a journal. Preserve it and investigate before startup.");
+  }
   if (records.some(({ book }) => book.ownerUserId !== undefined || book.revision !== undefined)) {
     throw new Error("Legacy books must not have an owner or revision before migration.");
   }
@@ -91,7 +98,7 @@ export async function preflightLegacyData(dataDir: string, emailInput: string, b
 }
 
 export async function migrateLegacyData(input: {
-  dataDir: string; email: string; password?: string; backupDir?: string; interruptAfterBooks?: number;
+  dataDir: string; email: string; password?: string; generatePassword?: boolean; backupDir?: string; interruptAfterBooks?: number;
 }): Promise<MigrationReport> {
   const preflight = await preflightLegacyData(input.dataDir, input.email, input.backupDir);
   const { root, files, records } = preflight.inspected;
@@ -102,11 +109,19 @@ export async function migrateLegacyData(input: {
   let journal = preflight.journal;
   const resumed = Boolean(journal);
   if (!journal) {
-    if (!input.password) throw new Error("An initial password is required.");
+    const password = input.generatePassword ? randomBytes(32).toString("base64url") : input.password;
+    if (!password) throw new Error("An initial password is required.");
     const user: User = {
-      id: randomUUID(), email, passwordHash: await hashPassword(input.password), createdAt: new Date().toISOString(),
+      id: randomUUID(), email, passwordHash: await hashPassword(password), createdAt: new Date().toISOString(),
     };
     const backupDir = await createBackup(root, files, input.backupDir);
+    const source = await readOptionalJson(path.join(backupDir, ".manifest.json")) as Record<string, string>;
+    for (const record of records) {
+      if (source[record.relative] !== sha256(record.raw)) throw new Error(`Book changed before backup: ${record.relative}`);
+    }
+    if (input.generatePassword) {
+      await writeMigrationFile(backupDir, "owner-password.txt", `${password}\n`);
+    }
     const targets: Record<string, string> = {};
     for (const record of records) {
       const next = { ...record.book, ownerUserId: user.id, revision: 1 };
@@ -115,12 +130,25 @@ export async function migrateLegacyData(input: {
     targets["auth/users.json"] = sha256(`${JSON.stringify({ schemaVersion: 1, users: [user] }, null, 2)}\n`);
     journal = {
       schemaVersion: 1, migrationId: randomUUID(), email, user, backupDir,
-      source: Object.fromEntries(await Promise.all(files.map(async (file) => [file, sha256(await readFile(path.join(root, file)))]))),
+      source,
       targets, bookIds: records.map(({ book }) => String(book.id)),
     };
-    await writeFileAtomic(path.join(root, "migrations", "legacy-ownership", "journal.json"), `${JSON.stringify(journal, null, 2)}\n`);
+    // Persist the chosen owner outside the source before creating any source
+    // metadata. Never replace this recovery record, even on retry.
+    const recovery = await recoveryPath(root, input.backupDir);
+    const handle = await open(recovery, "wx", 0o600);
+    try {
+      await handle.writeFile(`${JSON.stringify(journal, null, 2)}\n`);
+      await handle.sync();
+    } finally { await handle.close(); }
+    await syncPath(path.dirname(recovery));
   }
 
+  if (!await pathExists(path.join(root, "migrations/legacy-ownership/journal.json"))) {
+    await verifyBackup(journal);
+    await checkHashes(root, journal, files);
+    await writeMigrationFile(root, "migrations/legacy-ownership/journal.json", `${JSON.stringify(journal, null, 2)}\n`);
+  }
   await checkHashes(root, journal, files);
   let committed = 0;
   for (const { relative, book } of records) {
@@ -128,7 +156,7 @@ export async function migrateLegacyData(input: {
     const currentHash = sha256(await readFile(path.join(root, relative)));
     if (currentHash !== target) {
       const next = { ...book, ownerUserId: journal.user.id, revision: 1 };
-      await writeFileAtomic(path.join(root, relative), `${JSON.stringify(next, null, 2)}\n`);
+      await writeMigrationFile(root, relative, `${JSON.stringify(next, null, 2)}\n`);
     }
     committed += 1;
     if (input.interruptAfterBooks === committed) throw new Error(`Simulated interruption after ${committed} book(s).`);
@@ -139,12 +167,12 @@ export async function migrateLegacyData(input: {
   if (currentRegistry && sha256(await readFile(registryPath)) !== journal.targets["auth/users.json"]) {
     throw new Error("Account registry changed during migration.");
   }
-  if (!currentRegistry) await replaceUserStore(userStore, root);
+  if (!currentRegistry) await writeMigrationFile(root, "auth/users.json", `${JSON.stringify(userStore, null, 2)}\n`);
   await compareMigrated(root, files, records, journal);
   const state: DataState = {
     schemaVersion: 2, legacyUserId: journal.user.id, migrationId: journal.migrationId, completedAt: new Date().toISOString(),
   };
-  await writeFileAtomic(path.join(root, "data-state.json"), `${JSON.stringify(state, null, 2)}\n`);
+  await writeMigrationFile(root, "data-state.json", `${JSON.stringify(state, null, 2)}\n`);
   return { dataDir: root, email, files: files.length, books: records.length, backupDir: journal.backupDir, resumed, completed: true };
 }
 

@@ -8,6 +8,14 @@ last_updated: "2026-10-03"
 
 # Comic Book Creator accounts — implementation plan
 
+## Automatic migration update — 2026-10-03
+
+The current release uses automatic startup migration when LEGACY_USER_EMAIL is supplied.
+A verified persistent copy precedes all source changes. A private random password replaces the deployment password prompt.
+Normal requests never migrate data. Completion checks permit later account and book changes.
+The [current migration guide](../../../docs/account-migration.md) supersedes offline-only startup and manual cutover instructions below.
+Backups and recovery records are permanent. No live operation is authorized by this implementation.
+
 ## Plan at a glance
 
 Keep disk storage. Introduce a user registry, password hashes, persistent sessions, and an explicit owner on every book. Preserve the current book IDs and image paths. Move the library from `/` to `/books`, then use `/` to explain the product.

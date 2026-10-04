@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, copyFile, lstat, mkdir, readFile, readdir, realpath } from "node:fs/promises";
+import { chmod, cp, lstat, mkdir, open, readFile, readdir, realpath } from "node:fs/promises";
 import path from "node:path";
 import type { User } from "../auth/types.ts";
 import { writeFileAtomic } from "../server/atomic-file.ts";
@@ -20,14 +20,14 @@ export function sha256(value: string | Buffer) { return createHash("sha256").upd
 export async function pathExists(file: string) { try { await lstat(file); return true; } catch (e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return false; throw e; } }
 export async function readOptionalJson(file: string) { try { return JSON.parse(await readFile(file, "utf8")); } catch (e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return null; throw e; } }
 
-export async function inventory(root: string): Promise<string[]> {
+export async function inventory(root: string, includeMetadata = false): Promise<string[]> {
   const files: string[] = [];
   async function visit(dir: string) {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name);
       const rel = path.relative(root, full).split(path.sep).join("/");
       const info = await lstat(full);
-      if (rel === "migrations/legacy-ownership" || rel.startsWith("migrations/legacy-ownership/") || rel === "data-state.json") continue;
+      if (!includeMetadata && (rel === "migrations/legacy-ownership" || rel.startsWith("migrations/legacy-ownership/") || rel === "data-state.json")) continue;
       if (info.isSymbolicLink()) throw new Error(`Symbolic links are not supported in migration data: ${rel}`);
       if (info.isDirectory()) await visit(full);
       else if (info.isFile()) files.push(rel);
@@ -87,22 +87,28 @@ export async function backupLocation(root: string, backupDir?: string) {
   return parent;
 }
 
+export async function recoveryPath(root: string, backupDir?: string) {
+  const parent = await backupLocation(root, backupDir);
+  return path.join(parent, `.legacy-${sha256(await resolveLocation(root))}.json`);
+}
+
 export async function createBackup(root: string, files: string[], backupDir?: string) {
   const parent = await backupLocation(root, backupDir);
   await mkdir(parent, { recursive: true });
   const backup = path.join(parent, `${path.basename(root)}.backup-${new Date().toISOString().replaceAll(":", "-")}-${randomUUID()}`);
   await mkdir(backup, { recursive: false, mode: 0o700 });
-  for (const relative of files) {
-    const target = path.join(backup, "files", relative);
-    await mkdir(path.dirname(target), { recursive: true });
-    await copyFile(path.join(root, relative), target);
-    await chmod(target, 0o400);
+  // Copy the whole tree, including empty directories and inherited files.
+  await cp(root, path.join(backup, "files"), { recursive: true, force: false, errorOnExist: true });
+  if (JSON.stringify(await inventory(root, true)) !== JSON.stringify(files)
+    || JSON.stringify(await inventory(path.join(backup, "files"), true)) !== JSON.stringify(files)) {
+    throw new Error("Backup file accounting failed.");
   }
   const sourceHashes = Object.fromEntries(await Promise.all(files.map(async (file) => [file, sha256(await readFile(path.join(root, file)))])));
   const backupHashes = Object.fromEntries(await Promise.all(files.map(async (file) => [file, sha256(await readFile(path.join(backup, "files", file)))])));
   if (JSON.stringify(sourceHashes) !== JSON.stringify(backupHashes)) throw new Error("Backup manifest verification failed.");
   await writeFileAtomic(path.join(backup, ".manifest.json"), `${JSON.stringify(sourceHashes, null, 2)}\n`);
-  await chmod(path.join(backup, ".manifest.json"), 0o400);
+  await syncBackup(backup);
+  await syncPath(parent);
   return backup;
 }
 
@@ -142,7 +148,27 @@ export async function compareMigrated(root: string, sourceFiles: string[], recor
 export async function verifyBackup(journal: MigrationJournal) {
   const manifest = await readOptionalJson(path.join(journal.backupDir, ".manifest.json"));
   if (!manifest || JSON.stringify(manifest) !== JSON.stringify(journal.source)) throw new Error("Backup manifest does not match migration journal.");
+  if (JSON.stringify(await inventory(path.join(journal.backupDir, "files"), true)) !== JSON.stringify(Object.keys(journal.source).sort())) {
+    throw new Error("Backup file accounting failed.");
+  }
   for (const [file, hash] of Object.entries(journal.source)) {
     if (sha256(await readFile(path.join(journal.backupDir, "files", file))) !== hash) throw new Error(`Backup file hash mismatch: ${file}`);
   }
+}
+
+async function syncBackup(dir: string): Promise<void> {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) await syncBackup(file);
+    else {
+      await chmod(file, 0o400);
+      await syncPath(file);
+    }
+  }
+  await syncPath(dir);
+}
+
+export async function syncPath(file: string) {
+  const handle = await open(file, "r");
+  try { await handle.sync(); } finally { await handle.close(); }
 }

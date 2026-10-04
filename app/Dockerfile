@@ -29,7 +29,7 @@ ENV PORT=3000
 WORKDIR /app
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates \
+  && apt-get install -y --no-install-recommends ca-certificates util-linux \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/node_modules ./node_modules
@@ -41,4 +41,5 @@ COPY --from=build /app/src/lib/auth/types.ts /app/src/lib/auth/password.server.t
 COPY --from=build /app/src/lib/server/atomic-file.ts /app/src/lib/server/data-dir.ts ./src/lib/server/
 
 EXPOSE 3000
-CMD ["node", ".output/server/index.mjs"]
+ENTRYPOINT ["sh", "scripts/accounts/entrypoint.sh"]
+CMD ["node", "--experimental-strip-types", "scripts/accounts/start.ts"]
