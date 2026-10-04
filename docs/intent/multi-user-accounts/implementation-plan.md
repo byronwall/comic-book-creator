@@ -28,17 +28,20 @@ The main simplification is to add ownership in place. Moving files, adding a dat
 
 ## Implementation tickets
 
-Local tracker epic: [cb-pix7](../../../.tickets/cb-pix7.md). Seven child tickets cover the five milestones. All remain `open` for review and refinement before execution.
+Local tracker epic: [cb-pix7](../../../.tickets/cb-pix7.md). The original seven child tickets cover the five milestones. A server-contract child separates server proof from browser acceptance. Tickets own current dependencies, status, and evidence.
 
-| Ticket | Outcome | Prerequisites |
+| Ticket | Outcome | Construction prerequisite |
 |---|---|---|
 | [cb-xp5r](../../../.tickets/cb-xp5r.md) | Prove legacy ownership migration without content loss | None — first proof |
 | [cb-3g5e](../../../.tickets/cb-3g5e.md) | Let the legacy account use a private comic library | [cb-xp5r](../../../.tickets/cb-xp5r.md) |
-| [cb-tt7r](../../../.tickets/cb-tt7r.md) | Create separate accounts with isolated comic libraries | [cb-3g5e](../../../.tickets/cb-3g5e.md) |
-| [cb-jqfr](../../../.tickets/cb-jqfr.md) | Protect drafts during expiry and account changes | [cb-3g5e](../../../.tickets/cb-3g5e.md) |
-| [cb-f2t6](../../../.tickets/cb-f2t6.md) | Explain the site and connect account entry flows | [cb-tt7r](../../../.tickets/cb-tt7r.md), [cb-jqfr](../../../.tickets/cb-jqfr.md) |
-| [cb-t8jr](../../../.tickets/cb-t8jr.md) | Package and rehearse the account migration release | [cb-3g5e](../../../.tickets/cb-3g5e.md) |
+| [cb-ud97](../../../.tickets/cb-ud97.md) | Accept the private account server contract | [cb-xp5r](../../../.tickets/cb-xp5r.md) |
+| [cb-tt7r](../../../.tickets/cb-tt7r.md) | Create separate accounts with isolated comic libraries | [cb-ud97](../../../.tickets/cb-ud97.md) |
+| [cb-jqfr](../../../.tickets/cb-jqfr.md) | Protect drafts during expiry and account changes | [cb-ud97](../../../.tickets/cb-ud97.md) |
+| [cb-f2t6](../../../.tickets/cb-f2t6.md) | Explain the site and connect account entry flows | [cb-ud97](../../../.tickets/cb-ud97.md) |
+| [cb-t8jr](../../../.tickets/cb-t8jr.md) | Package and rehearse the account migration release | [cb-ud97](../../../.tickets/cb-ud97.md) |
 | [cb-irrm](../../../.tickets/cb-irrm.md) | Migrate the live library after explicit rollout approval | [cb-f2t6](../../../.tickets/cb-f2t6.md), [cb-t8jr](../../../.tickets/cb-t8jr.md) |
+
+Browser acceptance still covers signup, draft recovery, navigation, and printing together. Construction dependencies do not waive those checks.
 
 Migration precedes private-library access. Signup, draft protection, and release rehearsal follow that boundary. The user has authorized implementation and stacked pull requests. Tickets own current status and proof. Live migration requires separate rollout approval.
 

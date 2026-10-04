@@ -1,6 +1,6 @@
 ---
 id: cb-f2t6
-status: in_progress
+status: closed
 deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -30,7 +30,7 @@ Keep the existing playful identity and editor/print features. Exclude verificati
 
 ## Ready Gate
 
-Signup/isolation and draft-safe account transitions must be closed. Before ready, confirm navigation/form contracts, safe demo assets, and the disposable browser target. Browser testing requires explicit authorization; inspect an existing server's data target before reuse. Use pnpm checks. Do not fill a missing example with private user content.
+Construction requires the accepted server contract in cb-ud97. Signup/isolation and draft-safe transitions must pass before final acceptance. Confirm navigation/form contracts, safe demo assets, and the disposable browser target. Browser testing requires explicit authorization; inspect an existing server's data target before reuse. Use pnpm checks. Do not fill a missing example with private user content.
 
 ## Provenance
 
@@ -45,10 +45,14 @@ Change construction dependencies to cb-ud97. Retain every original acceptance cr
 
 Scope: public home route, reusable public-page components, a synthetic comic example, and route metadata. Reuse established comic colors and visual style. Never read private books or images. Parent already applied Impeccable and Solid SSR safety, with product/design context in app/PRODUCT.md and app/DESIGN.md. Use shared CSS variables now available on .comic-landing. Account forms and draft controls belong to other owners.
 
-Proof: type-check and lint owned files; confirm the public page has no private query; run the Impeccable detector. Browser checks and PR screenshots remain required and currently wait for browser access.
+Proof: type-check and lint owned files; confirm the public page has no private query; run the Impeccable detector. Browser checks and PR screenshots remain required. Execution notes record their results.
 
 ## Notes
 
 **2026-10-03T05:41:36Z**
 
 The landing page is implemented with a synthetic comic illustration and no private library query. Targeted lint, type checks, and the Impeccable detector passed. Browser review confirmed mobile layout at 390x844 and working account entry. Auth button contrast was repaired after the first screenshot exposed missing comic variables outside the editor. New signup reached an empty library. Final combined editor and print checks continue.
+
+**2026-10-03T06:12:46Z**
+
+Combined browser acceptance passed: public landing at desktop and390px width, new signup into an empty library, return sign-in by keyboard, account-specific libraries, comic editing with save/reload, same-account draft recovery, stale-tab conflict handling, and editor print output without account controls. The synthetic landing performs no private-library query. Production /comics route/form/icon/cookie checks passed. Desktop and mobile screenshots are attached to PR4.

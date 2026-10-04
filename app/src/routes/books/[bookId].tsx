@@ -2,6 +2,7 @@ import { getPageAccount } from "~/lib/auth/data";
 import { createAsync, useParams } from "@solidjs/router";
 import { Show } from "solid-js";
 import { ComicCreatorApp } from "~/components/comics/ComicCreatorApp";
+import { ComicBookUnavailable } from "~/components/comics/ComicBookUnavailable";
 import { getComicBookById } from "~/lib/comics/data";
 import { PageMeta } from "~/lib/seo";
 
@@ -12,16 +13,19 @@ export default function ComicBookRoute() {
 
   return (
     <Show keyed when={params.bookId}>
-      {(bookId) => <Show keyed when={account() && (book()?.id === bookId ? book() : null)}>
+      {(bookId) => <Show when={account()}>
+      {(resolvedAccount) => <Show when={book()?.id === bookId ? book() : null}
+        fallback={<Show when={book() === null}><ComicBookUnavailable account={resolvedAccount()} /></Show>}>
       {(resolvedBook) => (
         <>
           <PageMeta
-            title={`${resolvedBook.title} | Comic Book Creator`}
+            title={`${resolvedBook().title} | Comic Book Creator`}
             description="Edit panels, text, templates, and print-ready pages for a saved comic book."
           />
-          <ComicCreatorApp account={account()!} initialBook={resolvedBook} />
+          <ComicCreatorApp account={resolvedAccount()} initialBook={resolvedBook()} />
         </>
       )}
+      </Show>}
       </Show>}
     </Show>
   );

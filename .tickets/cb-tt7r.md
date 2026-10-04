@@ -1,6 +1,6 @@
 ---
 id: cb-tt7r
-status: partially_implemented
+status: closed
 deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -55,3 +55,7 @@ Implementation and server proof passed. Four auth tests cover sessions, stream r
 The no-JavaScript failure path exposed a framework flash-cookie behavior: SolidStart includes submitted form input. Both auth actions now remove the password field in finally blocks. HTTP checks proved failed login/signup flash responses contain no password.
 
 Type-check and targeted lint passed. Browser signup, cache transition, and visual proof remain pending while browser access is unavailable. Keep this ticket unfinished until that proof passes.
+
+**2026-10-03T05:59:27Z**
+
+Browser acceptance passed on disposable accounts. A new account completed signup and reached an empty library. The existing second account also signed in by keyboard and saw an empty library. Server checks already covered duplicate email races, legacy-email rejection, private A/B operations, password-free failed-form responses, and retained accounts after session-creation failure. Draft/account-switch recovery remains owned by cb-jqfr.

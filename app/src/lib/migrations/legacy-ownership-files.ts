@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, copyFile, lstat, mkdir, readFile, readdir } from "node:fs/promises";
+import { chmod, copyFile, lstat, mkdir, readFile, readdir, realpath } from "node:fs/promises";
 import path from "node:path";
 import type { User } from "../auth/types.ts";
 import { writeFileAtomic } from "../server/atomic-file.ts";
@@ -57,7 +57,7 @@ export async function validateImages(root: string, bookId: string, pages: unknow
       if (crop && (typeof crop.sourceFilename !== "string" || !crop.sourceFilename)) throw new Error(`Missing crop source filename in ${source}`);
       for (const name of [image.filename, crop?.sourceFilename]) {
         if (name === undefined) continue;
-        if (typeof name !== "string" || !name || path.basename(name) !== name || name.includes("\\")) {
+        if (typeof name !== "string" || !/^[a-zA-Z0-9._-]{1,180}$/.test(name) || path.basename(name) !== name || name.includes("\\")) {
           throw new Error(`Invalid image path in ${source}`);
         }
         const imagePath = path.join(root, "comic-book-images", bookId, name);
@@ -69,8 +69,27 @@ export async function validateImages(root: string, bookId: string, pages: unknow
   }
 }
 
-export async function createBackup(root: string, files: string[]) {
-  const parent = path.dirname(root);
+async function resolveLocation(location: string): Promise<string> {
+  try { return await realpath(location); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    const parent = path.dirname(location);
+    if (parent === location) throw error;
+    return path.join(await resolveLocation(parent), path.basename(location));
+  }
+}
+
+export async function backupLocation(root: string, backupDir?: string) {
+  if (backupDir) requireAbsolute(backupDir);
+  const parent = await resolveLocation(path.resolve(backupDir ?? path.dirname(root)));
+  const source = await resolveLocation(root);
+  if (parent === source || parent.startsWith(`${source}${path.sep}`)) throw new Error("The backup directory must be outside the data tree.");
+  return parent;
+}
+
+export async function createBackup(root: string, files: string[], backupDir?: string) {
+  const parent = await backupLocation(root, backupDir);
+  await mkdir(parent, { recursive: true });
   const backup = path.join(parent, `${path.basename(root)}.backup-${new Date().toISOString().replaceAll(":", "-")}-${randomUUID()}`);
   await mkdir(backup, { recursive: false, mode: 0o700 });
   for (const relative of files) {

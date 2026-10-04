@@ -34,7 +34,7 @@
     "zod": "^4.1.5"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.6"
   },
   "devDependencies": {
     "@dword-design/eslint-plugin-import-alias": "^5.1.1",

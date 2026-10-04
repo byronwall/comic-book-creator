@@ -1,6 +1,7 @@
 import { createEffect, createSignal, onCleanup, onMount, untrack } from "solid-js";
 import { useBeforeLeave } from "@solidjs/router";
 import { appPath } from "~/lib/router/app-path";
+import { watchAccountTabs } from "~/lib/auth/account-events";
 import type { ComicBook } from "~/lib/comics/types";
 import { createComicDraftQueue, DraftSaveError } from "./comic-draft-queue";
 import type { DraftPause } from "./comic-draft-queue";
@@ -44,7 +45,11 @@ export function useComicDraft(options: {
       lastSavedKey = contentKey(snapshot);
       if (contentKey(untrack(options.book)) === lastSavedKey) setSaveState("saved");
     },
-    onPause: (reason) => { setPause(reason); setSaveState("error"); },
+    onPause: (reason) => {
+      setPause(reason);
+      setSaveState("error");
+      if (reason === "account") setAccountChanged(true);
+    },
     onState: (saving) => { if (saving) setSaveState("saving"); },
   });
 
@@ -55,16 +60,6 @@ export function useComicDraft(options: {
     setSaveState("saving");
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => queue.schedule(nextBook), 350);
-  });
-
-  createEffect(() => {
-    const nextBook = options.initialBook;
-    if (contentKey(untrack(options.book)) === lastSavedKey && nextBook.revision > queue.revision) {
-      ignoreNextBookEffect = true;
-      options.setBook(nextBook);
-      queue.reset(nextBook.revision);
-      lastSavedKey = contentKey(nextBook);
-    }
   });
 
   onMount(() => {
@@ -91,13 +86,11 @@ export function useComicDraft(options: {
       event.preventDefault();
       event.returnValue = "";
     };
-    window.addEventListener("focus", refreshAccount);
-    window.addEventListener("pageshow", refreshAccount);
+    const stopWatching = watchAccountTabs(refreshAccount);
     window.addEventListener("beforeunload", warnBeforeClose);
     void checkAccount();
     onCleanup(() => {
-      window.removeEventListener("focus", refreshAccount);
-      window.removeEventListener("pageshow", refreshAccount);
+      stopWatching();
       window.removeEventListener("beforeunload", warnBeforeClose);
     });
   });
