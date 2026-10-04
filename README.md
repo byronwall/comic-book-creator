@@ -202,11 +202,7 @@ cd app
 docker compose up --build
 ```
 
-The container stores persistent app data in the `comic-book-data` named volume and exposes the app on container port `3000`. Compose binds host port `3000` to loopback. Set `APP_PORT_EXPOSE` to change that port, for example:
-
-```bash
-APP_PORT_EXPOSE=3000 docker compose up --build
-```
+The container stores persistent app data in the `comic-book-data` named volume. Port `3000` stays inside Docker; Compose publishes no host port. Configure the Coolify proxy to use container port `3000`.
 
 ## Development Notes
 
