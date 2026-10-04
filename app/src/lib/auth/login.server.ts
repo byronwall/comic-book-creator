@@ -10,7 +10,7 @@ const dummyHash = `scrypt$131072$8$1$${Buffer.alloc(16).toString("base64url")}$$
 
 export async function passwordWork<T>(work: () => Promise<T>) {
   if (Date.now() - windowStart > 60_000) { windowStart = Date.now(); attempts = 0; }
-  if (busy || attempts >= 30) fail(429, "Too many attempts. Wait a minute and try again.");
+  if (busy || attempts >= 30) fail(429, "Too many tries. Wait a minute, then try again.");
   attempts += 1;
   busy = true;
   try { return await work(); }

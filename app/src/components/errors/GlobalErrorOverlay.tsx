@@ -125,7 +125,7 @@ export function GlobalErrorOverlay(props: GlobalErrorOverlayProps) {
                     textTransform="uppercase"
                     letterSpacing="wide"
                   >
-                    Error details
+                    Details for grown-ups
                   </Text>
                   <Box
                     as="pre"

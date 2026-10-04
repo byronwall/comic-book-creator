@@ -24,14 +24,14 @@ export const signIn = action(async (formData: FormData) => {
     requireOrigin(request);
     const username = formData.get("username");
     const password = formData.get("password");
-    if (typeof username !== "string" || typeof password !== "string") return { error: "Enter your user name and password." };
+    if (typeof username !== "string" || typeof password !== "string") return { error: "Type your username and password." };
     const user = await authenticate(username, password);
-    if (!user) return { error: "User name or password is incorrect." };
+    if (!user) return { error: "That username and password don't match. Check them and try again." };
     const { token } = await issueSession(user.id, request);
     setSessionCookie(token);
     destination = new URL(returnDestination(formData.get("returnTo")), appOrigin()).href;
   } catch (error) {
-    return { error: error instanceof Response ? await error.text() : "Sign-in is unavailable. Try again later." };
+    return { error: error instanceof Response ? await error.text() : "Signing in isn't working right now. Try again in a little while." };
   } finally {
     // SolidStart includes form input in its no-JavaScript flash response.
     formData.delete("password");
@@ -50,7 +50,7 @@ export const signOut = action(async (formData: FormData) => {
     await revokeSession(request);
     clearSessionCookie();
   } catch (error) {
-    return { error: error instanceof Response ? await error.text() : "Sign-out failed. Try again." };
+    return { error: error instanceof Response ? await error.text() : "Signing out didn't work. Try again." };
   }
   throw redirect(new URL(appPath("/"), appOrigin()).href, 303);
 }, "sign-out");
@@ -67,15 +67,15 @@ export const signUp = action(async (formData: FormData) => {
     requireOrigin(request);
     const username = formData.get("username");
     const password = formData.get("password");
-    if (typeof username !== "string" || typeof password !== "string") return { error: "Enter your user name and password.", accountCreated };
+    if (typeof username !== "string" || typeof password !== "string") return { error: "Type a username and password.", accountCreated };
     const user = await registerAccount(username, password);
     accountCreated = true;
     const { token } = await issueSession(user.id, request);
     setSessionCookie(token);
   } catch (error) {
     const message = accountCreated
-      ? "Your account was created, but sign-in failed. Keep your password and use the sign-in page."
-      : error instanceof Response ? await error.text() : "Account creation is unavailable. Try again later.";
+      ? "Your account is ready, but we couldn't sign you in. Remember your password and use the Sign in page."
+      : error instanceof Response ? await error.text() : "Making new accounts isn't working right now. Try again in a little while.";
     return { error: message, accountCreated };
   } finally {
     formData.delete("password");

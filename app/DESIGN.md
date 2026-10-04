@@ -1,5 +1,15 @@
 # Design direction
 
+## Comic pop theme (current)
+
+One look across landing, accounts, library, and editor: warm dotted paper,
+2.5px ink outlines, hard offset "pop" shadows, and bright yellow/red/blue/green accents.
+Fonts: Fredoka for UI text, Bangers for the logo and page titles (Google Fonts, loaded in `entry-server.tsx`).
+`--comic-display` stays Trebuchet because comic page text wrapping is tuned to it.
+Theme tokens live in `src/components/comics/comic-base.css`; keep layout positions stable for young users.
+
+## Original account-work notes
+
 Use the existing comic visual style for the new account surfaces.
 The app uses bold black outlines, warm paper, bright accents, and offset shadows.
 Reuse its logo, buttons, typography, and page spacing.

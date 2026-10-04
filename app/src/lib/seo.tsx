@@ -3,7 +3,7 @@ import { createRenderEffect } from "solid-js";
 import { isServer } from "solid-js/web";
 import { appPath } from "./router/app-path";
 
-const SITE_NAME = "Comic Book Creator";
+const SITE_NAME = "ComicBam";
 const DEFAULT_DESCRIPTION =
   "Printable comic page creator for planning panels, adding comic text, printing pages, and drawing artwork by hand.";
 
@@ -26,11 +26,12 @@ export function PageMeta(props: PageMetaProps) {
   return (
     <>
       <Title>{title()}</Title>
-      <Link rel="icon" type="image/svg+xml" href={appPath("/favicon.svg")} />
+      <Link rel="icon" type="image/png" sizes="32x32" href={appPath("/favicon-32.png")} />
+      <Link rel="icon" type="image/png" sizes="96x96" href={appPath("/favicon-96.png")} />
       <Link rel="alternate icon" href={appPath("/favicon.ico")} />
       <Link rel="apple-touch-icon" sizes="180x180" href={appPath("/apple-touch-icon.png")} />
       <Link rel="manifest" href={appPath("/site.webmanifest")} />
-      <Meta name="theme-color" content="#ffd51a" />
+      <Meta name="theme-color" content="#2f6bff" />
       <Meta name="description" content={description()} />
       <Meta property="og:site_name" content={SITE_NAME} />
       <Meta property="og:type" content={props.type ?? "website"} />

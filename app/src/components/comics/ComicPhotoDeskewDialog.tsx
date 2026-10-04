@@ -75,7 +75,7 @@ export function ComicPhotoDeskewDialog(props: {
       }
       props.onOpenChange(false);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not deskew this photo.");
+      setError(cause instanceof Error ? cause.message : "We couldn't straighten this photo.");
     } finally {
       setSaving(false);
     }
@@ -85,14 +85,15 @@ export function ComicPhotoDeskewDialog(props: {
     <SimpleDialog
       open={props.open}
       onOpenChange={props.onOpenChange}
-      title="Crop & deskew photo"
-      description="Drag the four blue points to the corners of the page you want to keep."
+      title="Straighten & crop your photo"
+      description="Drag the four blue dots to the corners of your drawing. We'll straighten it out."
       maxW="900px"
+      contentClass="comic-dialog"
       skipPortal
     >
       <div class="comic-deskew-dialog">
         <div class="comic-deskew-frame" ref={frame}>
-          <img ref={photo} src={sourceSrc()} alt="Original photo to crop and deskew" />
+          <img ref={photo} src={sourceSrc()} alt="Your original photo" />
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
             <polygon points={corners().map((point) => `${point.x * 100},${point.y * 100}`).join(" ")} />
           </svg>
@@ -118,7 +119,7 @@ export function ComicPhotoDeskewDialog(props: {
         <Show when={error()}><p class="comic-dialog-error" role="alert">{error()}</p></Show>
         <div class="comic-deskew-actions">
           <button type="button" class="comic-btn" onClick={() => props.onOpenChange(false)} disabled={saving()}>Cancel</button>
-          <button type="button" class="comic-btn" onClick={() => void save()} disabled={saving()}>{saving() ? "Saving..." : "Save cropped photo"}</button>
+          <button type="button" class="comic-btn primary" onClick={() => void save()} disabled={saving()}>{saving() ? "Saving…" : "Save Photo"}</button>
         </div>
       </div>
     </SimpleDialog>

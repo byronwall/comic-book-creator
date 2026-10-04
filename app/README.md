@@ -1,4 +1,12 @@
-# Comic Book Creator
+# ComicBam
+
+## See every screen quickly
+
+```sh
+pnpm dev:demo
+```
+
+Opens http://localhost:3100 already signed in as `dev` with sample comic books (a photo page, a blank book, different page sizes). Sign out to test the public pages; sign in again as `dev` / `devdev`. A second account, `friend` / `devdev`, owns one private book. Run `pnpm dev:seed --reset` to start the demo data over. It lives in `app/tmp/dev-data` and never touches real data.
 
 SolidStart app with Park UI wrappers, Panda CSS, a printable comic creator UI, and JSON-backed server persistence.
 

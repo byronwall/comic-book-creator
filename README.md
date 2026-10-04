@@ -1,10 +1,10 @@
-# Comic Book Creator
+# ComicBam
 
-Comic Book Creator is a SolidStart app for making printable comic books. It gives you a desktop-style editor for saved books, page templates, comic text, paper sizes, autosave, and print-ready page output backed by local JSON persistence.
+ComicBam is a SolidStart app for making printable comic books. It gives you a desktop-style editor for saved books, page templates, comic text, paper sizes, autosave, and print-ready page output backed by local JSON persistence.
 
 README last refreshed after commit `b85b6c3` on 2026-04-26. The previous README update was commit `c552739` on 2026-04-25.
 
-![Comic Book Creator library](docs/screenshots/comic-books-index.png)
+![ComicBam library](docs/screenshots/comic-books-index.png)
 
 ## What You Can Do
 

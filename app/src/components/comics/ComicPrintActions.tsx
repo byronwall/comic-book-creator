@@ -1,4 +1,4 @@
-import { Printer } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { For, Show, createSignal } from "solid-js";
 import type { ComicPage } from "~/lib/comics/types";
 import { ComicPaper } from "./ComicPaper";
@@ -23,11 +23,11 @@ export function PrintActions(props: { activePage?: ComicPage; pages?: ComicPage[
     <>
       <div class="comic-print-actions">
         <button type="button" class="comic-btn" onClick={() => print("active")}>
-          <Printer size={18} /> Print This Page
+          <ComicArt name="printer" size={30} /> Print This Page
         </button>
         <Show when={pages().length > 1}>
           <button type="button" class="comic-btn primary" onClick={() => print("all")}>
-            <Printer size={18} /> Print All Pages
+            <ComicArt name="printer-booklet" size={34} /> Print Whole Book
           </button>
         </Show>
       </div>

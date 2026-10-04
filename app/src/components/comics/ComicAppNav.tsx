@@ -1,5 +1,5 @@
 import { A, useSubmission } from "@solidjs/router";
-import { Home } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { signOut } from "~/lib/auth/data";
 import type { Account } from "~/lib/auth/sessions.server";
 import { normalizeActionUrl } from "~/lib/router/action-url";
@@ -11,14 +11,14 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
   const submission = useSubmission(signOut);
   return (
     <header class="comic-app-nav" aria-label="App navigation">
-      <A href="/" class="comic-logo compact" aria-label="Comic Book Creator home" onClick={(event) => {
+      <A href="/" class="comic-logo compact" aria-label="ComicBam home" onClick={(event) => {
         if (props.onBeforeLeave && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
           event.preventDefault();
           const href = event.currentTarget.href;
           props.onBeforeLeave(() => window.location.assign(href));
         }
       }}>
-        <span>Comic</span><strong>Creator</strong>
+        <span>Comic</span><strong>Bam!</strong>
       </A>
       <nav class="comic-nav" aria-label="Comic book navigation">
         <A href="/books" class="active" title="Book index" onClick={(event) => {
@@ -28,11 +28,14 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
             props.onBeforeLeave(() => window.location.assign(href));
           }
         }}>
-          <span class="comic-nav-icon"><Home size={20} /></span>Books
+          <ComicArt name="books" size={34} class="comic-nav-art" />My Books
         </A>
       </nav>
       <div class="comic-account">
-        <p>{account.username}</p>
+        <p class="comic-account-name" title={`Signed in as ${account.username}`}>
+          <span class="comic-account-avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span>
+          <span class="comic-account-label">{account.username}</span>
+        </p>
         <form method="post" action={normalizeActionUrl(signOut.toString())} onSubmit={(event) => {
           if (props.onBeforeLeave) {
             event.preventDefault();
@@ -41,7 +44,7 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
           }
         }}>
           <input type="hidden" name="userId" value={account.id} />
-          <button type="submit" class="comic-btn" disabled={submission.pending}>{submission.pending ? "Signing out…" : "Sign out"}</button>
+          <button type="submit" class="comic-btn comic-sign-out" disabled={submission.pending}><ComicArt name="sign-out" size={22} />{submission.pending ? "Signing out…" : "Sign out"}</button>
           <p role="alert" class="account-error">{submission.result?.error}</p>
         </form>
       </div>

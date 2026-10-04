@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, Camera, FilePlus2, Trash2 } from "lucide-solid";
+import { ArrowLeft, ArrowRight, Trash2 } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { For, Show, createMemo } from "solid-js";
 import type { ComicBook, ComicLayoutKind, ComicPaperSize } from "~/lib/comics/types";
 import { TemplatePreview } from "./ComicTemplatePicker";
@@ -29,17 +30,17 @@ export function ComicPageRail(props: {
     <aside class="comic-card comic-page-rail">
       <div class="comic-page-rail-header">
         <div>
-          <h2>Book Pages</h2>
+          <h2>Pages</h2>
           <div class="comic-book-meta">
-            {props.book.title} · {props.book.pages.length} pages
+            {props.book.pages.length === 1 ? "1 page" : `${props.book.pages.length} pages`} · click one to edit it
           </div>
         </div>
         <div class="comic-add-page-actions">
           <button type="button" class="comic-add-page" onClick={() => props.onAddPage()}>
-            <FilePlus2 size={18} /> Add Blank Page
+            <ComicArt name="page-add" size={30} /> Add Blank Page
           </button>
           <button type="button" class="comic-add-page comic-add-photo-page" disabled={props.imageUploading} onClick={props.onAddImagePage}>
-            <Camera size={18} /> {props.imageUploading ? "Uploading..." : "Add Photo Page"}
+            <ComicArt name="page-photo" size={30} /> {props.imageUploading ? "Uploading…" : "Add Photo Page"}
           </button>
         </div>
       </div>
@@ -115,7 +116,7 @@ export function ComicPageRail(props: {
       <div class="comic-page-rail-controls" aria-label="Selected page setup">
         <details class="comic-rail-disclosure">
           <summary>
-            <span>Templates</span>
+            <span>Page layout</span>
             <strong>{layoutTemplates.find((template) => template.id === props.activeLayout)?.label ?? "Template"}</strong>
           </summary>
           <div class="comic-rail-template-grid">
@@ -137,8 +138,8 @@ export function ComicPageRail(props: {
         </details>
         <details class="comic-rail-disclosure">
           <summary>
-            <span>Page Size</span>
-            <strong>{paperSizeOptions.find((option) => option.id === props.activePaperSize)?.label ?? "Page Size"}</strong>
+            <span>Page size</span>
+            <strong>{paperSizeOptions.find((option) => option.id === props.activePaperSize)?.label ?? "Page size"}</strong>
           </summary>
           <div class="comic-paper-size-grid">
             <For each={paperSizeOptions}>

@@ -1,0 +1,478 @@
+/* Side tool panels (text + photo), the deskew dialog, and editor breakpoints. */
+
+.comic-delete-text-button {
+  width: 100%;
+  margin: 0 0 4px;
+}
+
+.comic-bubble-kind-panel {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.comic-bubble-kind-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.comic-bubble-kind-grid button {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  min-height: 62px;
+  padding: 6px 3px;
+  border: 2px solid var(--comic-line);
+  border-radius: var(--comic-radius-sm);
+  background: #fff;
+  color: var(--comic-ink);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.05;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 110ms ease, border-color 110ms ease;
+}
+
+.comic-bubble-kind-grid button:hover {
+  border-color: var(--comic-ink);
+  transform: translateY(-2px);
+}
+
+.comic-bubble-kind-grid button.active {
+  border: var(--comic-border);
+  background: var(--comic-yellow);
+  box-shadow: var(--comic-pop-sm);
+  transform: none;
+}
+
+.comic-bubble-kind-grid svg {
+  width: 42px;
+  height: 28px;
+  overflow: visible;
+}
+
+.comic-bubble-kind-shape {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 4px;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-bubble-kind-shape.caption {
+  fill: var(--comic-yellow-soft);
+}
+
+.comic-bubble-kind-shape.sfx {
+  fill: var(--comic-yellow);
+}
+
+.comic-clear-text-button {
+  border: 2px solid var(--comic-ink);
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: #fff;
+  color: var(--comic-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comic-clear-text-button:hover {
+  background: var(--comic-yellow);
+}
+
+.comic-rotation-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px;
+  align-items: center;
+  gap: 10px;
+}
+
+.comic-field .comic-rotation-control {
+  color: inherit;
+  font: inherit;
+}
+
+.comic-field .comic-rotation-control input[type="number"] {
+  padding-inline: 8px;
+}
+
+.comic-field input[type="range"] {
+  padding: 0;
+  border: 0;
+  accent-color: var(--comic-blue-600);
+}
+
+.comic-segmented,
+.comic-image-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border: 2px solid var(--comic-ink);
+  border-radius: var(--comic-radius-sm);
+  background: #fff;
+}
+
+.comic-segmented button,
+.comic-image-mode-grid button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 4px;
+  background: transparent;
+  color: var(--comic-ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: background 110ms ease;
+}
+
+.comic-segmented button:hover,
+.comic-image-mode-grid button:hover {
+  background: var(--comic-yellow-soft);
+}
+
+.comic-segmented button.active,
+.comic-image-mode-grid button.active {
+  background: var(--comic-ink);
+  color: #fff;
+  font-weight: 600;
+}
+
+.comic-size-options {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.comic-size-options button {
+  text-transform: none;
+}
+
+.comic-image-mode-grid button {
+  font-size: 12px;
+}
+
+.comic-tools-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  text-align: center;
+}
+
+.comic-tools-empty h2 {
+  margin: 0;
+}
+
+.comic-tools-empty .comic-art {
+  transform: rotate(-6deg);
+}
+
+/* ---------- Photo tools ---------- */
+
+.comic-image-tools,
+.comic-photo-page-help {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.comic-image-tools > h2,
+.comic-photo-page-help h2 {
+  margin-bottom: 0;
+}
+
+.comic-image-replace,
+.comic-image-reset {
+  width: 100%;
+}
+
+.comic-image-layer-label {
+  justify-self: start;
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--comic-blue-100);
+  color: var(--comic-blue-800);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.comic-image-layer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.comic-image-layer-actions .comic-btn {
+  min-height: 44px;
+  padding-inline: 6px;
+  font-size: 13px;
+}
+
+.comic-image-slider {
+  margin: 2px 0;
+}
+
+.comic-image-slider strong {
+  color: var(--comic-blue-800);
+  font-size: 13px;
+}
+
+.comic-image-hint {
+  margin: -4px 0 2px;
+  color: var(--comic-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.comic-image-filename {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 4px 0 0;
+  color: var(--comic-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Deskew dialog ---------- */
+
+.comic-deskew-dialog {
+  display: grid;
+  gap: 14px;
+}
+
+.comic-deskew-frame {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: auto;
+  line-height: 0;
+}
+
+.comic-deskew-frame img {
+  display: block;
+  max-width: 100%;
+  max-height: min(65vh, 800px);
+  width: auto;
+  height: auto;
+}
+
+.comic-deskew-frame svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.comic-deskew-frame polygon {
+  fill: rgba(47, 107, 255, 0.12);
+  stroke: var(--comic-blue-600);
+  stroke-width: 2;
+  stroke-dasharray: 1.2 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.comic-deskew-point {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--comic-blue-600);
+  box-shadow: 0 2px 8px #0006;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.comic-deskew-point:focus-visible {
+  outline: 3px solid var(--comic-blue-800);
+  outline-offset: 3px;
+}
+
+.comic-deskew-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ---------- Breakpoints ---------- */
+
+@media (max-width: 1180px) {
+  .comic-content {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+    gap: 18px;
+    padding: 16px 18px 28px;
+  }
+
+  .comic-template-grid {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  }
+
+  .comic-page-rail,
+  .comic-template-picker {
+    grid-column: 1 / -1;
+  }
+
+  .comic-page-rail {
+    padding-bottom: 12px;
+  }
+
+  .comic-add-page-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .comic-add-page-actions .comic-add-page {
+    flex: 1 1 180px;
+  }
+
+  .comic-page-rail-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .comic-rail-disclosure {
+    border: 2px solid var(--comic-ink);
+    border-radius: var(--comic-radius-sm);
+    background: #fff;
+    overflow: clip;
+  }
+
+  .comic-rail-disclosure[open] {
+    background: var(--comic-paper);
+  }
+
+  .comic-rail-disclosure summary {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: var(--comic-ink);
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .comic-rail-disclosure summary::marker {
+    color: var(--comic-blue-700);
+  }
+
+  .comic-rail-disclosure summary span,
+  .comic-rail-disclosure summary strong {
+    min-width: 0;
+  }
+
+  .comic-rail-disclosure summary span {
+    font-size: 15px;
+  }
+
+  .comic-rail-disclosure summary strong {
+    justify-self: end;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--comic-yellow);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .comic-rail-template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: 8px;
+    padding: 0 10px 10px;
+  }
+
+  .comic-rail-disclosure .comic-paper-size-grid {
+    padding: 0 10px 10px;
+  }
+
+  .comic-rail-disclosure .comic-paper-size-button {
+    flex: 1 1 180px;
+  }
+
+  .comic-template-picker {
+    display: none;
+  }
+
+  .comic-editor-wrap {
+    padding: 20px 14px;
+  }
+
+  .comic-paper {
+    width: min(100%, 580px);
+  }
+
+  .comic-tools {
+    top: 14px;
+    max-height: calc(100dvh - 28px);
+  }
+}
+
+@media (max-width: 880px) {
+  .comic-content {
+    grid-template-columns: 1fr;
+    padding: 12px 12px 24px;
+  }
+
+  .comic-page-rail,
+  .comic-template-picker {
+    grid-column: auto;
+  }
+
+  .comic-tools {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 700px) {
+  .comic-print-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .comic-toolbar {
+    top: 8px;
+  }
+
+  .comic-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .comic-tool-group {
+    display: contents;
+  }
+
+  .comic-toolbar .comic-btn {
+    min-width: 0;
+  }
+
+  .comic-page-rail-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .comic-add-page {
+    width: 100%;
+  }
+
+  .comic-paper {
+    padding: 14px;
+    box-shadow: 5px 5px 0 rgba(27, 23, 51, 0.85);
+  }
+}

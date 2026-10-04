@@ -1,14 +1,18 @@
 .comic-draft-recovery {
-  margin: 0 0 1rem;
-  padding: 1rem;
-  border: 1px solid #b45309;
-  border-radius: 0.75rem;
-  background: #fffbeb;
-  color: #422006;
+  margin: 18px 24px 0;
+  padding: 18px 20px;
+  border: 2.5px solid var(--comic-ink, #1b1733);
+  border-radius: 12px;
+  background: var(--comic-yellow-soft, #fff3c4);
+  color: var(--comic-ink, #1b1733);
+  box-shadow: 4px 4px 0 var(--comic-ink, #1b1733);
 }
 
-.comic-draft-recovery h2 { margin: 0 0 0.35rem; font-size: 1.05rem; }
-.comic-draft-recovery p { margin: 0 0 0.75rem; }
-.comic-draft-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.comic-draft-recovery h1,
+.comic-draft-recovery h2 { margin: 0 0 0.35rem; font-size: 1.25rem; font-weight: 700; }
+.comic-draft-recovery p { margin: 0 0 0.85rem; font-weight: 500; }
+.comic-draft-recovery > a { color: var(--comic-blue-800, #1a44c2); font-weight: 600; text-decoration: underline; }
+.comic-draft-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 
+@media (max-width: 700px) { .comic-draft-recovery { margin: 12px 12px 0; } }
 @media print { .comic-draft-recovery { display: none !important; } }

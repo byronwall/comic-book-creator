@@ -58,8 +58,8 @@ export default function App() {
           <ErrorBoundary
             fallback={(error, reset) => (
               <GlobalErrorOverlay
-                title="Something went wrong"
-                message="An unexpected error interrupted the app. You can retry or reload the page."
+                title="Oops! Something broke."
+                message="Don't worry, your saved comics are safe. Try again, or reload the page."
                 error={error}
                 secondaryActionLabel="Reload page"
                 onSecondaryAction={() => {
@@ -75,8 +75,8 @@ export default function App() {
           >
             <Suspense>{props.children}</Suspense>
             <GlobalErrorOverlay
-              title="Client exception"
-              message="The page resumed with a stale connection and hit an uncaught client error."
+              title="Oops! The page got stuck."
+              message="Reload the page to keep going. Your saved comics are safe."
               error={clientException()?.error}
               open={() => clientException() !== null}
               secondaryActionLabel="Dismiss"

@@ -1,0 +1,49 @@
+/* ComicBam theme for SimpleDialog / ConfirmDialog content (rendered in a portal). */
+
+.comic-dialog {
+  border: 3px solid var(--comic-ink);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--comic-ink);
+  color: var(--comic-ink);
+  font-family: var(--comic-font);
+}
+
+.comic-dialog [data-part="title"] {
+  font-family: var(--comic-title);
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  color: var(--comic-ink);
+}
+
+.comic-dialog [data-part="description"] {
+  margin-top: 6px;
+  color: var(--comic-muted);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.comic-dialog .comic-btn {
+  min-height: 46px;
+  padding-inline: 18px;
+}
+
+.comic-dialog-form {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.comic-dialog-form .comic-field input {
+  min-height: 50px;
+  font-size: 18px;
+}
+
+.comic-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

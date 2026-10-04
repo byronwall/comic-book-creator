@@ -5,6 +5,8 @@
   "scripts": {
     "prepare": "panda codegen",
     "dev": "pnpm prepare && vinxi dev",
+    "dev:seed": "node --experimental-strip-types scripts/dev/seed-demo.ts",
+    "dev:demo": "pnpm dev:seed && pnpm prepare && APP_DATA_DIR=\"$PWD/tmp/dev-data\" APP_ORIGIN=http://localhost:${DEV_PORT:-3100} DEV_AUTO_SIGN_IN=dev vinxi dev --port ${DEV_PORT:-3100}",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "image:task-ui": "node scripts/generate-gpt-image-2-task-ui.mjs",

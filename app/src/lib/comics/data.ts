@@ -29,7 +29,7 @@ export const createComicBook = action(async (formData: FormData) => {
     const book = await createComicBookOnDisk(user.id, { title: typeof title === "string" ? title : undefined });
     destination = new URL(appPath(`/books/${book.id}`), appOrigin()).href;
   } catch (error) {
-    return { error: error instanceof Response ? await error.text() : "Could not create this book. Try again." };
+    return { error: error instanceof Response ? await error.text() : "We couldn't make that book. Try again." };
   }
   throw redirect(destination, 303);
 }, "create-comic-book");

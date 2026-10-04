@@ -1,9 +1,4 @@
 import { createEffect, createSignal } from "solid-js";
-import { css } from "styled-system/css";
-import { HStack, VStack } from "styled-system/jsx";
-import { Button } from "~/components/ui/button";
-import * as Field from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
 import { SimpleDialog } from "~/components/ui/simple-dialog";
 
 type ComicTitleRenameDialogProps = {
@@ -37,44 +32,33 @@ export function ComicTitleRenameDialog(props: ComicTitleRenameDialogProps) {
     <SimpleDialog
       open={props.open}
       onOpenChange={props.onOpenChange}
-      title="Rename Comic Book"
-      description="Enter a new title for this comic book."
+      title="Rename your book"
+      description="Give your comic a new title."
       maxW="520px"
+      contentClass="comic-dialog"
       skipPortal
       initialFocusEl={() => titleInput ?? null}
     >
-      <form
-        method="dialog"
-        onSubmit={handleSubmit}
-        class={css({ width: "100%" })}
-      >
-        <VStack alignItems="stretch" gap="5" width="100%">
-          <Field.Root required width="100%">
-            <Field.Label>Title</Field.Label>
-            <Input
-              ref={titleInput}
-              name="title"
-              value={draftTitle()}
-              onInput={(event) => setDraftTitle(event.currentTarget.value)}
-              autocomplete="off"
-              size="xl"
-            />
-          </Field.Root>
-
-          <HStack justifyContent="stretch" gap="3" width="100%">
-            <Button
-              variant="outline"
-              flex="1"
-              minH="11"
-              onClick={() => props.onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" flex="1" minH="11" disabled={!cleanTitle()}>
-              Save
-            </Button>
-          </HStack>
-        </VStack>
+      <form method="dialog" onSubmit={handleSubmit} class="comic-dialog-form">
+        <label class="comic-field">
+          <span>Title</span>
+          <input
+            ref={titleInput}
+            name="title"
+            value={draftTitle()}
+            onInput={(event) => setDraftTitle(event.currentTarget.value)}
+            autocomplete="off"
+            required
+          />
+        </label>
+        <div class="comic-dialog-actions">
+          <button type="button" class="comic-btn" onClick={() => props.onOpenChange(false)}>
+            Cancel
+          </button>
+          <button type="submit" class="comic-btn primary" disabled={!cleanTitle()}>
+            Save
+          </button>
+        </div>
       </form>
     </SimpleDialog>
   );

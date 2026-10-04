@@ -1,4 +1,5 @@
 import { Trash2 } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { For, Show } from "solid-js";
 import type { ComicTextAlign, ComicTextElement, ComicTextKind } from "~/lib/comics/types";
 import { speechBubblePath } from "./comic-svg-shapes";
@@ -10,15 +11,32 @@ const textSizeOptions = [
   { label: "M", value: 18 },
   { label: "L", value: 26 },
   { label: "XL", value: 36 },
-  { label: "SFX", value: 44 },
+  { label: "XXL", value: 44 },
 ];
 
 const bubbleKindOptions: { kind: ComicTextKind; label: string }[] = [
-  { kind: "speech", label: "Bubble" },
+  { kind: "speech", label: "Speech" },
   { kind: "thought", label: "Thought" },
   { kind: "caption", label: "Caption" },
-  { kind: "sfx", label: "SFX" },
+  { kind: "sfx", label: "POW!" },
 ];
+
+const deleteLabels: Record<ComicTextKind, string> = {
+  speech: "Delete this bubble",
+  thought: "Delete this thought",
+  caption: "Delete this caption",
+  sfx: "Delete this sound effect",
+};
+
+function TextToolsEmpty() {
+  return (
+    <div class="comic-tools-empty">
+      <ComicArt name="speech" size={64} />
+      <h2>Edit your words</h2>
+      <p class="comic-empty-note">Click a bubble on your page to change it, or add a new one from the toolbar.</p>
+    </div>
+  );
+}
 
 export function TextToolsPanel(props: {
   selectedText: ComicTextElement | null;
@@ -27,10 +45,10 @@ export function TextToolsPanel(props: {
 }) {
   return (
     <aside class="comic-card comic-tools">
-      <Show when={props.selectedText} fallback={<p class="comic-empty-note">Add or select text to edit the printable page.</p>}>
+      <Show when={props.selectedText} fallback={<TextToolsEmpty />}>
         {(text) => (
           <>
-            <section class="comic-bubble-kind-panel" aria-label="Bubble type">
+            <section class="comic-bubble-kind-panel" aria-label="Bubble style">
               <div class="comic-bubble-kind-grid">
                 <For each={bubbleKindOptions}>
                   {(option) => (
@@ -49,18 +67,18 @@ export function TextToolsPanel(props: {
             </section>
             <label class="comic-field">
               <span class="comic-field-label-row">
-                <span>Text</span>
+                <span>Words</span>
                 <button type="button" class="comic-clear-text-button" onClick={() => props.onUpdateText({ text: "" })}>
-                  Clear text
+                  Clear
                 </button>
               </span>
-              <textarea value={text().text} onInput={(event) => props.onUpdateText({ text: event.currentTarget.value })} />
+              <textarea prop:value={text().text} onInput={(event) => props.onUpdateText({ text: event.currentTarget.value })} />
             </label>
             <button type="button" class="comic-btn danger comic-delete-text-button" onClick={props.onDeleteText}>
-              <Trash2 size={18} /> Delete this speech bubble
+              <Trash2 size={18} /> {deleteLabels[text().kind]}
             </button>
             <div class="comic-field">
-              <span>Text Size</span>
+              <span>Size</span>
               <div class="comic-segmented comic-size-options">
                 <For each={textSizeOptions}>
                   {(option) => (
@@ -76,7 +94,7 @@ export function TextToolsPanel(props: {
               </div>
             </div>
             <div class="comic-field">
-              <span>Alignment</span>
+              <span>Line up words</span>
               <div class="comic-segmented">
                 <For each={["left", "center", "right"] as ComicTextAlign[]}>
                   {(align) => (
@@ -88,7 +106,7 @@ export function TextToolsPanel(props: {
               </div>
             </div>
             <label class="comic-field">
-              <span>Rotation</span>
+              <span>Tilt</span>
               <span class="comic-rotation-control">
                 <input
                   type="range"
@@ -100,7 +118,7 @@ export function TextToolsPanel(props: {
                 />
                 <input
                   type="number"
-                  aria-label="Rotation degrees"
+                  aria-label="Tilt in degrees"
                   min="-180"
                   max="180"
                   step="1"
@@ -115,7 +133,7 @@ export function TextToolsPanel(props: {
                 checked={text().autoWrap !== false}
                 onChange={(event) => props.onUpdateText({ autoWrap: event.currentTarget.checked })}
               />
-              <span>Wrap text to fit box</span>
+              <span>Keep words inside the bubble</span>
             </label>
           </>
         )}
