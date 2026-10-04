@@ -1,6 +1,6 @@
 ---
 id: cb-3g5e
-status: in_progress
+status: closed
 deps: [cb-xp5r, cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -96,3 +96,15 @@ Browser review caught an SSR redirect timing failure. Middleware now redirects b
 **2026-10-03T04:59:35Z**
 
 Execution decision: keep this ticket open for the remaining browser proof. Its server contract has passed integration and production-restart checks. Continue dependent implementation on checkpoint branches while browser access is unavailable. This changes execution order only; it does not remove any acceptance check or authorize deployment. Keep dependent outcomes unfinished until their browser proof passes.
+
+**2026-10-03T05:57:09Z**
+
+Browser review found that a foreign book URL displayed the global Unknown error view. The page now returns404 with Book not found and a link to the current library, without exposing book identity. Type checks and targeted lint passed; HTTP and browser rechecks continue.
+
+**2026-10-03T06:09:12Z**
+
+Final production checks passed for editor SSR and the404 recovery page. Seven alternate URL spellings also failed to expose inherited project/spatial JSON to account B. Existing 46-case isolation checks cover the canonical API paths. The remaining browser checklist is completing now.
+
+**2026-10-03T06:14:14Z**
+
+Final browser acceptance passed. Wrong-password login displayed the inline error. Keyboard sign-in reached the requested private book. A disposable book edit survived reload; B had an empty library and a clear404 for A book URLs. Account switching, same-account recovery, stale revisions, and print checks passed in their linked tickets. The earlier SSR redirect and generic missing-book errors are fixed.

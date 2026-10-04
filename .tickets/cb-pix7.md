@@ -28,9 +28,19 @@ Completion requires preservation comparisons, access-isolation proof, account-sw
 
 ## Ready Gate
 
-This epic tracks child completion; it is not an execution packet. All children remain open until their frontier review. Dependencies on every child determine completion. Ticket creation authorizes no code implementation, browser tests, production migration, or deployment. No new product decision blocks fan-out. Runtime measurements and deployment facts remain child readiness gates.
+This epic tracks child acceptance. Dependencies on every child determine completion. The user authorized implementation, focused tests, browser checks, chunk commits, and stacked PRs. Live migration and deployment still require separate approval. Runtime measurements and deployment facts remain release gates.
 
 ## Provenance
 
 [Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestones 1–5. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-email, accounts, landing, disk, no-email, planning-only, ownership, bootstrap, in-place, inherited-scope, single-process, seeding, raw-migration, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
+
+## Notes
+
+**2026-10-03T06:15:55Z**
+
+Implementation is committed in seven stacked PRs: #1 migration, #2 private accounts, #3 signup, #5 draft safety, #4 landing, #6 release packaging, and #7 browser fixes. The top branch is codex/accounts-07-browser-fixes. Migration, server contract, private-library browser access, signup, draft recovery, and landing tickets passed acceptance. Release packaging remains partially implemented only for a clean Docker Hub base-image build; isolated Linux build/migration/restart checks passed. Live rollout cb-irrm remains open and unauthorized. No actual app/data was changed.
+
+**2026-10-03T06:21:59Z**
+
+Final production build passed at 981a083 after the recovery layout fix. All 16 focused tests, type checks, HTTP isolation checks, and combined browser acceptance passed. The screenshot evidence is attached to the stack. The preview uses disposable data on port 3002. The clean declared-base Docker build and separately approved live rollout remain outstanding.

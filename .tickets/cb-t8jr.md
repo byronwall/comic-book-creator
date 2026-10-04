@@ -1,6 +1,6 @@
 ---
 id: cb-t8jr
-status: in_progress
+status: partially_implemented
 deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -64,3 +64,11 @@ A separate production build with BASE_PATH=/comics passed prefixed landing/signu
 **2026-10-03T05:45:05Z**
 
 A final boundary review aligned migration preflight with readable runtime records: invalid book IDs, missing titles/timestamps, empty pages, invalid text lists, and unsupported image filenames stop before migration. The command preserves the source for repair instead of reporting success for an inaccessible book.
+
+**2026-10-03T05:59:27Z**
+
+Implementation and isolated Linux rehearsal are complete. Keep this ticket partially implemented because a clean Docker build from the declared Docker Hub base remains unproved after metadata fetches stalled. Live proxy/HTTPS and real-volume facts remain separate gates in cb-irrm. No release or live migration was performed.
+
+**2026-10-03T06:05:42Z**
+
+Final committed source passed the isolated Linux production build again after browser fixes. The final image served the editor and clear404 page correctly, and retained the earlier session, saved revision, and private crop-original access. The disposable container is stopped. The clean declared-base build remains the only packaging proof gap.
