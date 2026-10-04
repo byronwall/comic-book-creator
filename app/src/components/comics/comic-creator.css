@@ -1,4 +1,6 @@
-.comic-app {
+.comic-app,
+.account-page,
+.comic-landing {
   --comic-blue-900: #05357d;
   --comic-blue-800: #0749b4;
   --comic-blue-700: #0c63df;
@@ -17,6 +19,9 @@
   --comic-radius: 8px;
   --comic-font: ui-rounded, "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --comic-display: "Trebuchet MS", "Arial Black", Impact, sans-serif;
+}
+
+.comic-app {
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);

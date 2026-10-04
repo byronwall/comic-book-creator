@@ -5,7 +5,7 @@ import { hashPassword } from "../auth/password.server.ts";
 import { replaceUserStore, readUserStore } from "../auth/users.server.ts";
 import type { DataState, User, UserStore } from "../auth/types.ts";
 import { writeFileAtomic } from "../server/atomic-file.ts";
-import { checkHashes, compareMigrated, createBackup, inventory, pathExists, readOptionalJson, requireAbsolute, sha256, validateImages, verifyBackup, type MigrationJournal } from "./legacy-ownership-files.ts";
+import { backupLocation, checkHashes, compareMigrated, createBackup, inventory, pathExists, readOptionalJson, requireAbsolute, sha256, validateImages, verifyBackup, type MigrationJournal } from "./legacy-ownership-files.ts";
 
 export interface MigrationReport {
   dataDir: string;
@@ -32,21 +32,22 @@ export async function inspectLegacyData(dataDir: string) {
     const book = value as Record<string, unknown>;
     const id = book.id;
     const filenameId = path.basename(relative, ".json");
-    if (typeof id !== "string" || !id || id !== filenameId) throw new Error(`Book ID does not match filename: ${relative}`);
+    if (typeof id !== "string" || !/^[a-zA-Z0-9-]{1,100}$/.test(id) || id !== filenameId) throw new Error(`Invalid book ID or filename: ${relative}`);
+    if (typeof book.title !== "string" || typeof book.updatedAt !== "string") throw new Error(`Missing book title or timestamp: ${relative}`);
     if (ids.has(id)) throw new Error(`Duplicate book ID: ${id}`);
     ids.add(id);
     if (book.ownerUserId !== undefined && (typeof book.ownerUserId !== "string" || !book.ownerUserId)) {
       throw new Error(`Invalid book owner: ${relative}`);
     }
     if (book.ownerUserId !== undefined && book.revision !== 1) throw new Error(`Invalid existing book revision: ${relative}`);
-    if (!Array.isArray(book.pages)) throw new Error(`Book pages are invalid: ${relative}`);
+    if (!Array.isArray(book.pages) || book.pages.length === 0) throw new Error(`Book pages are invalid: ${relative}`);
     const pageIds = new Set<string>();
     for (const pageValue of book.pages) {
       if (!pageValue || typeof pageValue !== "object" || Array.isArray(pageValue)) throw new Error(`Invalid page in ${relative}`);
       const page = pageValue as Record<string, unknown>;
       if (typeof page.id !== "string" || !page.id || pageIds.has(page.id)) throw new Error(`Invalid or duplicate page ID in ${relative}`);
       pageIds.add(page.id);
-      if (page.texts !== undefined && !Array.isArray(page.texts)) throw new Error(`Invalid page text list in ${relative}`);
+      if (!Array.isArray(page.texts) || !page.texts.every((text) => text && typeof text === "object" && !Array.isArray(text))) throw new Error(`Invalid page text list in ${relative}`);
       if (page.images !== undefined && !Array.isArray(page.images)) throw new Error(`Invalid image list in ${relative}`);
     }
     await validateImages(root, id, book.pages, relative);
@@ -55,11 +56,12 @@ export async function inspectLegacyData(dataDir: string) {
   return { root, files, records };
 }
 
-export async function preflightLegacyData(dataDir: string, emailInput: string) {
+export async function preflightLegacyData(dataDir: string, emailInput: string, backupDir?: string) {
   const email = normalizeEmail(emailInput);
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error("LEGACY_USER_EMAIL must be a valid email address.");
   const inspected = await inspectLegacyData(dataDir);
   const { root, files, records } = inspected;
+  await backupLocation(root, backupDir);
   if (records.length === 0 && files.length === 0) throw new Error("Use explicit empty initialization for an empty data directory.");
   const statePath = path.join(root, "data-state.json");
   const journalPath = path.join(root, "migrations", "legacy-ownership", "journal.json");
@@ -89,9 +91,9 @@ export async function preflightLegacyData(dataDir: string, emailInput: string) {
 }
 
 export async function migrateLegacyData(input: {
-  dataDir: string; email: string; password?: string; interruptAfterBooks?: number;
+  dataDir: string; email: string; password?: string; backupDir?: string; interruptAfterBooks?: number;
 }): Promise<MigrationReport> {
-  const preflight = await preflightLegacyData(input.dataDir, input.email);
+  const preflight = await preflightLegacyData(input.dataDir, input.email, input.backupDir);
   const { root, files, records } = preflight.inspected;
   const { email } = preflight;
   if (preflight.completed) {
@@ -104,7 +106,7 @@ export async function migrateLegacyData(input: {
     const user: User = {
       id: randomUUID(), email, passwordHash: await hashPassword(input.password), createdAt: new Date().toISOString(),
     };
-    const backupDir = await createBackup(root, files);
+    const backupDir = await createBackup(root, files, input.backupDir);
     const targets: Record<string, string> = {};
     for (const record of records) {
       const next = { ...record.book, ownerUserId: user.id, revision: 1 };
