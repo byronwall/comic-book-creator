@@ -35,13 +35,13 @@ function request(token = "", origin = "http://comic.test", userId = "") {
 
 describe("disk-backed account boundaries", () => {
   it("authenticates, rotates, persists, expires, and revokes opaque sessions", async () => {
-    const user = await addUser({ email: "Legacy@Example.test", passwordHash: await hashPassword(password) });
-    expect((await authenticate(" LEGACY@example.test ", password))?.id).toBe(user.id);
-    expect(await authenticate(user.email, "a wrong test passphrase")).toBeNull();
+    const user = await addUser({ username: "Legacy", passwordHash: await hashPassword(password) });
+    expect((await authenticate(" LEGACY ", password))?.id).toBe(user.id);
+    expect(await authenticate(user.username, "a wrong test passphrase")).toBeNull();
     const first = await issueSession(user.id, request());
     const file = path.join(root, "auth/sessions", `${createHash("sha256").update(first.token).digest("hex")}.json`);
     expect(await readFile(file, "utf8")).not.toContain(first.token);
-    expect((await readSession(request(first.token)))?.account).toEqual({ id: user.id, email: user.email });
+    expect((await readSession(request(first.token)))?.account).toEqual({ id: user.id, username: user.username });
     const second = await issueSession(user.id, request(first.token));
     expect(await readSession(request(first.token))).toBeNull();
     await revokeSession(request(second.token));
@@ -51,7 +51,7 @@ describe("disk-backed account boundaries", () => {
   });
 
   it("rejects foreign origins, old account contexts, nonlegacy tools, and unsafe return paths", async () => {
-    const user = await addUser({ email: "a@example.test", passwordHash: await hashPassword(password) });
+    const user = await addUser({ username: "user-a", passwordHash: await hashPassword(password) });
     const { token } = await issueSession(user.id, request());
     await expect(requireMutationUser(request(token, "http://evil.test", user.id))).rejects.toMatchObject({ status: 403 });
     await expect(requireMutationUser(request(token, "", user.id))).rejects.toMatchObject({ status: 403 });
@@ -66,7 +66,7 @@ describe("disk-backed account boundaries", () => {
   });
 
   it("closes a legacy event stream before sending more data after logout", async () => {
-    const user = await addUser({ email: "legacy@example.test", passwordHash: await hashPassword(password) });
+    const user = await addUser({ username: "legacy", passwordHash: await hashPassword(password) });
     const stateFile = path.join(root, "data-state.json");
     const state = JSON.parse(await readFile(stateFile, "utf8"));
     await writeFile(stateFile, JSON.stringify({ ...state, legacyUserId: user.id }));
@@ -86,18 +86,18 @@ describe("disk-backed account boundaries", () => {
   });
 
 
-  it("keeps one account when duplicate emails race and rejects invalid registration", async () => {
+  it("keeps one account when duplicate usernames race and rejects invalid registration", async () => {
     const passwordHash = await hashPassword(password);
     const results = await Promise.allSettled([
-      addUser({ email: "Person@Example.test", passwordHash }),
-      addUser({ email: " person@example.test ", passwordHash }),
+      addUser({ username: "Person", passwordHash }),
+      addUser({ username: " person ", passwordHash }),
     ]);
     expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
     expect((await readUserStore()).users).toHaveLength(1);
-    await expect(registerAccount("PERSON@example.test", password)).rejects.toMatchObject({ status: 409 });
-    await expect(registerAccount("invalid", password)).rejects.toMatchObject({ status: 400 });
-    await expect(registerAccount("new@example.test", "too short")).rejects.toMatchObject({ status: 400 });
-    await expect(registerAccount("new@example.test", "x".repeat(129))).rejects.toMatchObject({ status: 400 });
+    await expect(registerAccount("PERSON", password)).rejects.toMatchObject({ status: 409 });
+    await expect(registerAccount("bad name", password)).rejects.toMatchObject({ status: 400 });
+    await expect(registerAccount("new-user", "too short")).rejects.toMatchObject({ status: 400 });
+    await expect(registerAccount("new-user", "x".repeat(129))).rejects.toMatchObject({ status: 400 });
     expect((await readUserStore()).users).toHaveLength(1);
   });
 

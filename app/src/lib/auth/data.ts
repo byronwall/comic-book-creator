@@ -22,11 +22,11 @@ export const signIn = action(async (formData: FormData) => {
   try {
     const request = currentRequest();
     requireOrigin(request);
-    const email = formData.get("email");
+    const username = formData.get("username");
     const password = formData.get("password");
-    if (typeof email !== "string" || typeof password !== "string") return { error: "Enter your email and password." };
-    const user = await authenticate(email, password);
-    if (!user) return { error: "Email or password is incorrect." };
+    if (typeof username !== "string" || typeof password !== "string") return { error: "Enter your user name and password." };
+    const user = await authenticate(username, password);
+    if (!user) return { error: "User name or password is incorrect." };
     const { token } = await issueSession(user.id, request);
     setSessionCookie(token);
     destination = new URL(returnDestination(formData.get("returnTo")), appOrigin()).href;
@@ -65,10 +65,10 @@ export const signUp = action(async (formData: FormData) => {
   try {
     const request = currentRequest();
     requireOrigin(request);
-    const email = formData.get("email");
+    const username = formData.get("username");
     const password = formData.get("password");
-    if (typeof email !== "string" || typeof password !== "string") return { error: "Enter your email and password.", accountCreated };
-    const user = await registerAccount(email, password);
+    if (typeof username !== "string" || typeof password !== "string") return { error: "Enter your user name and password.", accountCreated };
+    const user = await registerAccount(username, password);
     accountCreated = true;
     const { token } = await issueSession(user.id, request);
     setSessionCookie(token);

@@ -22,8 +22,9 @@ export function AccountForm(props: { mode: "sign-in" | "sign-up" }) {
         <form method="post" action={normalizeActionUrl(selectedAction.toString())} class="account-form">
           <input type="hidden" name="returnTo" value={typeof params.returnTo === "string" ? params.returnTo : ""} />
           <Field.Root required>
-            <Field.Label>Email</Field.Label>
-            <Input name="email" type="email" autocomplete="email" required maxlength={254} aria-describedby="account-error" />
+            <Field.Label>User name</Field.Label>
+            <Input name="username" type="text" autocomplete="username" required maxlength={40} pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,39}" aria-describedby="username-help account-error" />
+            <Field.HelperText id="username-help">Use 1–40 letters, numbers, dots, dashes, or underscores. Start with a letter or number.</Field.HelperText>
           </Field.Root>
           <Field.Root required>
             <Field.Label>Password</Field.Label>

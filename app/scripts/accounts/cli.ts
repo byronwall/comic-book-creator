@@ -42,13 +42,13 @@ async function hidden(prompt: string) {
 async function main() {
   const { command, dataDir, backupDir, dryRun, apply } = args(process.argv.slice(2));
   if (command === "migrate") {
-    const email = process.env.LEGACY_USER_EMAIL?.trim();
-    if (!email) throw new Error("Set LEGACY_USER_EMAIL before migration.");
+    const username = process.env.LEGACY_USERNAME?.trim();
+    if (!username) throw new Error("Set LEGACY_USERNAME before migration.");
     if (dryRun === apply) throw new Error("Choose exactly one of --dry-run or --apply.");
-    const preflight = await preflightLegacyData(dataDir, email, backupDir);
+    const preflight = await preflightLegacyData(dataDir, username, backupDir);
     const inspected = preflight.inspected;
     console.log(`Target: ${inspected.root}`);
-    console.log(`Legacy account: ${email.toLowerCase()}`);
+    console.log(`Legacy account: ${username.toLowerCase()}`);
     console.log(`Books: ${inspected.records.length}; files: ${inspected.files.length}`);
     for (const file of inspected.files) console.log(`  ${inspected.records.some((record) => record.relative === file) ? "book" : "preserve"} ${file}`);
     if (dryRun) { console.log("Dry run passed. No files changed."); return; }
@@ -59,11 +59,11 @@ async function main() {
       const confirm = await hidden("Confirm password: ");
       if (password !== confirm) throw new Error("Passwords do not match.");
     }
-    console.log(JSON.stringify(await migrateLegacyData({ dataDir, email, password, backupDir }), null, 2));
+    console.log(JSON.stringify(await migrateLegacyData({ dataDir, username, password, backupDir }), null, 2));
     return;
   }
   if (command === "verify") {
-    console.log(JSON.stringify(await verifyData(dataDir, process.env.LEGACY_USER_EMAIL ?? ""), null, 2));
+    console.log(JSON.stringify(await verifyData(dataDir, process.env.LEGACY_USERNAME ?? ""), null, 2));
     return;
   }
   if (command === "init-empty") {

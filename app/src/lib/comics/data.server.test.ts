@@ -101,7 +101,7 @@ async function setup() {
     schemaVersion: 2, legacyUserId: userA, migrationId: "test", completedAt: new Date().toISOString(),
   }));
   await writeFile(path.join(dataDir, "auth", "users.json"), JSON.stringify({ schemaVersion: 1, users: [userA, userB].map((id) => ({
-    id, email: `${id}@example.test`, passwordHash: "test", createdAt: new Date().toISOString(),
+    id, username: `${id}`, passwordHash: "test", createdAt: new Date().toISOString(),
   })) }));
 }
 

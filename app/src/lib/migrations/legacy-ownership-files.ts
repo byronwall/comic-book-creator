@@ -7,7 +7,7 @@ import { writeFileAtomic } from "../server/atomic-file.ts";
 export interface MigrationJournal {
   schemaVersion: 1;
   migrationId: string;
-  email: string;
+  username: string;
   user: User;
   backupDir: string;
   source: Record<string, string>;
