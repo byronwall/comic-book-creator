@@ -1,7 +1,7 @@
 ---
 id: cb-tt7r
-status: open
-deps: [cb-3g5e]
+status: partially_implemented
+deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
 type: feature
@@ -31,8 +31,27 @@ Keep disk-backed, single-process storage. Exclude mail delivery, verification/re
 
 ## Ready Gate
 
-Private legacy-account access must be closed, including alternate API/action/media guards. Before ready, inspect the registry/session contract and resolve disposable A/B fixture setup. Confirm test/browser authorization and use pnpm checks. Public signup must remain unavailable until the server boundary is complete. Draft-loss and old-tab mutation handling have their own ticket.
+The private server boundary must be accepted in cb-ud97, including alternate API/action/media guards. Full browser acceptance remains in cb-3g5e. Before ready, inspect the registry/session contract and resolve disposable A/B fixture setup. Confirm test/browser authorization and use pnpm checks. Public signup must remain unavailable until the server boundary is complete. Draft-loss and old-tab mutation handling have their own ticket.
 
 ## Provenance
 
 [Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 3 registration and isolation scope. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: accounts, ownership, bootstrap, disk, single-process, seeding, inherited-scope, isolation, no-email. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+
+## Execution packet
+
+Owner: root. Base: 7a4d9c9 on codex/accounts-03-signup.
+The prerequisite server contract is integrated and verified. Its browser proof remains open because browser automation is unavailable. Continue implementation without closing either outcome until the missing proof passes.
+
+Scope: registration service/action, shared account form, sign-up route, and focused uniqueness checks. Reuse strict account storage, passwordWork, session issuance, and full document redirects. Validate email consistently and preserve password spaces. Commit the account before creating its session. Show a sign-in recovery link on partial success; do not remove the account or retry account creation.
+
+Proof: case-insensitive duplicate race leaves one account. New account has no books. Legacy email cannot claim existing data. Check the native POST action and A/B/anonymous isolation on disposable data. Browser signup and account-cache checks remain required before closure. No email, verification, reset, or profile work.
+
+## Notes
+
+**2026-10-03T05:08:38Z**
+
+Implementation and server proof passed. Four auth tests cover sessions, stream revocation, Origin/context checks, duplicate-email races, and registration validation. Native signup POST created an empty library. The prepared legacy email was rejected. A forced session-directory failure retained the newly created account, and sign-in succeeded after restoring the directory.
+
+The no-JavaScript failure path exposed a framework flash-cookie behavior: SolidStart includes submitted form input. Both auth actions now remove the password field in finally blocks. HTTP checks proved failed login/signup flash responses contain no password.
+
+Type-check and targeted lint passed. Browser signup, cache transition, and visual proof remain pending while browser access is unavailable. Keep this ticket unfinished until that proof passes.

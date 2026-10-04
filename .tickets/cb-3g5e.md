@@ -1,7 +1,7 @@
 ---
 id: cb-3g5e
 status: in_progress
-deps: [cb-xp5r]
+deps: [cb-xp5r, cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
 type: feature

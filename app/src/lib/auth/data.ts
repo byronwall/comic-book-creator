@@ -32,6 +32,9 @@ export const signIn = action(async (formData: FormData) => {
     destination = new URL(returnDestination(formData.get("returnTo")), appOrigin()).href;
   } catch (error) {
     return { error: error instanceof Response ? await error.text() : "Sign-in is unavailable. Try again later." };
+  } finally {
+    // SolidStart includes form input in its no-JavaScript flash response.
+    formData.delete("password");
   }
   throw redirect(destination, 303);
 }, "sign-in");
@@ -51,3 +54,31 @@ export const signOut = action(async (formData: FormData) => {
   }
   throw redirect(new URL(appPath("/"), appOrigin()).href, 303);
 }, "sign-out");
+
+export const signUp = action(async (formData: FormData) => {
+  "use server";
+  const { currentRequest, requireOrigin, appOrigin } = await import("./request.server");
+  const { registerAccount } = await import("./register.server");
+  const { issueSession, setSessionCookie } = await import("./sessions.server");
+  const { appPath } = await import("~/lib/router/app-path");
+  let accountCreated = false;
+  try {
+    const request = currentRequest();
+    requireOrigin(request);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    if (typeof email !== "string" || typeof password !== "string") return { error: "Enter your email and password.", accountCreated };
+    const user = await registerAccount(email, password);
+    accountCreated = true;
+    const { token } = await issueSession(user.id, request);
+    setSessionCookie(token);
+  } catch (error) {
+    const message = accountCreated
+      ? "Your account was created, but sign-in failed. Keep your password and use the sign-in page."
+      : error instanceof Response ? await error.text() : "Account creation is unavailable. Try again later.";
+    return { error: message, accountCreated };
+  } finally {
+    formData.delete("password");
+  }
+  throw redirect(new URL(appPath("/books"), appOrigin()).href, 303);
+}, "sign-up");
