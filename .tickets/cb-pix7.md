@@ -11,9 +11,18 @@ tags: [multi-user-accounts]
 ---
 # Add private comic accounts without losing legacy data
 
+## User name signup update — 2026-10-03
+
+User names now replace the previous account identifier throughout the app, stored accounts, sessions, forms, and configuration.
+LEGACY_USERNAME selects the first signup that claims legacy data. That signup uses its chosen password.
+Startup validates pending storage but does not migrate it. A complete verified persistent copy still precedes source changes.
+Byron explicitly selected first matching signup ownership, with no additional claim code. Other signup waits until completion.
+This update and the current migration guide supersede previous startup-password and offline-only setup instructions below.
+
+
 ## Outcome
 
-Visitors understand Comic Book Creator, create email/password accounts, and keep separate comic libraries. The existing library belongs to one account selected by LEGACY_USER_EMAIL. All existing creative content and files survive the transition.
+Visitors understand Comic Book Creator, create username/password accounts, and keep separate comic libraries. The existing library belongs to one account selected by LEGACY_USERNAME. All existing creative content and files survive the transition.
 
 ## Likely Steps
 
@@ -22,7 +31,7 @@ Visitors understand Comic Book Creator, create email/password accounts, and keep
 - Add the landing page and account navigation while keeping the comic editor and print tools.
 - Package and rehearse deployment separately from the authorized live cutover.
 
-Keep one server, disk storage, stable user IDs, book ownership/revisions, and persistent server sessions. Preserve inherited project/spatial data behind a legacy-account guard. Exclude email services, verification/reset, database relocation, teams, sharing, and broad editor redesign.
+Keep one server, disk storage, stable user IDs, book ownership/revisions, and persistent server sessions. Preserve inherited project/spatial data behind a legacy-account guard. Exclude username services, verification/reset, database relocation, teams, sharing, and broad editor redesign.
 
 Completion requires preservation comparisons, access-isolation proof, account-switch/save-conflict proof, the visitor workflow, and an authorized deployment check. A backup restore becomes unsafe after new users or edits exist; preserve later work and repair forward.
 
@@ -32,7 +41,7 @@ This epic tracks child acceptance. Dependencies on every child determine complet
 
 ## Provenance
 
-[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestones 1–5. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-email, accounts, landing, disk, no-email, planning-only, ownership, bootstrap, in-place, inherited-scope, single-process, seeding, raw-migration, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestones 1–5. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-username, accounts, landing, disk, no-username, planning-only, ownership, bootstrap, in-place, inherited-scope, single-process, seeding, raw-migration, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
 
 ## Notes

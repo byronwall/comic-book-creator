@@ -8,13 +8,22 @@ last_updated: "2026-10-02"
 
 # Comic Book Creator accounts — shape brief
 
+## User name signup update — 2026-10-03
+
+User names now replace the previous account identifier throughout the app, stored accounts, sessions, forms, and configuration.
+LEGACY_USERNAME selects the first signup that claims legacy data. That signup uses its chosen password.
+Startup validates pending storage but does not migrate it. A complete verified persistent copy still precedes source changes.
+Byron explicitly selected first matching signup ownership, with no additional claim code. Other signup waits until completion.
+This update and the current migration guide supersede previous startup-password and offline-only setup instructions below.
+
+
 ## Recommendation
 
 Add accounts and server-side sessions to the existing disk store. Add `ownerUserId` and a save `revision` to each book. Keep book filenames, book IDs, image directories, and editor URLs. Images inherit ownership from their containing book.
 
-Use `LEGACY_USER_EMAIL` during automatic startup migration, before serving requests. Create a stable user ID and a private random password in the persistent backup volume. Back up the whole data directory before adding ownership fields. Record the completed assignment so a later environment change cannot transfer the books.
+Use `LEGACY_USERNAME` to select the first signup that claims legacy storage. Create a stable user ID and hash the password supplied through that signup form. Back up the whole data directory before adding ownership fields. Record the completed assignment so a later environment change cannot transfer the books.
 
-Make `/` the public landing page, `/books` the private library, and `/books/:bookId` the existing editor. Provide registration, sign-in, and sign-out. Keep verification, password reset, and email services outside this release.
+Make `/` the public landing page, `/books` the private library, and `/books/:bookId` the existing editor. Provide registration, sign-in, and sign-out. Keep verification, password reset, and username services outside this release.
 
 The main pushback is against moving every book into a new folder tree. Ownership fields provide the required boundary with fewer file changes. This makes preservation easier to inspect and avoids rewriting image references.
 
@@ -40,9 +49,9 @@ flowchart LR
   Auth --> Accounts[Account registry and session files]
 ```
 
-The account registry is the authority for unique email addresses. Book records are the authority for comic ownership. A session file connects a random token hash to a user ID. The browser receives only the opaque token and a safe account summary.
+The account registry is the authority for unique user namees. Book records are the authority for comic ownership. A session file connects a random token hash to a user ID. The browser receives only the opaque token and a safe account summary.
 
-Normal requests never use `LEGACY_USER_EMAIL` to choose an owner. They use a verified session. A completed migration record identifies the legacy owner of inherited non-comic data.
+Normal requests never use `LEGACY_USERNAME` to choose an owner. They use a verified session. A completed migration record identifies the legacy owner of inherited non-comic data.
 
 ## Current fit
 
@@ -70,11 +79,11 @@ The proof is a migration rehearsal against a disposable data directory. It creat
 
 Pass when every input file remains accounted for, nested book values match, image hashes match, and the account assignment is stable. Fail on malformed JSON, conflicting ownership, missing referenced files, or unexplained file differences. Do not make an incomplete copy appear successful by skipping bad files.
 
-This proof excludes a browser, live credentials, production writes, email delivery, and a database. It can change the migration design before app behavior depends on it.
+This proof excludes a browser, live credentials, production writes, contact delivery, and a database. It can change the migration design before app behavior depends on it.
 
 ## Rabbit holes and no-gos
 
-Do not add organizations, membership tables, admin screens, password recovery, account deletion, email changes, or public book sharing. Do not refactor inherited project storage into a second multi-user product.
+Do not add organizations, membership tables, admin screens, password recovery, account deletion, username changes, or public book sharing. Do not refactor inherited project storage into a second multi-user product.
 
 Avoid framework-wide persistence abstractions and compatibility modes. The required disk controls are concrete: complete-file replacement, a small mutation queue, revision checks, and a verified migration backup.
 
@@ -82,7 +91,7 @@ Do not expose two storage versions at once. Old code can remove ownership fields
 
 ## Serious alternative
 
-SQLite would provide transactions and unique email constraints. It remains a reasonable later move if concurrent processes or larger data volumes become real requirements. For this release, it adds another storage transition while images still need a disk backup. A single JSON account registry and existing book files are sufficient for one process.
+SQLite would provide transactions and unique username constraints. It remains a reasonable later move if concurrent processes or larger data volumes become real requirements. For this release, it adds another storage transition while images still need a disk backup. A single JSON account registry and existing book files are sufficient for one process.
 
 ## Plan handoff
 

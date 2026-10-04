@@ -1,10 +1,7 @@
-# Account setup and automatic migration
+# User names and legacy account signup
 
 The app uses one Node process and disk storage. Keep one writer per data directory.
-Docker holds a kernel file lock throughout migration and normal service.
-Requests never migrate data or assign ownership from an email.
-
-This guide describes release behavior. No live deployment or migration was performed.
+Docker holds a kernel file lock throughout service on the Compose named volumes.
 
 ## Settings
 
@@ -13,62 +10,55 @@ This guide describes release behavior. No live deployment or migration was perfo
 | `APP_DATA_DIR` | Absolute existing data directory. Compose keeps `/app/data`. |
 | `APP_ORIGIN` | Exact browser origin, such as `https://comics.example.com`. |
 | `BASE_PATH` | App path. Use the same value during build and startup. |
-| `LEGACY_USER_EMAIL` | Starts automatic legacy migration when storage lacks a completion marker. |
+| `LEGACY_USERNAME` | The first signup with this user name claims the legacy library. |
 | `MIGRATION_BACKUP_DIR` | Persistent backup parent outside the data tree. Compose uses `/app/backups`. |
 
-Email comparison trims outer spaces and ignores case. It preserves dots and plus signs.
-Passwords use 15–128 characters. The app has no verification email or password reset flow.
+User names use 1–40 letters, numbers, dots, dashes, or underscores.
+Start with a letter or number. Comparison trims outer spaces and ignores case.
+Stored user names use lowercase. Passwords use 15–128 characters; spaces are allowed.
+The website has no password reset or user name change flow.
 Use Node 22.6 or later and pnpm 11.9.0.
 
 ## Existing installation
 
-Set `LEGACY_USER_EMAIL` to the intended owner's email before your normal deployment.
+1. Set `LEGACY_USERNAME` to the intended owner's user name.
+2. Deploy through your normal Docker Compose process.
+3. Open Create account and enter that user name and your chosen password.
+
+No migration command, temporary password, or terminal prompt is required.
+Byron selected a first matching signup claim rule. Anyone who registers the configured user name first receives the legacy library.
+This release does not verify identity or require a separate claim code.
+
 Keep the existing Compose project name and data volume. Stop the old container before starting the new release.
 The old release cannot participate in the new writer lock. Never run both against the same data volume.
 
-No migration command or terminal prompt is required. The Docker entrypoint runs these steps before opening a port:
+Startup validates legacy records, image files, crop originals, and any recovery record.
+It makes no source changes while waiting for signup. Public account pages remain available.
+Private documents remain unavailable. Other accounts cannot register until the legacy account is complete.
+Missing configuration, corrupt records, conflicting ownership, or an unexpected empty mount stops startup.
 
-1. Obtain the writer lock in the separate backup volume.
-2. Validate legacy records, image files, and crop originals.
-3. Copy the complete data tree into a new private backup directory.
-4. Compare every file name and SHA-256 hash, then sync backup files and directories to disk.
-5. Store a private random password and permanent recovery record outside the source tree.
-6. Record the selected owner and apply checked ownership changes.
-7. Verify the result and write the completion marker last.
-8. Validate prepared storage, then start the HTTP server.
+Matching signup runs these steps:
 
-Missing email, invalid data, conflicting ownership, or backup failure stops startup.
-An empty mount also stops startup. Check the production volume mapping instead of initializing an unexpected empty mount.
+1. Validate the supplied user name and password.
+2. Copy the complete data tree into a new private backup directory.
+3. Compare every file name and SHA-256 hash, then sync backup files and directories to disk.
+4. Record the selected owner and password hash in permanent recovery records.
+5. Apply checked ownership changes without changing existing JSON tokens.
+6. Verify the result and write the completion marker last.
+7. Create the session and open the legacy library.
+
+No plaintext password is written to storage or logs. The account and recovery records contain the scrypt hash.
+Backup failure stops signup before any source change. The form shows a setup error; logs describe the failure.
 No error causes deletion, source cleanup, or an empty replacement library.
-
-## Legacy account password
-
-Automatic migration generates a unique password with 32 random bytes.
-It stores the password in `owner-password.txt` within the checked backup directory, with mode `0600`.
-The backup directory has mode `0700`. Account storage contains only the scrypt password hash.
-Logs report the backup path but never print the password.
-
-After successful startup, read that private file through your server administrator access.
-For example, substitute the backup directory reported in the startup log:
-
-```sh
-docker compose exec app cat /app/backups/DATA-BACKUP-DIRECTORY/owner-password.txt
-```
-
-Store the result in your password manager. Sign in with the legacy email and that password.
-Do not share command output or include it in tickets. Knowing the email cannot claim the account.
-The website has no password change/reset flow. The generated password is the account's login password.
-A resumed migration retains the original password and selected owner.
 
 ## Docker persistence
 
-The service retains the existing `comic-book-data` volume at `/app/data`.
+The service retains `comic-book-data` at `/app/data`.
 The separate `comic-book-backups` volume at `/app/backups` stores backups, recovery records, and the writer lock.
 Both volumes survive container replacement. Never remove the backup volume or run `docker compose down -v`.
-Use enough free space for the complete copy. Keep the same backup mount during recovery.
-A second container using these mounts exits with code 73 while the first holds the lock.
-
-Normal deployment builds and starts the service with these settings:
+Keep enough free space for the complete copy. Keep the same backup mount during recovery.
+A second container using these named volumes exits with code 73 while the first holds the lock.
+Separate host bind mounts on Docker Desktop did not share the lock during rehearsal. Keep the named-volume configuration.
 
 ```sh
 cd app
@@ -77,13 +67,14 @@ docker compose up -d --build app
 
 The runtime image includes the startup scripts and their source dependencies.
 Private data is excluded from the build context. Compose binds the host port to loopback.
-Use the configured reverse proxy and HTTPS origin. Production session cookies use Secure, HttpOnly, and SameSite=Lax.
+Use the configured reverse proxy and HTTPS origin.
+Production session cookies use Secure, HttpOnly, and SameSite=Lax.
 
 ## Preservation and restart
 
 Comic JSON stays under `comic-books/`. Images stay under `comic-book-images/`.
-Migration adds only `ownerUserId` and `revision: 1` to each raw book.
-All other values, IDs, timestamps, image references, unknown files, inherited files, and empty directories stay intact.
+Migration appends only `ownerUserId` and `revision: 1` to each raw book.
+All existing JSON tokens, IDs, timestamps, image references, unknown files, inherited files, and empty directories stay intact.
 
 Each backup contains a complete `files/` tree and a separate `.manifest.json` with hashes.
 A source file named `.manifest.json` remains inside `files/`. Backup files are read-only.
@@ -91,19 +82,23 @@ Backups use unique directory names. The app never overwrites or automatically re
 The copy protects against migration changes. It cannot protect against destruction of the entire server or disk.
 
 The source journal is `migrations/legacy-ownership/journal.json`.
-A permanent `.legacy-HASH.json` recovery record in the backup parent also records the same owner and backup.
-The external record permits recovery if startup stops before the source journal is published.
-Migration stages atomic writes inside its own metadata directory. Abandoned staged writes do not alter source accounting.
+A permanent `.legacy-HASH.json` recovery record in the backup parent records the same owner, password hash, and backup.
+The external record permits recovery if signup stops before the source journal is published.
+Migration stages atomic writes inside its own metadata directory.
 Each source file must match its recorded source or target hash before retry can proceed.
-A corrupt or incomplete recovery record stops startup for investigation; it never selects another owner.
+Corrupt or incomplete recovery records stop progress for investigation. They never select another owner.
 
-Restart the container with the same email and mounts after an interrupted migration.
-Keep all failed copies and records. Do not remove metadata to force a new migration.
+After interruption, restart with the same mounts and setting.
+Submit Create account again with the same user name and original chosen password.
+A different password cannot resume or claim the interrupted migration.
+The original backup and owner stay fixed. Keep failed copies and records; do not remove metadata to force another migration.
+If signup completed but session creation failed, sign in with your chosen password instead.
 
 After completion, startup checks account identity, book ownership, record validity, and the preserved backup.
 It does not compare current data against the old migration snapshot.
-Later sessions, registrations, revisions, new books, and inherited edits survive normal restart.
-You can remove `LEGACY_USER_EMAIL` after completion. A different supplied email stops startup without reassigning data.
+Later sessions, registrations, revisions, new books, and inherited edits survive restart.
+You can remove `LEGACY_USERNAME` after completion. A different supplied value stops startup without reassigning data.
+A later signup with the claimed user name reports a duplicate account; it never replaces the password or ownership.
 
 ## New empty installation
 
@@ -120,24 +115,24 @@ pnpm dev
 
 For a confirmed new Docker volume, run `docker compose run --rm app pnpm accounts:init-empty --data-dir /app/data`.
 Then start the service and create an account. New libraries contain no sample books.
-`pnpm start` runs the startup gate. `pnpm dev` requires already prepared disposable storage.
+`pnpm start` runs the storage gate. `pnpm dev` requires an explicit target and the configured legacy user name or prepared storage.
 
 ## Maintenance and recovery
 
-The optional `accounts:migrate` CLI still supports a stopped-copy dry run and hidden password entry.
-It is not part of the automatic deployment path. Use an explicit absolute data path.
-`accounts:verify` compares the cutover snapshot. Run it only before normal account use changes that snapshot.
+The optional `accounts:migrate` CLI supports stopped-copy dry runs and hidden password entry.
+It is not required for website signup. Use an explicit absolute data path and `LEGACY_USERNAME`.
+`accounts:verify` compares the cutover snapshot. Run it before account use changes that snapshot.
 
 Before new app writes, preserve a failed target and restore backup `files/` into separate writable storage.
-Compare all restored files with the manifest before using the old release.
+Compare restored files with the manifest before using the old release.
 Never start old code against migrated files. Never restore a pre-migration backup over newer work.
 After registrations or edits exist, preserve the current volume and repair forward.
 
 ## Checks
 
-Use disposable filesystem data for preservation, interruption, credential, restart, and failure checks.
-Verify the packaged Docker entrypoint, not just the CLI. Check correct legacy ownership and second-account isolation.
-Live volume mapping, HTTPS, and proxy checks remain release constraints. No production operation is authorized here.
+Use disposable filesystem data for signup, preservation, interruption, password, restart, and failure checks.
+Verify the packaged Docker entrypoint and real signup form. Check correct legacy ownership and second-account isolation.
+Live volume mapping, HTTPS, and proxy checks remain release constraints. No production operation was performed.
 
 ```sh
 pnpm type-check
