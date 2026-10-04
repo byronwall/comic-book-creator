@@ -11,16 +11,18 @@ export default function ComicBookRoute() {
   const book = createAsync(() => getComicBookById(params.bookId || ""), { deferStream: true });
 
   return (
-    <Show when={account() && book()}>
+    <Show keyed when={params.bookId}>
+      {(bookId) => <Show keyed when={account() && (book()?.id === bookId ? book() : null)}>
       {(resolvedBook) => (
         <>
           <PageMeta
-            title={`${resolvedBook().title} | Comic Book Creator`}
+            title={`${resolvedBook.title} | Comic Book Creator`}
             description="Edit panels, text, templates, and print-ready pages for a saved comic book."
           />
-          <ComicCreatorApp account={account()!} initialBook={resolvedBook()} />
+          <ComicCreatorApp account={account()!} initialBook={resolvedBook} />
         </>
       )}
+      </Show>}
     </Show>
   );
 }

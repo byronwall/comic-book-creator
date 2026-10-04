@@ -48,3 +48,9 @@ Use one save request at a time and retain the newest pending draft. Track confir
 Capture userId at mount; include it on every mutation. Recheck /api/auth/session on focus/pageshow before allowing work in restored pages. Keep old account content hidden on account change and preserve editor recovery. Flush before intentional navigation/sign-out, or let the user cancel or discard. Retain beforeunload protection. Keep account controls out of print.
 
 Proof: focused queue tests with delayed replies, failed requests, and conflicting revisions. Check old-tab account changes at the server boundary. Type-check and lint changed files. User authorized disposable browser checks; do not use live data or browser tools while the parent verifier owns them. Keep required browser proof open if the host remains unavailable.
+
+## Notes
+
+**2026-10-03T05:47:12Z**
+
+Draft implementation and code review are complete. The editor uses a single-flight latest-snapshot queue, checked revision recovery, captured account context, cancelable uploads, and visible Save/Discard/Stay controls during pending navigation. Queue generations prevent late acknowledgments after reset/dispose. The route mounts by book ID. Three focused queue tests, type checks, targeted lint, and diff checks passed. The large editor was split into focused modules. Browser acceptance is still underway on the cleanly restarted disposable server.
