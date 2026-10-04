@@ -1,4 +1,5 @@
 import type { Account } from "~/lib/auth/sessions.server";
+import { watchAccountTabs } from "~/lib/auth/account-events";
 import { appPath } from "~/lib/router/app-path";
 import { normalizeActionUrl } from "~/lib/router/action-url";
 import { A, revalidate, useSubmission } from "@solidjs/router";
@@ -34,12 +35,10 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
       finally { checking = false; }
     };
     const refresh = () => { void checkAccount(); };
-    window.addEventListener("focus", refresh);
-    window.addEventListener("pageshow", refresh);
+    const stopWatching = watchAccountTabs(refresh);
     void checkAccount();
     onCleanup(() => {
-      window.removeEventListener("focus", refresh);
-      window.removeEventListener("pageshow", refresh);
+      stopWatching();
     });
   });
 

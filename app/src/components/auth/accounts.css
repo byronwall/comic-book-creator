@@ -1,4 +1,4 @@
-.account-page { min-height: 100vh; display: grid; align-content: center; justify-items: center; gap: var(--spacing-8, 2rem); padding: var(--spacing-8, 2rem) var(--spacing-4, 1rem); background: #f6f0df; color: #1b1b1b; }
+.account-page { font-family: var(--comic-font); min-height: 100vh; display: grid; align-content: center; justify-items: center; gap: var(--spacing-8, 2rem); padding: var(--spacing-8, 2rem) var(--spacing-4, 1rem); background: #f6f0df; color: #1b1b1b; }
 .account-brand { font-family: Impact, "Arial Black", sans-serif; font-size: 2rem; color: inherit; text-decoration: none; }
 .account-form-panel { width: min(100%, 28rem); border: 3px solid currentColor; padding: var(--spacing-8, 2rem); background: white; box-shadow: 6px 6px 0 #1b1b1b; }
 .account-form-panel h1 { font-size: 2rem; font-weight: 800; line-height: 1.15; margin-bottom: var(--spacing-3, .75rem); }
@@ -14,3 +14,4 @@
 @media print { .comic-account, .account-page { display: none !important; } }
 .account-switch { margin-top: var(--spacing-6, 1.5rem); font-size: .95rem; }
 .account-switch a, .account-form a { text-decoration: underline; text-underline-offset: .2em; font-weight: 700; }
+.account-form .comic-btn.primary { background: var(--comic-blue-800); border-color: var(--comic-blue-900); }

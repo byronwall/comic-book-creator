@@ -1,6 +1,7 @@
 import { Link, Meta, Title } from "@solidjs/meta";
 import { createRenderEffect } from "solid-js";
 import { isServer } from "solid-js/web";
+import { appPath } from "./router/app-path";
 
 const SITE_NAME = "Comic Book Creator";
 const DEFAULT_DESCRIPTION =
@@ -25,10 +26,10 @@ export function PageMeta(props: PageMetaProps) {
   return (
     <>
       <Title>{title()}</Title>
-      <Link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      <Link rel="alternate icon" href="/favicon.ico" />
-      <Link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-      <Link rel="manifest" href="/site.webmanifest" />
+      <Link rel="icon" type="image/svg+xml" href={appPath("/favicon.svg")} />
+      <Link rel="alternate icon" href={appPath("/favicon.ico")} />
+      <Link rel="apple-touch-icon" sizes="180x180" href={appPath("/apple-touch-icon.png")} />
+      <Link rel="manifest" href={appPath("/site.webmanifest")} />
       <Meta name="theme-color" content="#ffd51a" />
       <Meta name="description" content={description()} />
       <Meta property="og:site_name" content={SITE_NAME} />

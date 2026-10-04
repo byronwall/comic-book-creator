@@ -8,7 +8,9 @@ function args(argv: string[]) {
   const dataIndex = argv.indexOf("--data-dir");
   const dataDir = dataIndex >= 0 ? argv[dataIndex + 1] : undefined;
   if (!dataDir || !path.isAbsolute(dataDir)) throw new Error("Pass an explicit absolute --data-dir path.");
-  return { command, dataDir: path.resolve(dataDir), dryRun: argv.includes("--dry-run"), apply: argv.includes("--apply") };
+  const backupIndex = argv.indexOf("--backup-dir");
+  const backupDir = backupIndex >= 0 ? argv[backupIndex + 1] : process.env.MIGRATION_BACKUP_DIR;
+  return { command, backupDir, dataDir: path.resolve(dataDir), dryRun: argv.includes("--dry-run"), apply: argv.includes("--apply") };
 }
 
 async function hidden(prompt: string) {
@@ -38,12 +40,12 @@ async function hidden(prompt: string) {
 }
 
 async function main() {
-  const { command, dataDir, dryRun, apply } = args(process.argv.slice(2));
+  const { command, dataDir, backupDir, dryRun, apply } = args(process.argv.slice(2));
   if (command === "migrate") {
     const email = process.env.LEGACY_USER_EMAIL?.trim();
     if (!email) throw new Error("Set LEGACY_USER_EMAIL before migration.");
     if (dryRun === apply) throw new Error("Choose exactly one of --dry-run or --apply.");
-    const preflight = await preflightLegacyData(dataDir, email);
+    const preflight = await preflightLegacyData(dataDir, email, backupDir);
     const inspected = preflight.inspected;
     console.log(`Target: ${inspected.root}`);
     console.log(`Legacy account: ${email.toLowerCase()}`);
@@ -57,7 +59,7 @@ async function main() {
       const confirm = await hidden("Confirm password: ");
       if (password !== confirm) throw new Error("Passwords do not match.");
     }
-    console.log(JSON.stringify(await migrateLegacyData({ dataDir, email, password }), null, 2));
+    console.log(JSON.stringify(await migrateLegacyData({ dataDir, email, password, backupDir }), null, 2));
     return;
   }
   if (command === "verify") {
