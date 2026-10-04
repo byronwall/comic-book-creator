@@ -74,6 +74,18 @@ Run inside `app/`:
 - Keep component render trees deterministic between server and first client render.
 - For wrappers, ensure external props are forwarded to the actual rendered slot.
 
+## Accounts + Migration
+
+- Follow `docs/account-migration.md` for empty initialization, legacy migration, and release checks.
+- Private requests require prepared storage. The first signup matching `LEGACY_USERNAME` migrates after a complete verified persistent backup. Startup validates pending legacy storage. Never seed accounts or use the setting as an ownership fallback after migration.
+- Pass the authenticated user ID into comic storage. Client account IDs detect stale tabs; they never grant ownership.
+- Keep one writer per data directory. Rehearse with disposable copies and separate backup storage.
+- Use private image routes. Keep obsolete public routes as explicit 404 handlers; missing routes can return fallback HTML.
+- Strip password fields from action FormData before returning errors. SolidStart can copy submitted input into flash cookies.
+- Redirect protected pages in middleware before SSR starts. Late redirects can fail after response headers are sent.
+- Use `appPath()` for plain URLs and cookie paths. Router links already apply the router base.
+- Migration CLI imports use explicit `.ts` paths for Node's TypeScript runner. Do not replace these with app aliases.
+
 ## Router Actions + Forms
 
 - For UI-triggered writes in this app, prefer real `<form method="post">` submissions wired to server actions over imperative `useAction(...)` calls.

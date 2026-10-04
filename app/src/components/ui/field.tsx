@@ -34,11 +34,11 @@ export const FieldDemo = (props: FieldDemoProps) => {
 
       <Root {...(props.variantProps ?? {})} required>
         <Label>
-          Email
+          User name
           <RequiredIndicator />
         </Label>
-        <Input type="email" placeholder="name@company.com" />
-        <HelperText>Used for account notifications.</HelperText>
+        <Input autocomplete="username" placeholder="comicfan" />
+        <HelperText>Used to sign in to your account.</HelperText>
       </Root>
 
       <Root {...(props.variantProps ?? {})} invalid>

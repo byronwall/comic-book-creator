@@ -10,6 +10,7 @@ import {
 } from "solid-js";
 import { ConsoleLogCaptureProvider } from "./components/console-log-capture";
 import { GlobalErrorOverlay } from "./components/errors/GlobalErrorOverlay";
+import { notifyAccountTabs } from "./lib/auth/account-events";
 
 import "./index.css";
 
@@ -26,6 +27,7 @@ export default function App() {
     serverBase === "/" ? "/" : serverBase.replace(/\/+$/, "");
 
   onMount(() => {
+    notifyAccountTabs();
     const handleError = (event: ErrorEvent) => {
       setClientException({
         source: "error",

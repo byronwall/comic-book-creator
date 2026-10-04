@@ -4,7 +4,7 @@ SolidStart app with Park UI wrappers, Panda CSS, a printable comic creator UI, a
 
 ## Prerequisites
 
-- Node `>=22`
+- Node `>=22.6`
 - pnpm `11.9.0`
 
 ## Commands
@@ -27,7 +27,11 @@ pnpm start
 - Theme + recipes: `src/theme/*`
 - Panda output (generated): `styled-system/*`
 - Comic persistence: `src/lib/comics/*` and `data/comic-books/*.json`
-- Comic API: `src/routes/api/comic-book.ts`
+- Private comic API: `src/routes/api/comic-books/`
+- Accounts and sessions: `src/lib/auth/`
+- Startup storage gate: `scripts/accounts/start.ts`; signup migration: `src/lib/auth/register.server.ts`; optional maintenance CLI: `scripts/accounts/cli.ts`
+
+Before starting, follow [account setup and migration](../docs/account-migration.md). The first signup matching `LEGACY_USERNAME` migrates existing data after a verified backup. New empty data requires explicit initialization.
 
 ## Reconciled Additions
 

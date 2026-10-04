@@ -10,6 +10,7 @@
     "allowJs": true,
     "strict": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["vite/client", "@solidjs/start/env", "vinxi/types/client"],
     "skipLibCheck": true,
     "isolatedModules": true,

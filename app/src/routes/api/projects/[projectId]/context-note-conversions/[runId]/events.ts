@@ -1,3 +1,4 @@
+import { legacyEventStream } from "~/lib/auth/legacy-stream.server";
 import type { APIEvent } from "@solidjs/start/server";
 import {
   getContextNoteConversionRunSnapshot,
@@ -17,41 +18,14 @@ export async function GET(event: APIEvent) {
     });
   }
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    start(controller) {
-      const send = (runEvent: ContextNoteConversionRunEvent) => {
-        controller.enqueue(encoder.encode(encodeContextNoteConversionEvent(runEvent)));
-        if (runEvent.type === "complete" || runEvent.type === "failed") {
-          controller.close();
-        }
-      };
-
-      send({
-        type:
-          snapshot.status === "completed"
-            ? "complete"
-            : snapshot.status === "failed"
-              ? "failed"
-              : "snapshot",
-        snapshot,
-      });
-
-      if (snapshot.status === "completed" || snapshot.status === "failed") {
-        return;
-      }
-
-      const unsubscribe = subscribeContextNoteConversionRun(event.params.runId, send);
-      event.request.signal.addEventListener("abort", () => {
-        unsubscribe();
-        controller.close();
-      });
-    },
-  });
+  const stream = legacyEventStream<ContextNoteConversionRunEvent>(event.request, {
+    type: snapshot.status === "completed" ? "complete" : snapshot.status === "failed" ? "failed" : "snapshot",
+    snapshot,
+  }, (send) => subscribeContextNoteConversionRun(event.params.runId, send), encodeContextNoteConversionEvent);
 
   return new Response(stream, {
     headers: {
-      "Cache-Control": "no-cache, no-transform",
+      "Cache-Control": "private, no-store",
       Connection: "keep-alive",
       "Content-Type": "text/event-stream",
     },
