@@ -3,13 +3,13 @@ import { watchAccountTabs } from "~/lib/auth/account-events";
 import { appPath } from "~/lib/router/app-path";
 import { normalizeActionUrl } from "~/lib/router/action-url";
 import { A, revalidate, useSubmission } from "@solidjs/router";
-import { BookOpen, FilePlus2, Trash2 } from "lucide-solid";
+import { BookOpen, FilePlus2, Sparkles, Trash2 } from "lucide-solid";
 import { For, Show, createSignal, onCleanup, onMount, untrack } from "solid-js";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import { createComicBook, getComicBooks } from "~/lib/comics/data";
 import type { ComicBookSummary } from "~/lib/comics/types";
 import { ComicAppNav } from "./ComicAppNav";
-import { PrintActions } from "./ComicPrintActions";
+import { LibraryEmptyState, coverTone, formatUpdated } from "./ComicLibraryParts";
 import "./comic-creator.css";
 
 export function ComicBookIndexPage(props: { account: Account; books: ComicBookSummary[] }) {
@@ -87,22 +87,30 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
         <header class="comic-topbar">
           <div>
             <h1>My Books</h1>
-            <p>Open a saved comic book or start a new one.</p>
+            <p>Pick a book to keep working, or start a brand new one.</p>
           </div>
         </header>
 
         <section class="comic-books-index">
+          <div>
+          <Show when={props.books.length === 0}>
+            <LibraryEmptyState />
+          </Show>
           <div class="comic-book-grid">
             <For each={props.books}>
               {(book) => (
                 <article class="comic-book-card">
                   <A href={`/books/${book.id}`} class="comic-book-card-link">
-                    <span class="comic-book-cover">
-                      <BookOpen size={52} />
+                    <span class="comic-book-cover" data-tone={coverTone(book.id)}>
+                      <span class="comic-book-cover-burst">
+                        <BookOpen size={44} stroke-width={2.4} />
+                      </span>
                     </span>
                     <strong>{book.title}</strong>
-                    <span>{book.pageCount} pages</span>
-                    <small>Updated {book.updatedAt.slice(0, 10)}</small>
+                    <span class="comic-book-card-meta">
+                      <span class="comic-book-pages">{book.pageCount === 1 ? "1 page" : `${book.pageCount} pages`}</span>
+                      <span>Updated {formatUpdated(book.updatedAt)}</span>
+                    </span>
                   </A>
                   <button
                     type="button"
@@ -122,6 +130,7 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
               )}
             </For>
           </div>
+          </div>
 
           <form
             method="post"
@@ -129,7 +138,7 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
             class="comic-card comic-create-book"
           >
             <input type="hidden" name="userId" value={account.id} />
-            <h2>Create New Book</h2>
+            <h2><Sparkles size={26} /> Start a New Book</h2>
             <label class="comic-field">
               <span>Book Title</span>
               <input
@@ -148,7 +157,6 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
             <p role="alert" class="account-error">{createSubmission.result?.error}</p>
           </form>
         </section>
-        <PrintActions />
       </main>
       <ConfirmDialog
         open={deleteDialogOpen() && Boolean(pendingDeleteBook())}

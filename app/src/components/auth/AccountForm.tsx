@@ -15,9 +15,9 @@ export function AccountForm(props: { mode: "sign-in" | "sign-up" }) {
   const created = () => Boolean(submission.result && "accountCreated" in submission.result && submission.result.accountCreated);
   return (
     <main class="account-page">
-      <A href="/" class="account-brand" aria-label="Comic Book Creator home">Comic Creator</A>
+      <A href="/" class="comic-logo" aria-label="Comic Book Creator home"><span>Comic</span><strong>Creator</strong></A>
       <section class="account-form-panel" aria-labelledby="account-heading">
-        <h1 id="account-heading">{signup() ? "Your stories start here." : "Welcome back."}</h1>
+        <h1 id="account-heading">{signup() ? "Your stories start here!" : "Welcome back!"}</h1>
         <p>{signup() ? "Create a private library for your comic books." : "Sign in to open your comic books."}</p>
         <form method="post" action={normalizeActionUrl(selectedAction.toString())} class="account-form">
           <input type="hidden" name="returnTo" value={typeof params.returnTo === "string" ? params.returnTo : ""} />

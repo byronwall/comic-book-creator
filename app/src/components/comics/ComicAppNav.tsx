@@ -28,11 +28,14 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
             props.onBeforeLeave(() => window.location.assign(href));
           }
         }}>
-          <span class="comic-nav-icon"><Home size={20} /></span>Books
+          <span class="comic-nav-icon"><Home size={18} /></span>My Books
         </A>
       </nav>
       <div class="comic-account">
-        <p>{account.username}</p>
+        <p class="comic-account-name" title={`Signed in as ${account.username}`}>
+          <span class="comic-account-avatar" aria-hidden="true">{account.username.slice(0, 1).toUpperCase()}</span>
+          <span class="comic-account-label">{account.username}</span>
+        </p>
         <form method="post" action={normalizeActionUrl(signOut.toString())} onSubmit={(event) => {
           if (props.onBeforeLeave) {
             event.preventDefault();
@@ -41,7 +44,7 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
           }
         }}>
           <input type="hidden" name="userId" value={account.id} />
-          <button type="submit" class="comic-btn" disabled={submission.pending}>{submission.pending ? "Signing out…" : "Sign out"}</button>
+          <button type="submit" class="comic-btn comic-sign-out" disabled={submission.pending}>{submission.pending ? "Signing out…" : "Sign out"}</button>
           <p role="alert" class="account-error">{submission.result?.error}</p>
         </form>
       </div>

@@ -1,17 +1,233 @@
-.account-page { font-family: var(--comic-font); min-height: 100vh; display: grid; align-content: center; justify-items: center; gap: var(--spacing-8, 2rem); padding: var(--spacing-8, 2rem) var(--spacing-4, 1rem); background: #f6f0df; color: #1b1b1b; }
-.account-brand { font-family: Impact, "Arial Black", sans-serif; font-size: 2rem; color: inherit; text-decoration: none; }
-.account-form-panel { width: min(100%, 28rem); border: 3px solid currentColor; padding: var(--spacing-8, 2rem); background: white; box-shadow: 6px 6px 0 #1b1b1b; }
-.account-form-panel h1 { font-size: 2rem; font-weight: 800; line-height: 1.15; margin-bottom: var(--spacing-3, .75rem); }
-.account-form-panel > p { margin-bottom: var(--spacing-6, 1.5rem); }
-.account-form { display: grid; gap: var(--spacing-4, 1rem); }
-.account-form input { width: 100%; min-height: 44px; }
-.account-error { color: #a02020; font-weight: 600; }
-.account-error:empty { display: none; }
-.comic-account { margin-top: auto; padding: var(--spacing-4, 1rem); overflow-wrap: anywhere; font-size: .875rem; }
-.comic-account form { margin-top: var(--spacing-3, .75rem); }
-.comic-account .comic-btn { width: 100%; }
-@media (max-width: 760px) { .comic-account { margin: 0; padding: var(--spacing-2, .5rem); } }
-@media print { .comic-account, .account-page { display: none !important; } }
-.account-switch { margin-top: var(--spacing-6, 1.5rem); font-size: .95rem; }
-.account-switch a, .account-form a { text-decoration: underline; text-underline-offset: .2em; font-weight: 700; }
-.account-form .comic-btn.primary { background: var(--comic-blue-800); border-color: var(--comic-blue-900); }
+/* Sign in / sign up pages, plus the account chip in the app nav. */
+
+.account-page {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  padding: 32px 16px 48px;
+  overflow: hidden;
+  background: var(--comic-dots), var(--comic-paper);
+  color: var(--comic-ink);
+  font-family: var(--comic-font);
+}
+
+.account-page::before,
+.account-page::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.account-page::before {
+  top: -120px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(47, 107, 255, 0.28) 2px, transparent 2.5px) 0 0 / 14px 14px;
+}
+
+.account-page::after {
+  right: -110px;
+  bottom: -130px;
+  background: radial-gradient(circle, rgba(255, 90, 71, 0.3) 2px, transparent 2.5px) 0 0 / 14px 14px;
+}
+
+.account-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.account-page .comic-logo {
+  margin: 0 0 6px;
+}
+
+.account-form-panel {
+  width: min(100%, 440px);
+  padding: 30px 30px 26px;
+  border: 3px solid var(--comic-ink);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 7px 7px 0 var(--comic-ink);
+}
+
+.account-form-panel h1 {
+  margin: 0 0 6px;
+  font-family: var(--comic-title);
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-shadow: 3px 3px 0 var(--comic-yellow);
+}
+
+.account-form-panel > p {
+  margin: 0 0 22px;
+  color: var(--comic-muted);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.account-form {
+  display: grid;
+  gap: 18px;
+}
+
+.account-form label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--comic-ink);
+}
+
+.account-form input {
+  width: 100%;
+  min-height: 50px;
+  border: 2.5px solid var(--comic-ink) !important;
+  border-radius: 10px !important;
+  background: #fff;
+  color: var(--comic-ink);
+  font-family: var(--comic-font);
+  font-size: 18px !important;
+  box-shadow: none !important;
+  transition: box-shadow 120ms ease;
+}
+
+.account-form input:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.3) !important;
+}
+
+.account-form [data-part="helper-text"] {
+  color: var(--comic-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.account-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 2px solid var(--comic-red);
+  border-radius: 10px;
+  background: var(--comic-red-soft);
+  color: #a52114;
+  font-weight: 600;
+}
+
+.account-error:empty {
+  display: none;
+}
+
+.account-form .comic-btn.primary {
+  min-height: 54px;
+  font-size: 19px;
+}
+
+.account-switch {
+  margin: 22px 0 0;
+  padding-top: 18px;
+  border-top: 2px dashed var(--comic-line);
+  font-size: 16px;
+  text-align: center;
+}
+
+.account-switch a,
+.account-form a {
+  color: var(--comic-blue-800);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* ---------- Account chip in the app nav ---------- */
+
+.comic-account {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.comic-account form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comic-account-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.comic-account-label {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comic-account-avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 2.5px solid var(--comic-ink);
+  border-radius: 999px;
+  background: var(--comic-yellow);
+  color: var(--comic-ink);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: var(--comic-pop-sm);
+}
+
+.comic-account .comic-sign-out {
+  min-height: 38px;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.comic-account .account-error {
+  position: absolute;
+  top: 100%;
+  right: 12px;
+  margin-top: 6px;
+}
+
+@media (max-width: 760px) {
+  .comic-account-label {
+    display: none;
+  }
+
+  .comic-account {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 430px) {
+  .account-form-panel {
+    padding: 24px 20px 20px;
+  }
+
+  .account-form-panel h1 {
+    font-size: 34px;
+  }
+}
+
+@media print {
+  .comic-account,
+  .account-page {
+    display: none !important;
+  }
+}

@@ -1,4 +1,5 @@
 import { A } from "@solidjs/router";
+import { LayoutGrid, MessageCircle, Printer } from "lucide-solid";
 import "~/components/comics/comic-creator.css";
 import "./landing.css";
 
@@ -75,7 +76,7 @@ export function LandingPage() {
 
         <section class="landing-hero" aria-labelledby="landing-title">
           <div class="landing-intro">
-            <h1 id="landing-title">Make a comic book you can <em>print.</em></h1>
+            <h1 id="landing-title">Make a comic book you can <em>print!</em></h1>
             <p class="landing-lede">
               Choose page layouts, add words or pictures, and print a story you made yourself.
             </p>
@@ -86,7 +87,7 @@ export function LandingPage() {
             <p class="landing-note">Your saved comics stay together in your own library.</p>
           </div>
           <figure class="landing-example">
-            <span class="landing-example-sticker" aria-hidden="true">A little<br />comic example</span>
+            <span class="landing-example-sticker" aria-hidden="true">Sample<br />comic!</span>
             <div class="landing-example-paper"><SampleComic /></div>
             <figcaption>A made-up story, ready for paper.</figcaption>
           </figure>
@@ -97,9 +98,9 @@ export function LandingPage() {
             <h2 id="landing-how-title">Three simple steps. Your own kind of story.</h2>
           </div>
           <ol class="landing-steps">
-            <li><span class="landing-step-number">01</span><div><h3>Pick a layout</h3><p>Give each page the panels your story needs.</p></div></li>
-            <li><span class="landing-step-number">02</span><div><h3>Add the story</h3><p>Write speech bubbles and captions, or add your own photos.</p></div></li>
-            <li><span class="landing-step-number">03</span><div><h3>Print it out</h3><p>Print pages one by one or make a folded booklet.</p></div></li>
+            <li data-step="1"><span class="landing-step-number" aria-hidden="true"><LayoutGrid size={26} /></span><div><span class="landing-step-label">Step 1</span><h3>Pick a layout</h3><p>Give each page the panels your story needs.</p></div></li>
+            <li data-step="2"><span class="landing-step-number" aria-hidden="true"><MessageCircle size={26} /></span><div><span class="landing-step-label">Step 2</span><h3>Add the story</h3><p>Write speech bubbles and captions, or add your own photos.</p></div></li>
+            <li data-step="3"><span class="landing-step-number" aria-hidden="true"><Printer size={26} /></span><div><span class="landing-step-label">Step 3</span><h3>Print it out</h3><p>Print pages one by one or make a folded booklet.</p></div></li>
           </ol>
         </section>
 

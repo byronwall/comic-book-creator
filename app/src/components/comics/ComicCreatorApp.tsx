@@ -1,6 +1,6 @@
 import type { Account } from "~/lib/auth/sessions.server";
 import { appPath } from "~/lib/router/app-path";
-import { Camera, Check, Eraser, MessageCircle, Pencil, Sparkles, Type } from "lucide-solid";
+import { Camera, Check, Cloud, Eraser, MessageCircle, Pencil, Type, Zap } from "lucide-solid";
 import { Show, createSignal, untrack } from "solid-js";
 import type { ComicBook } from "~/lib/comics/types";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
@@ -111,7 +111,7 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
           </div>
           <div class="comic-save-status" data-state={draft.saveState()} aria-live="polite">
             <Show when={draft.saveState() === "saved"} fallback={draft.saveState() === "saving" ? "Saving..." : "Save failed"}>
-              <Check size={17} /> Saved to server
+              <Check size={17} /> All saved
             </Show>
           </div>
         </header>
@@ -210,20 +210,20 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
           <section class="comic-workspace">
             <div class="comic-card comic-toolbar edit-only">
               <div class="comic-tool-group">
-                <button type="button" class="comic-btn" onClick={() => imageUpload.choose("replace")}>
-                  <Camera size={18} /> {activePage()?.mode === "image" ? "Replace Photo" : "Use Photo"}
+                <button type="button" class="comic-btn tool-photo" onClick={() => imageUpload.choose("replace")}>
+                  <span class="comic-btn-badge"><Camera size={16} /></span> {activePage()?.mode === "image" ? "Replace Photo" : "Use Photo"}
                 </button>
-                <button type="button" class="comic-btn" onClick={() => addText("speech")}>
-                  <MessageCircle size={18} /> Add Bubble
+                <button type="button" class="comic-btn tool-bubble" onClick={() => addText("speech")}>
+                  <span class="comic-btn-badge"><MessageCircle size={16} /></span> Add Bubble
                 </button>
-                <button type="button" class="comic-btn" onClick={() => addText("thought")}>
-                  <Sparkles size={18} /> Add Thought
+                <button type="button" class="comic-btn tool-thought" onClick={() => addText("thought")}>
+                  <span class="comic-btn-badge"><Cloud size={16} /></span> Add Thought
                 </button>
-                <button type="button" class="comic-btn" onClick={() => addText("caption")}>
-                  <Type size={18} /> Add Caption
+                <button type="button" class="comic-btn tool-caption" onClick={() => addText("caption")}>
+                  <span class="comic-btn-badge"><Type size={16} /></span> Add Caption
                 </button>
-                <button type="button" class="comic-btn" onClick={() => addText("sfx")}>
-                  <Sparkles size={18} /> Add SFX
+                <button type="button" class="comic-btn tool-sfx" onClick={() => addText("sfx")}>
+                  <span class="comic-btn-badge"><Zap size={16} /></span> Add SFX
                 </button>
               </div>
               <div class="comic-tool-group">
