@@ -8,7 +8,7 @@ import "./comic-creator.css";
 export function ComicBookUnavailable(props: { account: Account }) {
   return <div class="comic-app">
     <HttpStatusCode code={404} />
-    <PageMeta title="Book not found | Comic Book Creator" />
+    <PageMeta title="Book not found | ComicBam" />
     <ComicAppNav account={props.account} />
     <main class="comic-main">
       <header class="comic-topbar"><div>

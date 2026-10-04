@@ -19,7 +19,7 @@ export default function ComicBookRoute() {
       {(resolvedBook) => (
         <>
           <PageMeta
-            title={`${resolvedBook().title} | Comic Book Creator`}
+            title={`${resolvedBook().title} | ComicBam`}
             description="Edit panels, text, templates, and print-ready pages for a saved comic book."
           />
           <ComicCreatorApp account={resolvedAccount()} initialBook={resolvedBook()} />

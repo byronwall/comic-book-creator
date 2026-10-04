@@ -1,4 +1,4 @@
-# Comic Book Creator
+# ComicBam
 
 ## Audience and purpose
 

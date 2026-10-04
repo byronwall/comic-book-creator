@@ -1,6 +1,6 @@
 {
-  "name": "Comic Book Creator",
-  "short_name": "Comics",
+  "name": "ComicBam",
+  "short_name": "ComicBam",
   "icons": [
     {
       "src": "/app-icon-512.png",

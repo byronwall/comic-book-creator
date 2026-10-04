@@ -64,8 +64,8 @@ export function LandingPage() {
     <main class="comic-landing">
       <div class="landing-shell">
         <header class="landing-header">
-          <A href="/" class="comic-logo compact" aria-label="Comic Book Creator home">
-            <span>Comic</span><strong>Creator</strong>
+          <A href="/" class="comic-logo compact" aria-label="ComicBam home">
+            <span>Comic</span><strong>Bam!</strong>
           </A>
           <nav class="landing-nav" aria-label="Account">
             <A href="/sign-in" class="landing-sign-in">Sign in</A>
@@ -108,7 +108,7 @@ export function LandingPage() {
           <div><h2>Turn one good idea into a book you can hold.</h2></div>
           <A href="/sign-up" class="comic-btn primary">Create account</A>
         </section>
-        <footer class="landing-footer"><span>Comic Book Creator</span><span>Make a story. Build a book. Print it.</span></footer>
+        <footer class="landing-footer"><span>ComicBam</span><span>Make a story. Build a book. Print it.</span></footer>
       </div>
     </main>
   );

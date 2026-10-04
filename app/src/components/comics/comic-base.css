@@ -129,10 +129,11 @@
 }
 
 .comic-logo strong {
-  margin-top: 2px;
-  margin-left: 22px;
+  margin-top: 0;
+  margin-left: 30px;
   color: #fff;
-  font-size: 38px;
+  font-size: 54px;
+  transform: rotate(3deg);
 }
 
 .comic-logo.compact {
@@ -153,8 +154,8 @@
 }
 
 .comic-logo.compact strong {
-  margin-left: 16px;
-  font-size: 24px;
+  margin-left: 20px;
+  font-size: 33px;
   -webkit-text-stroke-width: 1.6px;
   text-shadow: 2px 2px 0 var(--comic-ink);
 }
@@ -486,7 +487,7 @@
   }
 
   .comic-app-nav .comic-logo.compact span { font-size: 22px; }
-  .comic-app-nav .comic-logo.compact strong { font-size: 19px; margin-left: 10px; }
+  .comic-app-nav .comic-logo.compact strong { font-size: 27px; margin-left: 14px; }
   .comic-account .comic-sign-out { padding: 5px 9px; }
 
   .comic-topbar {

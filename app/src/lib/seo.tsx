@@ -3,7 +3,7 @@ import { createRenderEffect } from "solid-js";
 import { isServer } from "solid-js/web";
 import { appPath } from "./router/app-path";
 
-const SITE_NAME = "Comic Book Creator";
+const SITE_NAME = "ComicBam";
 const DEFAULT_DESCRIPTION =
   "Printable comic page creator for planning panels, adding comic text, printing pages, and drawing artwork by hand.";
 

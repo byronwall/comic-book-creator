@@ -1,4 +1,4 @@
-# Comic Book Creator
+# ComicBam
 
 SolidStart app with Park UI wrappers, Panda CSS, a printable comic creator UI, and JSON-backed server persistence.
 

@@ -9,7 +9,7 @@ export default function LibraryRoute() {
   const account = createAsync(() => getPageAccount(), { deferStream: true });
   const books = createAsync(() => getComicBooks(), { deferStream: true });
   return <Show when={account()}>{(user) => <>
-    <PageMeta title="My Comic Books" description="Your private comic book library." />
+    <PageMeta title="My Comic Books | ComicBam" description="Your private comic book library." />
     <ComicBookIndexPage account={user()} books={books.latest ?? []} />
   </>}</Show>;
 }

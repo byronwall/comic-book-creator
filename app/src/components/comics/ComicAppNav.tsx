@@ -11,14 +11,14 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
   const submission = useSubmission(signOut);
   return (
     <header class="comic-app-nav" aria-label="App navigation">
-      <A href="/" class="comic-logo compact" aria-label="Comic Book Creator home" onClick={(event) => {
+      <A href="/" class="comic-logo compact" aria-label="ComicBam home" onClick={(event) => {
         if (props.onBeforeLeave && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
           event.preventDefault();
           const href = event.currentTarget.href;
           props.onBeforeLeave(() => window.location.assign(href));
         }
       }}>
-        <span>Comic</span><strong>Creator</strong>
+        <span>Comic</span><strong>Bam!</strong>
       </A>
       <nav class="comic-nav" aria-label="Comic book navigation">
         <A href="/books" class="active" title="Book index" onClick={(event) => {

@@ -119,7 +119,7 @@
   .landing-shell { width: calc(100% - 28px); }
   .landing-header { gap: 10px; }
   .landing-header .comic-logo span { font-size: 23px; }
-  .landing-header .comic-logo strong { font-size: 20px; margin-left: 12px; }
+  .landing-header .comic-logo strong { font-size: 28px; margin-left: 14px; }
   .landing-nav { gap: 10px; }
   .landing-nav .landing-sign-in { font-size: 15px; }
   .landing-nav .comic-btn { padding: 6px 9px; font-size: 14px; }
