@@ -2,7 +2,8 @@
 
 .comic-app,
 .account-page,
-.comic-landing {
+.comic-landing,
+.comic-dialog {
   --comic-blue-900: #0f2f8c;
   --comic-blue-800: #1a44c2;
   --comic-blue-700: #2156e0;
@@ -54,6 +55,12 @@
   outline-offset: 2px;
 }
 
+.comic-app,
+.comic-dialog {
+  caret-color: var(--comic-blue-600);
+  scrollbar-color: var(--comic-ink) transparent;
+}
+
 .comic-app ::selection {
   background: var(--comic-yellow);
   color: var(--comic-ink);
@@ -102,14 +109,37 @@
   transform: rotate(-1deg) scale(1.04);
 }
 
-.comic-logo::before {
+.comic-logo::before,
+.comic-logo::after {
   content: "";
   position: absolute;
+  clip-path: polygon(6% 8%, 22% 0, 36% 10%, 55% 0, 70% 9%, 92% 2%, 88% 26%, 100% 42%, 90% 58%, 98% 82%, 76% 80%, 64% 100%, 46% 86%, 26% 100%, 20% 80%, 0 84%, 8% 60%, 0 38%, 10% 26%);
+  transition: transform 220ms cubic-bezier(.25, 1, .5, 1);
+}
+
+/* Ink layer: reads as a thick outline plus a hard offset shadow. */
+.comic-logo::before {
+  z-index: -2;
+  inset: -4px -17px -6px -13px;
+  background: var(--comic-ink);
+  transform: translate(4px, 4px);
+}
+
+.comic-logo::after {
   z-index: -1;
   inset: 2px -12px 0 -8px;
-  background: var(--comic-red);
-  clip-path: polygon(6% 8%, 22% 0, 36% 10%, 55% 0, 70% 9%, 92% 2%, 88% 26%, 100% 42%, 90% 58%, 98% 82%, 76% 80%, 64% 100%, 46% 86%, 26% 100%, 20% 80%, 0 84%, 8% 60%, 0 38%, 10% 26%);
-  filter: drop-shadow(3px 3px 0 var(--comic-ink));
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.28) 1.5px, transparent 1.9px) 0 0 / 9px 9px,
+    radial-gradient(circle at 30% 25%, #ff8a5c 0 28%, transparent 60%),
+    var(--comic-red);
+}
+
+.comic-logo:hover::after {
+  transform: rotate(-3deg) scale(1.04);
+}
+
+.comic-logo:hover::before {
+  transform: translate(5px, 5px) rotate(-3deg) scale(1.04);
 }
 
 .comic-logo span,
@@ -177,7 +207,7 @@
   gap: 10px;
   border: var(--comic-border);
   border-radius: 999px;
-  padding: 6px 18px 6px 6px;
+  padding: 6px 18px 6px 8px;
   background: #fff;
   color: var(--comic-ink);
   font-size: 18px;
@@ -214,6 +244,36 @@
   border: 2px solid var(--comic-ink);
   border-radius: 999px;
   background: #fff;
+}
+
+/* ---------- Sticker art ---------- */
+
+.comic-art {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  user-select: none;
+}
+
+.comic-btn .comic-art,
+.comic-add-page .comic-art {
+  margin: -6px 0 -6px -6px;
+  transition: transform 160ms cubic-bezier(.25, 1, .5, 1);
+}
+
+.comic-btn:hover:not(:disabled) .comic-art,
+.comic-add-page:hover:not(:disabled) .comic-art {
+  transform: rotate(-10deg) scale(1.12);
+}
+
+.comic-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comic-nav a .comic-nav-art {
+  margin: -6px 0 -6px 4px;
 }
 
 /* ---------- Main surface + page header ---------- */
@@ -377,6 +437,15 @@
   background: var(--comic-red-soft);
 }
 
+.comic-btn.danger-solid {
+  background: var(--comic-red);
+  color: #fff;
+}
+
+.comic-btn.danger-solid:hover:not(:disabled) {
+  background: #e8432f;
+}
+
 .comic-dialog-error {
   margin: 0;
   color: #c4281a;
@@ -481,7 +550,7 @@
     font-size: 15px;
   }
 
-  .comic-nav-icon {
+  .comic-nav a .comic-nav-art {
     width: 28px;
     height: 28px;
   }

@@ -156,6 +156,22 @@
   font-size: 12px;
 }
 
+.comic-tools-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  text-align: center;
+}
+
+.comic-tools-empty h2 {
+  margin: 0;
+}
+
+.comic-tools-empty .comic-art {
+  transform: rotate(-6deg);
+}
+
 /* ---------- Photo tools ---------- */
 
 .comic-image-tools,
@@ -424,8 +440,7 @@
 }
 
 @media (max-width: 700px) {
-  .comic-print-actions,
-  .comic-toolbar {
+  .comic-print-actions {
     align-items: stretch;
     flex-direction: column;
   }
@@ -434,8 +449,17 @@
     top: 8px;
   }
 
-  .comic-tool-group .comic-btn {
-    flex: 1 1 calc(50% - 8px);
+  .comic-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .comic-tool-group {
+    display: contents;
+  }
+
+  .comic-toolbar .comic-btn {
+    min-width: 0;
   }
 
   .comic-page-rail-header {

@@ -1,4 +1,4 @@
-import { type JSX } from "solid-js";
+import { Show, type JSX } from "solid-js";
 import { HStack, VStack } from "styled-system/jsx";
 import { SimpleDialog } from "./simple-dialog";
 import { Button } from "./button";
@@ -12,6 +12,10 @@ type ConfirmDialogProps = {
   cancelLabel?: string;
   onConfirm: () => void;
   children?: JSX.Element;
+  /** "comic" renders the ComicBam themed dialog with comic-btn buttons. */
+  appearance?: "comic";
+  /** Marks the confirm action as destructive (red in the comic appearance). */
+  destructive?: boolean;
 };
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
@@ -35,14 +39,34 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
       title={props.title}
       description={props.description}
       maxW="480px"
+      contentClass={props.appearance === "comic" ? "comic-dialog" : undefined}
       footer={
         <HStack justify="flex-end" gap="2" w="full">
-          <Button variant="outline" onClick={handleCancel}>
-            {cancelLabel()}
-          </Button>
-          <Button variant="solid" onClick={handleConfirm}>
-            {confirmLabel()}
-          </Button>
+          <Show
+            when={props.appearance === "comic"}
+            fallback={
+              <>
+                <Button variant="outline" onClick={handleCancel}>
+                  {cancelLabel()}
+                </Button>
+                <Button variant="solid" onClick={handleConfirm}>
+                  {confirmLabel()}
+                </Button>
+              </>
+            }
+          >
+            <button type="button" class="comic-btn" onClick={handleCancel}>
+              {cancelLabel()}
+            </button>
+            <button
+              type="button"
+              class="comic-btn"
+              classList={{ "danger-solid": props.destructive, primary: !props.destructive }}
+              onClick={handleConfirm}
+            >
+              {confirmLabel()}
+            </button>
+          </Show>
         </HStack>
       }
     >

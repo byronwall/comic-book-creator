@@ -1,5 +1,5 @@
 import { A, useSubmission } from "@solidjs/router";
-import { Home } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { signOut } from "~/lib/auth/data";
 import type { Account } from "~/lib/auth/sessions.server";
 import { normalizeActionUrl } from "~/lib/router/action-url";
@@ -28,7 +28,7 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
             props.onBeforeLeave(() => window.location.assign(href));
           }
         }}>
-          <span class="comic-nav-icon"><Home size={18} /></span>My Books
+          <ComicArt name="books" size={34} class="comic-nav-art" />My Books
         </A>
       </nav>
       <div class="comic-account">
@@ -44,7 +44,7 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
           }
         }}>
           <input type="hidden" name="userId" value={account.id} />
-          <button type="submit" class="comic-btn comic-sign-out" disabled={submission.pending}>{submission.pending ? "Signing out…" : "Sign out"}</button>
+          <button type="submit" class="comic-btn comic-sign-out" disabled={submission.pending}><ComicArt name="sign-out" size={22} />{submission.pending ? "Signing out…" : "Sign out"}</button>
           <p role="alert" class="account-error">{submission.result?.error}</p>
         </form>
       </div>

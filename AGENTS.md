@@ -29,6 +29,8 @@ Run inside `app/`:
 - `pnpm install`
 - `pnpm prepare`
 - `pnpm dev`
+- `pnpm dev:demo` (dev server on :3100, auto signed in as `dev`, with sample books)
+- `pnpm dev:seed --reset` (rebuild the disposable demo data in `app/tmp/dev-data`)
 - `pnpm lint`
 - `pnpm lint:fix`
 - `pnpm type-check`
@@ -63,6 +65,7 @@ Run inside `app/`:
   - Panel entry: `ConsoleLogCapturePanel.tsx`
   - In-module store: `consoleLogCapture.store.ts`
   - Keep related UI/state/utils in this single module folder.
+- Sticker art lives in `app/public/art/*.webp` (sources in `output/branding/comicbam/`). Render it with `ComicArt` from `app/src/components/comics/ComicArt.tsx`.
 - Markdown rendering stack is available at `app/src/components/markdown-renderer/`.
   - Main entry: `MarkdownRenderer.tsx`
   - Shared exports: `index.ts`
@@ -77,7 +80,8 @@ Run inside `app/`:
 ## Accounts + Migration
 
 - Follow `docs/account-migration.md` for empty initialization, legacy migration, and release checks.
-- Private requests require prepared storage. The first signup matching `LEGACY_USERNAME` migrates after a complete verified persistent backup. Startup validates pending legacy storage. Never seed accounts or use the setting as an ownership fallback after migration.
+- Private requests require prepared storage. The first signup matching `LEGACY_USERNAME` migrates after a complete verified persistent backup. Startup validates pending legacy storage. Never seed accounts in real data dirs or use the setting as an ownership fallback after migration.
+- Demo accounts (`dev`/`friend`, password `devdev`) exist only in the disposable `app/tmp/dev-data` dir. `DEV_AUTO_SIGN_IN` only works in the Vite dev server, never in builds.
 - Pass the authenticated user ID into comic storage. Client account IDs detect stale tabs; they never grant ownership.
 - Keep one writer per data directory. Rehearse with disposable copies and separate backup storage.
 - Use private image routes. Keep obsolete public routes as explicit 404 handlers; missing routes can return fallback HTML.

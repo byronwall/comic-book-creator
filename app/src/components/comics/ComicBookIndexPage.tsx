@@ -3,13 +3,13 @@ import { watchAccountTabs } from "~/lib/auth/account-events";
 import { appPath } from "~/lib/router/app-path";
 import { normalizeActionUrl } from "~/lib/router/action-url";
 import { A, revalidate, useSubmission } from "@solidjs/router";
-import { BookOpen, FilePlus2, Sparkles, Trash2 } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { For, Show, createSignal, onCleanup, onMount, untrack } from "solid-js";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import { createComicBook, getComicBooks } from "~/lib/comics/data";
 import type { ComicBookSummary } from "~/lib/comics/types";
 import { ComicAppNav } from "./ComicAppNav";
-import { LibraryEmptyState, coverTone, formatUpdated } from "./ComicLibraryParts";
+import { LibraryEmptyState, coverArt, coverTone, formatUpdated } from "./ComicLibraryParts";
 import "./comic-creator.css";
 
 export function ComicBookIndexPage(props: { account: Account; books: ComicBookSummary[] }) {
@@ -62,7 +62,7 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
       setDeleteBookId("");
     } catch (error) {
       console.error(error);
-      setDeleteError("The book could not be deleted. Try again.");
+      setDeleteError("That book couldn't be deleted. Try again.");
       setDeleteDialogOpen(true);
     } finally {
       setDeletePendingBookId("");
@@ -76,8 +76,8 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
       </Show>
       <Show when={accountChanged()}>
         <main class="comic-main comic-draft-recovery">
-          <h1>Account changed</h1>
-          <p>This library belongs to a different account. Reload the page after you sign in.</p>
+          <h1>You switched accounts</h1>
+          <p>This page shows a different account's books. Reload the page after you sign in.</p>
           <a href={appPath("/sign-in")} target="_blank" rel="noreferrer">Sign in in another tab</a>
         </main>
       </Show>
@@ -103,7 +103,7 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
                   <A href={`/books/${book.id}`} class="comic-book-card-link">
                     <span class="comic-book-cover" data-tone={coverTone(book.id)}>
                       <span class="comic-book-cover-burst">
-                        <BookOpen size={44} stroke-width={2.4} />
+                        <ComicArt name={coverArt(book.id)} size={72} />
                       </span>
                     </span>
                     <strong>{book.title}</strong>
@@ -124,7 +124,7 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
                       setDeleteDialogOpen(true);
                     }}
                   >
-                    <Trash2 size={17} />
+                    <ComicArt name="trash" size={24} />
                   </button>
                 </article>
               )}
@@ -138,9 +138,9 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
             class="comic-card comic-create-book"
           >
             <input type="hidden" name="userId" value={account.id} />
-            <h2><Sparkles size={26} /> Start a New Book</h2>
+            <h2><ComicArt name="sparkle" size={34} /> Start a New Book</h2>
             <label class="comic-field">
-              <span>Book Title</span>
+              <span>Book title</span>
               <input
                 name="title"
                 value={title()}
@@ -152,13 +152,15 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
               disabled={createSubmission.pending}
               class="comic-btn primary"
             >
-              <FilePlus2 size={18} /> {createSubmission.pending ? "Creating…" : "Create New Book"}
+              <ComicArt name="page-add" size={28} /> {createSubmission.pending ? "Creating…" : "Create New Book"}
             </button>
             <p role="alert" class="account-error">{createSubmission.result?.error}</p>
           </form>
         </section>
       </main>
       <ConfirmDialog
+        appearance="comic"
+        destructive
         open={deleteDialogOpen() && Boolean(pendingDeleteBook())}
         onOpenChange={(open) => {
           setDeleteDialogOpen(open);
@@ -168,8 +170,9 @@ export function ComicBookIndexPage(props: { account: Account; books: ComicBookSu
           }
         }}
         title="Delete this book?"
-        description={`This will permanently remove "${pendingDeleteBook()?.title ?? "this book"}" and all of its pages.`}
-        confirmLabel={isDeleting() ? "Deleting..." : "Delete Book"}
+        description={`"${pendingDeleteBook()?.title ?? "This book"}" and all its pages will be gone forever. You can't undo this.`}
+        confirmLabel={isDeleting() ? "Deleting…" : "Yes, delete it"}
+        cancelLabel="Keep it"
         onConfirm={() => {
           const bookId = deleteBookId();
           if (!bookId) {

@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import type { ComicLayoutKind, ComicPageImage, ComicPaperSize, ComicTemplateGrid, ComicTextElement } from "~/lib/comics/types";
 import { getPanelRects, layoutTemplates } from "./comic-layouts";
 import { getPaperSizeOption, paperSizeOptions } from "./comic-paper-sizes";
+import { ComicArt } from "./ComicArt";
 import { getDefaultTextHeight, speechBubblePath } from "./comic-svg-shapes";
 
 const templatePreviewScale = 68 / 11;
@@ -15,8 +16,8 @@ export function TemplatePicker(props: {
   return (
     <section class="comic-card comic-template-picker" aria-label="Page templates">
       <div>
-        <h2>Templates</h2>
-        <p>Pick a panel layout for the selected page.</p>
+        <h2 class="comic-panel-title"><ComicArt name="page-four" size={32} /> Page layout</h2>
+        <p>Choose the panels for this page.</p>
       </div>
       <div class="comic-template-grid">
         <For each={layoutTemplates}>
@@ -36,8 +37,8 @@ export function TemplatePicker(props: {
       </div>
       <div class="comic-paper-size-panel">
         <div>
-          <h2>Page Size</h2>
-          <p>Choose a print area that fits on letter paper.</p>
+          <h2>Page size</h2>
+          <p>How big this page prints. All sizes fit on regular printer paper.</p>
         </div>
         <div class="comic-paper-size-grid">
           <For each={paperSizeOptions}>

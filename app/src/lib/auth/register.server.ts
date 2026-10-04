@@ -11,8 +11,8 @@ import { prepareStartupStorage } from "../migrations/startup.server.ts";
 
 export async function registerAccount(usernameInput: string, password: string) {
   const username = normalizeUsername(usernameInput);
-  if (!validUsername(username)) fail(400, "Use 1–40 letters, numbers, dots, dashes, or underscores. Start with a letter or number.");
-  if (password.length < 6) fail(400, "Use a password with at least 6 characters.");
+  if (!validUsername(username)) fail(400, "Usernames use letters and numbers (up to 40), plus dots, dashes, or underscores. Start with a letter or number.");
+  if (password.length < 6) fail(400, "Your password needs at least 6 characters.");
   const dataDir = resolveAppDataDir();
   if (!await pathExists(path.join(dataDir, "data-state.json"))) {
     const legacy = normalizeUsername(process.env.LEGACY_USERNAME ?? "");
@@ -34,7 +34,7 @@ export async function registerAccount(usernameInput: string, password: string) {
   try { return await addUser({ username, passwordHash }); }
   catch (error) {
     if (error instanceof Error && error.message === "Username already exists.") {
-      return fail(409, "An account already uses this username. Sign in instead.");
+      return fail(409, "Someone already has that username. Try a different one, or sign in if it's yours.");
     }
     throw error;
   }

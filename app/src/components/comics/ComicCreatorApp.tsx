@@ -1,6 +1,7 @@
 import type { Account } from "~/lib/auth/sessions.server";
 import { appPath } from "~/lib/router/app-path";
-import { Camera, Check, Cloud, Eraser, MessageCircle, Pencil, Type, Zap } from "lucide-solid";
+import { Pencil } from "lucide-solid";
+import { ComicArt } from "./ComicArt";
 import { Show, createSignal, untrack } from "solid-js";
 import type { ComicBook } from "~/lib/comics/types";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
@@ -107,11 +108,11 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
                 <Pencil size={18} />
               </button>
             </div>
-            <p>Build pages or photograph hand-drawn pages, then print them as a folded booklet.</p>
+            <p>Make pages here, or add photos of pages you drew by hand. Then print your book!</p>
           </div>
           <div class="comic-save-status" data-state={draft.saveState()} aria-live="polite">
-            <Show when={draft.saveState() === "saved"} fallback={draft.saveState() === "saving" ? "Saving..." : "Save failed"}>
-              <Check size={17} /> All saved
+            <Show when={draft.saveState() === "saved"} fallback={draft.saveState() === "saving" ? "Saving…" : "Not saved"}>
+              <ComicArt name="check" size={22} /> All saved
             </Show>
           </div>
         </header>
@@ -140,30 +141,39 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
           />}
         </Show>
         <ConfirmDialog
+          appearance="comic"
+          destructive
           open={clearTextConfirmOpen()}
           onOpenChange={setClearTextConfirmOpen}
-          title="Clear all text?"
-          description="This will remove every text element from the current page."
-          confirmLabel="Clear Text"
+          title="Clear all words on this page?"
+          description="Every bubble, caption, and sound effect on this page will be removed."
+          confirmLabel="Yes, clear them"
+          cancelLabel="Keep them"
           onConfirm={clearText}
         />
         <ConfirmDialog
+          appearance="comic"
+          destructive
           open={Boolean(pagePendingDelete())}
           onOpenChange={(open) => !open && setDeletePageId("")}
           title="Delete this page?"
-          description={`This will permanently remove "${pagePendingDelete()?.title ?? "this page"}" and its photo or text from the book.`}
-          confirmLabel="Delete Page"
+          description={`"${pagePendingDelete()?.title ?? "This page"}" and everything on it will be gone forever.`}
+          confirmLabel="Yes, delete it"
+          cancelLabel="Keep it"
           onConfirm={() => {
             const pageId = deletePageId();
             if (pageId) deletePage(pageId);
           }}
         />
         <ConfirmDialog
+          appearance="comic"
+          destructive
           open={Boolean(textPendingDelete())}
           onOpenChange={(open) => !open && setDeleteTextId("")}
-          title="Delete selected text?"
-          description={`This will permanently remove "${textPendingDelete()?.text || "this text"}" from the current page.`}
-          confirmLabel="Delete Text"
+          title="Delete these words?"
+          description={`"${textPendingDelete()?.text || "This text"}" will be removed from the page.`}
+          confirmLabel="Yes, delete it"
+          cancelLabel="Keep it"
           onConfirm={() => {
             const textId = deleteTextId();
             if (textId) deleteText(textId);
@@ -200,35 +210,35 @@ export function ComicCreatorApp(props: { account: Account; initialBook: ComicBoo
             }
           >
             <aside class="comic-card comic-tools comic-photo-page-help">
-              <h2>Photo Page</h2>
-              <p class="comic-empty-note">Click the photo to select it. Drag it anywhere or resize it from a blue corner.</p>
-              <p class="comic-image-hint">Photos layer in paste order and all stay behind every bubble and caption.</p>
-              <p class="comic-image-hint"><strong>Tip:</strong> Paste with Cmd/Ctrl+V to add another independently editable photo layer.</p>
+              <h2 class="comic-panel-title"><ComicArt name="page-photo" size={34} /> Photo page</h2>
+              <p class="comic-empty-note">Click the photo to pick it. Drag it to move it, or pull a blue corner to resize it.</p>
+              <p class="comic-image-hint">Photos always stay behind your bubbles and captions.</p>
+              <p class="comic-image-hint"><strong>Tip:</strong> Paste a picture with Cmd/Ctrl+V to add another photo.</p>
             </aside>
           </Show>
 
           <section class="comic-workspace">
             <div class="comic-card comic-toolbar edit-only">
               <div class="comic-tool-group">
-                <button type="button" class="comic-btn tool-photo" onClick={() => imageUpload.choose("replace")}>
-                  <span class="comic-btn-badge"><Camera size={16} /></span> {activePage()?.mode === "image" ? "Replace Photo" : "Use Photo"}
+                <button type="button" class="comic-btn tool-photo" title="Add a photo or drawing" onClick={() => imageUpload.choose("replace")}>
+                  <ComicArt name="camera" size={26} /> {activePage()?.mode === "image" ? "New Photo" : "Photo"}
                 </button>
-                <button type="button" class="comic-btn tool-bubble" onClick={() => addText("speech")}>
-                  <span class="comic-btn-badge"><MessageCircle size={16} /></span> Add Bubble
+                <button type="button" class="comic-btn tool-bubble" title="Add a speech bubble" onClick={() => addText("speech")}>
+                  <ComicArt name="speech" size={26} /> Speech
                 </button>
-                <button type="button" class="comic-btn tool-thought" onClick={() => addText("thought")}>
-                  <span class="comic-btn-badge"><Cloud size={16} /></span> Add Thought
+                <button type="button" class="comic-btn tool-thought" title="Add a thought bubble" onClick={() => addText("thought")}>
+                  <ComicArt name="thought" size={26} /> Thought
                 </button>
-                <button type="button" class="comic-btn tool-caption" onClick={() => addText("caption")}>
-                  <span class="comic-btn-badge"><Type size={16} /></span> Add Caption
+                <button type="button" class="comic-btn tool-caption" title="Add a caption box for narration" onClick={() => addText("caption")}>
+                  <ComicArt name="caption" size={26} /> Caption
                 </button>
-                <button type="button" class="comic-btn tool-sfx" onClick={() => addText("sfx")}>
-                  <span class="comic-btn-badge"><Zap size={16} /></span> Add SFX
+                <button type="button" class="comic-btn tool-sfx" title="Add a sound effect, like POW! or ZAP!" onClick={() => addText("sfx")}>
+                  <ComicArt name="pow" size={26} /> POW!
                 </button>
               </div>
               <div class="comic-tool-group">
-                <button type="button" class="comic-btn danger" onClick={() => setClearTextConfirmOpen(true)}>
-                  <Eraser size={18} /> Clear Text
+                <button type="button" class="comic-btn danger" title="Clear all words on this page" onClick={() => setClearTextConfirmOpen(true)}>
+                  <ComicArt name="eraser" size={26} /> Clear Words
                 </button>
               </div>
             </div>

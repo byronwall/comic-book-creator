@@ -6,7 +6,7 @@ export default function HomeRoute() {
     <>
       <PageMeta
         title="ComicBam | Make a comic book you can print"
-        description="Choose page layouts, add words and pictures, then print your comic as pages or a folded booklet."
+        description="Pick your panels, add words and pictures, then print your comic as pages or a folded booklet."
       />
       <LandingPage />
     </>

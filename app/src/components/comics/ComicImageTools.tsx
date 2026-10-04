@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp, Crop, ImageIcon, RefreshCw, RotateCcw } from "lucide-solid";
 import { Show } from "solid-js";
 import type { ComicPageImage } from "~/lib/comics/types";
+import { ComicArt } from "./ComicArt";
 
 type ImagePatch = Partial<Pick<ComicPageImage, "brightness" | "contrast" | "fit" | "height" | "rotation" | "threshold" | "treatment" | "width" | "x" | "y">>;
 
@@ -18,9 +19,9 @@ export function ComicImageTools(props: {
 }) {
   return (
     <aside class="comic-card comic-tools comic-image-tools">
-      <h2>Selected Photo</h2>
-      <p class="comic-empty-note">Drag the photo or resize it with the blue corner handles.</p>
-      <p class="comic-image-layer-label">Photo layer {props.layerIndex + 1} of {props.layerCount}</p>
+      <h2 class="comic-panel-title"><ComicArt name="camera" size={34} /> Your photo</h2>
+      <p class="comic-empty-note">Drag the photo to move it. Pull a blue corner to resize it.</p>
+      <p class="comic-image-layer-label">Photo {props.layerIndex + 1} of {props.layerCount}</p>
       <div class="comic-image-layer-actions">
         <button type="button" class="comic-btn" disabled={props.layerIndex <= 0} onClick={() => props.onMoveLayer(-1)}>
           <ArrowDown size={16} /> Send Backward
@@ -30,20 +31,20 @@ export function ComicImageTools(props: {
         </button>
       </div>
       <button type="button" class="comic-btn comic-image-replace" disabled={props.uploading} onClick={props.onChooseImage}>
-        <RefreshCw size={17} /> {props.uploading ? "Uploading..." : "Replace Photo"}
+        <RefreshCw size={17} /> {props.uploading ? "Uploading…" : "Change Photo"}
       </button>
       <button type="button" class="comic-btn comic-image-replace" disabled={props.uploading} onClick={props.onDeskew}>
-        <Crop size={17} /> Crop &amp; Deskew
+        <Crop size={17} /> Straighten &amp; Crop
       </button>
       <Show when={props.uploadError}><p class="comic-dialog-error">{props.uploadError}</p></Show>
 
       <Show when={props.image}>
         {(image) => (
           <>
-            <div class="comic-image-mode-grid" aria-label="Image printing style">
+            <div class="comic-image-mode-grid" aria-label="Photo colors">
               <button classList={{ active: image().treatment === "color" }} onClick={() => props.onUpdate({ treatment: "color" })}>Color</button>
-              <button classList={{ active: image().treatment === "grayscale" }} onClick={() => props.onUpdate({ treatment: "grayscale" })}>Grayscale</button>
-              <button classList={{ active: image().treatment === "threshold" }} onClick={() => props.onUpdate({ treatment: "threshold" })}>Crisp B&amp;W</button>
+              <button classList={{ active: image().treatment === "grayscale" }} onClick={() => props.onUpdate({ treatment: "grayscale" })}>Gray</button>
+              <button classList={{ active: image().treatment === "threshold" }} onClick={() => props.onUpdate({ treatment: "threshold" })}>Black &amp; White</button>
             </div>
 
             <Show when={image().treatment === "grayscale"}>
@@ -51,23 +52,23 @@ export function ComicImageTools(props: {
               <ImageSlider label="Contrast" value={image().contrast} min={50} max={300} onInput={(contrast) => props.onUpdate({ contrast })} />
             </Show>
             <Show when={image().treatment === "threshold"}>
-              <ImageSlider label="Black cutoff" value={image().threshold} min={10} max={90} onInput={(threshold) => props.onUpdate({ threshold })} />
-              <p class="comic-image-hint">Lower it to remove gray shadows. Raise it to keep faint pencil lines.</p>
+              <ImageSlider label="Ink level" value={image().threshold} min={10} max={90} onInput={(threshold) => props.onUpdate({ threshold })} />
+              <p class="comic-image-hint">Slide left to hide gray shadows. Slide right to keep light pencil lines.</p>
             </Show>
 
             <hr />
             <label class="comic-field">
-              <span>Photo fit</span>
+              <span>Photo size</span>
               <select value={image().fit} onChange={(event) => props.onUpdate({ fit: event.currentTarget.value as "contain" | "cover" })}>
-                <option value="contain">Show the whole page</option>
-                <option value="cover">Fill and crop edges</option>
+                <option value="contain">Show the whole photo</option>
+                <option value="cover">Fill the page (trims edges)</option>
               </select>
             </label>
-            <ImageSlider label="Rotation" value={image().rotation} min={-180} max={180} suffix="°" onInput={(rotation) => props.onUpdate({ rotation })} />
+            <ImageSlider label="Tilt" value={image().rotation} min={-180} max={180} suffix="°" onInput={(rotation) => props.onUpdate({ rotation })} />
             <button type="button" class="comic-btn comic-image-reset" onClick={props.onReset}>
-              <RotateCcw size={17} /> Reset as Background
+              <RotateCcw size={17} /> Fill the Whole Page
             </button>
-            <p class="comic-image-hint">Fills the page-sized object and keeps it behind bubbles and captions.</p>
+            <p class="comic-image-hint">Puts the photo back to full-page size, behind your bubbles.</p>
             <p class="comic-image-filename"><ImageIcon size={15} /> {image().originalName}</p>
           </>
         )}

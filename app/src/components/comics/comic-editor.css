@@ -292,13 +292,13 @@
 
 .comic-add-photo-page {
   border-style: solid;
-  background: var(--comic-green);
-  color: #fff;
+  background: var(--comic-green-soft);
+  color: var(--comic-ink);
   box-shadow: var(--comic-pop-sm);
 }
 
 .comic-add-photo-page:hover:not(:disabled) {
-  background: #18994f;
+  background: #c4f0d4;
 }
 
 .comic-add-page:disabled,
@@ -447,7 +447,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 6px;
   padding: 10px;
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(8px);
@@ -456,27 +456,25 @@
 .comic-tool-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
 }
 
-.comic-btn-badge {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  margin-left: -6px;
-  border: 2px solid var(--comic-ink);
-  border-radius: 999px;
-  background: var(--badge, var(--comic-yellow));
-  color: var(--badge-ink, var(--comic-ink));
+.comic-toolbar .comic-btn {
+  flex-direction: column;
+  gap: 2px;
+  min-width: 76px;
+  min-height: 0;
+  padding: 5px 8px 4px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
-.tool-photo { --badge: var(--comic-green); --badge-ink: #fff; }
-.tool-bubble { --badge: var(--comic-blue-600); --badge-ink: #fff; }
-.tool-thought { --badge: var(--comic-purple); --badge-ink: #fff; }
-.tool-caption { --badge: var(--comic-yellow); }
-.tool-sfx { --badge: var(--comic-red); --badge-ink: #fff; }
+.comic-toolbar .comic-btn .comic-art {
+  margin: 0;
+}
+
+
 
 /* ---------- Page canvas ---------- */
 

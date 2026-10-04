@@ -8,6 +8,7 @@ import { writeFileAtomic } from "~/lib/server/atomic-file";
 import { appPath } from "~/lib/router/app-path";
 import { readDataState } from "./data-state.server";
 import { readUserStore } from "./users.server";
+import { DEV_SIGNED_OUT_COOKIE, devAutoAccount, devAutoSignInEnabled } from "./dev-sign-in.server";
 import { fail } from "./http.server";
 import type { User } from "./types";
 
@@ -36,6 +37,13 @@ export function requestToken(request: Request) {
 }
 
 export async function readSession(request: Request) {
+  const resolved = await readStoredSession(request);
+  if (resolved || !devAutoSignInEnabled()) return resolved;
+  const account = devAutoAccount(request, (await preparedAccounts()).store);
+  return account ? { account, session: null } : null;
+}
+
+async function readStoredSession(request: Request) {
   const token = requestToken(request);
   if (!token) return null;
   const { store } = await preparedAccounts();
@@ -80,9 +88,11 @@ export function setSessionCookie(token: string) {
   const event = getRequestEvent();
   if (!event) throw new Error("A request is required.");
   setCookie(event.nativeEvent, SESSION_COOKIE, token, { ...cookieOptions(), maxAge: lifetime });
+  if (devAutoSignInEnabled()) deleteCookie(event.nativeEvent, DEV_SIGNED_OUT_COOKIE, cookieOptions());
 }
 export function clearSessionCookie() {
   const event = getRequestEvent();
   if (!event) throw new Error("A request is required.");
   deleteCookie(event.nativeEvent, SESSION_COOKIE, cookieOptions());
+  if (devAutoSignInEnabled()) setCookie(event.nativeEvent, DEV_SIGNED_OUT_COOKIE, "1", cookieOptions());
 }

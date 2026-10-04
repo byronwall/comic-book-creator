@@ -76,13 +76,13 @@
 .comic-book-cover[data-tone="4"] { --tone: #ff9d2e; --tone-2: #fff; }
 
 .comic-book-cover-burst {
-  width: 92px;
-  height: 92px;
+  width: 104px;
+  height: 104px;
   display: grid;
   place-items: center;
   background: var(--tone-2);
   clip-path: polygon(50% 0, 61% 18%, 82% 8%, 80% 30%, 100% 36%, 86% 52%, 100% 68%, 79% 72%, 82% 94%, 61% 84%, 50% 100%, 39% 84%, 18% 94%, 21% 72%, 0 68%, 14% 52%, 0 36%, 20% 30%, 18% 8%, 39% 18%);
-  transition: transform 300ms cubic-bezier(.34, 1.56, .64, 1);
+  transition: transform 300ms cubic-bezier(.25, 1, .5, 1);
 }
 
 .comic-book-card:hover .comic-book-cover-burst {
@@ -157,10 +157,20 @@
 }
 
 .comic-library-empty-art {
-  width: 120px;
-  height: auto;
-  margin-bottom: 6px;
-  transform: rotate(-4deg);
+  margin-bottom: 4px;
+  animation: comic-float 3.5s ease-in-out infinite;
+}
+
+@keyframes comic-float {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.comic-not-found {
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+  padding: 18px 28px 40px;
 }
 
 .comic-library-empty h2 {
