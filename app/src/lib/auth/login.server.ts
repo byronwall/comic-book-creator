@@ -1,5 +1,5 @@
 import { verifyPassword } from "./password.server";
-import { normalizeEmail } from "./users.server";
+import { normalizeUsername, validUsername } from "./users.server";
 import { fail } from "./http.server";
 import { preparedAccounts } from "./sessions.server";
 
@@ -16,11 +16,11 @@ export async function passwordWork<T>(work: () => Promise<T>) {
   try { return await work(); }
   finally { busy = false; }
 }
-export async function authenticate(email: string, password: string) {
+export async function authenticate(username: string, password: string) {
   const { store } = await preparedAccounts();
-  if (email.length > 254 || password.length > 128 || password.length < 15) return null;
+  if (!validUsername(normalizeUsername(username)) || password.length > 128 || password.length < 15) return null;
   return passwordWork(async () => {
-    const user = store.users.find((item) => item.email === normalizeEmail(email));
+    const user = store.users.find((item) => item.username === normalizeUsername(username));
     const valid = await verifyPassword(password, user?.passwordHash ?? dummyHash);
     return user && valid ? user : null;
   });

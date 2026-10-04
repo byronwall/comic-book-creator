@@ -6,7 +6,7 @@
     "scale": "capability",
     "current_phase": "execution",
     "last_updated": "2026-10-03",
-    "summary": "Add disk-backed email/password accounts and a public landing page. Preserve all legacy data through an explicit, verified ownership migration.",
+    "summary": "Add disk-backed username/password accounts and a public landing page. Preserve all legacy data through an explicit, verified ownership migration.",
     "status": "active",
     "next_action": "Implement and verify the frontier in tk. Tickets own live status. Live migration remains unauthorized."
   },
@@ -37,7 +37,7 @@
       "id": "request",
       "type": "user-request",
       "location": "Current Codex conversation",
-      "anchor": "Review the comic book site; create a detailed plan; legacy email ENV var; email/password; no verification or reset flows; Do not implement.",
+      "anchor": "Review the comic book site; create a detailed plan; legacy username ENV var; username/password; no verification or reset flows; Do not implement.",
       "authority": "Direct user instruction"
     },
     {
@@ -175,9 +175,9 @@
         ]
       },
       {
-        "id": "legacy-email",
+        "id": "legacy-username",
         "type": "required behavior",
-        "statement": "An environment variable supplies the legacy account email.",
+        "statement": "An environment variable supplies the legacy account username.",
         "commitment": "explicit",
         "importance": "core",
         "status": "active",
@@ -189,7 +189,7 @@
       {
         "id": "accounts",
         "type": "outcome",
-        "statement": "Separate users register and sign in with email and password.",
+        "statement": "Separate users register and sign in with username and password.",
         "commitment": "explicit",
         "importance": "core",
         "status": "active",
@@ -223,7 +223,7 @@
         ]
       },
       {
-        "id": "no-email",
+        "id": "no-username",
         "type": "anti-goal",
         "statement": "No Resend, verification, or password-reset flows.",
         "commitment": "explicit",
@@ -265,7 +265,7 @@
       {
         "id": "bootstrap",
         "type": "implementation hypothesis",
-        "statement": "Set a legacy password through a hidden offline prompt; never use public email matching to claim data.",
+        "statement": "The first signup matching LEGACY_USERNAME claims legacy storage with its chosen password after a permanent verified copy. Byron approved this claim rule.",
         "commitment": "derived",
         "importance": "supporting",
         "status": "active",
@@ -383,7 +383,7 @@
     "recommended_shape": {
       "storage": "One user registry, per-session files, existing book/image paths.",
       "ownership": "Stable UUID user IDs; ownerUserId and revision in books; images inherit book ownership.",
-      "migration": "Explicit stopped-writer migration with full verified backup, journal, raw additive transforms, and completion marker.",
+      "migration": "Startup validation followed by matching-signup migration with a full verified persistent copy, journal, raw additive transforms, and completion marker.",
       "auth": "Node scrypt, opaque random session tokens, disk session lookup, same-origin writes.",
       "public_routes": [
         "/",
@@ -405,7 +405,7 @@
     ],
     "first_proof": {
       "question": "Can ownership be added without changing any existing creative content or image bytes?",
-      "artifact": "Offline migration rehearsal, complete comparison report, repeat run, and interrupted-run recovery.",
+      "artifact": "Disposable startup migration rehearsal, complete comparison report, ordinary restart, and interrupted-run recovery.",
       "decision_rule": "Every file accounted for; nested JSON unchanged except ownerUserId/revision; image hashes unchanged; stable assignment; abort on unexplained differences."
     },
     "rabbit_holes": [
@@ -495,7 +495,7 @@
           "Unexpected concurrent file change",
           "Partial migration",
           "Disk write failure",
-          "Duplicate email race",
+          "Duplicate username race",
           "Stale book save"
         ],
         "proof_rungs": [
@@ -608,7 +608,7 @@
         "title": "A second account cannot read or overwrite another library",
         "outcome": "Signup, independent data, persistent sessions, and stale-save protection.",
         "dependencies_introduced": [],
-        "proof": "A/B/anonymous access matrix; concurrent email and revision checks; two-tab account switch.",
+        "proof": "A/B/anonymous access matrix; concurrent username and revision checks; two-tab account switch.",
         "valid_intermediate_state": "Two accounts can complete separate comic workflows locally.",
         "rollback": "Close signup while retaining all created account/book files; fix forward in any non-disposable environment.",
         "status": "planned",
@@ -649,10 +649,10 @@
       }
     ],
     "cut_line": [
-      "Email delivery, verification, and reset flows",
+      "User name delivery, verification, and reset flows",
       "Social login and magic links",
       "Teams, roles, sharing, and admin UI",
-      "Profile/email changes and account deletion",
+      "Profile/username changes and account deletion",
       "Database/object storage/multiple servers",
       "Multi-user inherited project tools",
       "Offline editing and automatic draft merge",
@@ -696,7 +696,7 @@
           ],
           "claims": [
             "preserve",
-            "legacy-email",
+            "legacy-username",
             "disk",
             "bootstrap",
             "in-place",
@@ -717,7 +717,7 @@
             "accounts",
             "ownership",
             "disk",
-            "legacy-email",
+            "legacy-username",
             "bootstrap",
             "in-place",
             "inherited-scope",
@@ -742,7 +742,7 @@
             "seeding",
             "inherited-scope",
             "isolation",
-            "no-email"
+            "no-username"
           ]
         },
         {
@@ -772,7 +772,7 @@
             "landing",
             "accounts",
             "ownership",
-            "no-email",
+            "no-username",
             "preserve",
             "isolation"
           ]
@@ -786,12 +786,12 @@
           ],
           "claims": [
             "preserve",
-            "legacy-email",
+            "legacy-username",
             "bootstrap",
             "disk",
             "single-process",
             "inherited-scope",
-            "no-email",
+            "no-username",
             "isolation"
           ]
         },
@@ -804,7 +804,7 @@
           ],
           "claims": [
             "preserve",
-            "legacy-email",
+            "legacy-username",
             "accounts",
             "landing",
             "ownership",
@@ -889,7 +889,7 @@
           "source": "request; intent Boundaries"
         },
         {
-          "topic": "Stable user identity, unique normalized email, private user projection",
+          "topic": "Stable user identity, unique normalized username, private user projection",
           "tickets": [
             "cb-xp5r",
             "cb-3g5e",
@@ -911,7 +911,7 @@
           "source": "shape Core shape; plan Disk writes and saves"
         },
         {
-          "topic": "LEGACY_USER_EMAIL once, hidden password, no public claim or runtime fallback",
+          "topic": "LEGACY_USERNAME once, hidden password, no public claim or runtime fallback",
           "tickets": [
             "cb-xp5r",
             "cb-3g5e",
@@ -949,7 +949,7 @@
           "source": "plan migration procedure and rollout"
         },
         {
-          "topic": "Hash journal, source/target resume, idempotence, conflicting email",
+          "topic": "Hash journal, source/target resume, idempotence, conflicting username",
           "tickets": [
             "cb-xp5r",
             "cb-t8jr",
@@ -1211,7 +1211,7 @@
           "source": "rules; plan Cross-cutting verification"
         },
         {
-          "topic": "Cut: email/identity services, verification/reset, profiles, roles, teams, sharing",
+          "topic": "Cut: username/identity services, verification/reset, profiles, roles, teams, sharing",
           "tickets": [
             "cb-pix7",
             "cb-3g5e",

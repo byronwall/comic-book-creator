@@ -11,7 +11,7 @@ import { readUserStore } from "./users.server";
 import { fail } from "./http.server";
 import type { User } from "./types";
 
-export type Account = Pick<User, "id" | "email">;
+export type Account = Pick<User, "id" | "username">;
 export interface Session { tokenHash: string; userId: string; createdAt: string; expiresAt: string }
 export const SESSION_COOKIE = "comic_session";
 const lifetime = 30 * 24 * 60 * 60;
@@ -26,7 +26,7 @@ export async function preparedAccounts() {
       throw new Error("Legacy account is missing.");
     }
     return { state, store };
-  } catch { return fail(503, "Account storage is not ready. Run the offline setup command."); }
+  } catch { return fail(503, "Account storage is unavailable. Ask the site owner to check account setup."); }
 }
 
 export function requestToken(request: Request) {
@@ -36,9 +36,9 @@ export function requestToken(request: Request) {
 }
 
 export async function readSession(request: Request) {
-  const { store } = await preparedAccounts();
   const token = requestToken(request);
   if (!token) return null;
+  const { store } = await preparedAccounts();
   const tokenHash = digest(token);
   let session: Session;
   try { session = JSON.parse(await readFile(sessionPath(tokenHash), "utf8")); }
@@ -52,7 +52,7 @@ export async function readSession(request: Request) {
   }
   if (Date.parse(session.expiresAt) <= Date.now()) return null;
   const user = store.users.find((item) => item.id === session.userId);
-  return user ? { account: { id: user.id, email: user.email }, session } : null;
+  return user ? { account: { id: user.id, username: user.username }, session } : null;
 }
 
 export async function issueSession(userId: string, request: Request) {

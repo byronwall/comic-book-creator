@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { readDataState } from "../auth/data-state.server";
 import { hashPassword, verifyPassword } from "../auth/password.server.ts";
+import { recoveryPath } from "./legacy-ownership-files.ts";
 import { initializeEmptyData, migrateLegacyData, preflightLegacyData, verifyData } from "./legacy-ownership.server.ts";
 
 const roots: string[] = [];
@@ -13,6 +14,7 @@ afterEach(async () => {
       const journal = JSON.parse(await readFile(path.join(root, "migrations", "legacy-ownership", "journal.json"), "utf8"));
       await rm(journal.backupDir, { recursive: true, force: true });
     } catch {}
+    await rm(await recoveryPath(root), { force: true });
     await rm(root, { recursive: true, force: true });
   }));
 });
@@ -47,10 +49,10 @@ describe("legacy ownership migration", () => {
     const auxBefore = await readFile(path.join(root, "projects", "aux", "keep.bin"));
     const backupParent = await mkdtemp(path.join(os.tmpdir(), "comic-backups-"));
     roots.push(backupParent);
-    await expect(preflightLegacyData(root, "legacy@example.com", path.join(root, "backups"))).rejects.toThrow(/outside the data tree/);
+    await expect(preflightLegacyData(root, "legacy", path.join(root, "backups"))).rejects.toThrow(/outside the data tree/);
     await symlink(root, path.join(backupParent, "linked-data"));
-    await expect(preflightLegacyData(root, "legacy@example.com", path.join(backupParent, "linked-data", "backups"))).rejects.toThrow(/outside the data tree/);
-    const first = await migrateLegacyData({ dataDir: root, email: " Legacy@Example.com ", password, backupDir: backupParent });
+    await expect(preflightLegacyData(root, "legacy", path.join(backupParent, "linked-data", "backups"))).rejects.toThrow(/outside the data tree/);
+    const first = await migrateLegacyData({ dataDir: root, username: " Legacy ", password, backupDir: backupParent });
     expect(first.completed).toBe(true);
     const current = JSON.parse(await readFile(path.join(root, "comic-books", "book-1.json"), "utf8"));
     const { ownerUserId, revision, ...content } = current;
@@ -61,9 +63,9 @@ describe("legacy ownership migration", () => {
     expect(await readFile(path.join(root, "projects", "aux", "keep.bin"))).toEqual(auxBefore);
     expect(await readFile(path.join(root, ".manifest.json"), "utf8")).toBe("source metadata");
     expect((await readdir(backupParent)).some((name) => name.startsWith(`${path.basename(root)}.backup-`))).toBe(true);
-    expect((await migrateLegacyData({ dataDir: root, email: "legacy@example.com" })).resumed).toBe(false);
-    await expect(migrateLegacyData({ dataDir: root, email: "other@example.com" })).rejects.toThrow(/different email/);
-    expect((await verifyData(root, "legacy@example.com")).books).toBe(1);
+    expect((await migrateLegacyData({ dataDir: root, username: "legacy" })).resumed).toBe(false);
+    await expect(migrateLegacyData({ dataDir: root, username: "other" })).rejects.toThrow(/different username/);
+    expect((await verifyData(root, "legacy")).books).toBe(1);
     expect((await readDataState(root)).legacyUserId).toBe(ownerUserId);
   });
 
@@ -72,9 +74,9 @@ describe("legacy ownership migration", () => {
     await mkdir(path.join(root, "comic-books"), { recursive: true });
     const second = { id: "book-2", title: "Second", updatedAt: "2025-01-02", pages: [{ id: "p2", texts: [] }] };
     await writeFile(path.join(root, "comic-books", "book-2.json"), `${JSON.stringify(second)}\n`);
-    await expect(migrateLegacyData({ dataDir: root, email: "legacy@example.com", password, interruptAfterBooks: 1 })).rejects.toThrow(/Simulated interruption/);
+    await expect(migrateLegacyData({ dataDir: root, username: "legacy", password, interruptAfterBooks: 1 })).rejects.toThrow(/Simulated interruption/);
     const userId = JSON.parse(await readFile(path.join(root, "comic-books", "book-1.json"), "utf8")).ownerUserId;
-    const resumed = await migrateLegacyData({ dataDir: root, email: "legacy@example.com" });
+    const resumed = await migrateLegacyData({ dataDir: root, username: "legacy" });
     expect(resumed.resumed).toBe(true);
     expect(JSON.parse(await readFile(path.join(root, "comic-books", "book-2.json"), "utf8")).ownerUserId).toBe(userId);
   });
@@ -82,32 +84,32 @@ describe("legacy ownership migration", () => {
   it("stops on malformed books, missing crop sources, existing owners, and changed files", async () => {
     const malformed = await fixture();
     await writeFile(path.join(malformed.root, "comic-books", "book-1.json"), "{");
-    await expect(migrateLegacyData({ dataDir: malformed.root, email: "legacy@example.com", password })).rejects.toThrow(/Malformed JSON/);
+    await expect(migrateLegacyData({ dataDir: malformed.root, username: "legacy", password })).rejects.toThrow(/Malformed JSON/);
 
     const unreadable = await fixture();
     const unreadablePath = path.join(unreadable.root, "comic-books", "book-1.json");
     await writeFile(unreadablePath, JSON.stringify({ ...unreadable.book, title: undefined }));
-    await expect(preflightLegacyData(unreadable.root, "legacy@example.com")).rejects.toThrow(/Missing book title/);
+    await expect(preflightLegacyData(unreadable.root, "legacy")).rejects.toThrow(/Missing book title/);
     await rm(unreadablePath);
     await writeFile(path.join(unreadable.root, "comic-books", "bad_id.json"), JSON.stringify({ ...unreadable.book, id: "bad_id" }));
-    await expect(preflightLegacyData(unreadable.root, "legacy@example.com")).rejects.toThrow(/Invalid book ID/);
+    await expect(preflightLegacyData(unreadable.root, "legacy")).rejects.toThrow(/Invalid book ID/);
 
     const missing = await fixture();
     await rm(path.join(missing.root, "comic-book-images", "book-1", "original.jpg"));
-    await expect(migrateLegacyData({ dataDir: missing.root, email: "legacy@example.com", password })).rejects.toThrow(/Missing image source/);
+    await expect(migrateLegacyData({ dataDir: missing.root, username: "legacy", password })).rejects.toThrow(/Missing image source/);
 
     const owned = await fixture();
     const record = JSON.parse(await readFile(path.join(owned.root, "comic-books", "book-1.json"), "utf8"));
     record.ownerUserId = "foreign";
     record.revision = 1;
     await writeFile(path.join(owned.root, "comic-books", "book-1.json"), JSON.stringify(record));
-    await expect(migrateLegacyData({ dataDir: owned.root, email: "legacy@example.com", password })).rejects.toThrow(/must not have an owner/);
-    await expect(preflightLegacyData(owned.root, "legacy@example.com")).rejects.toThrow(/must not have an owner/);
+    await expect(migrateLegacyData({ dataDir: owned.root, username: "legacy", password })).rejects.toThrow(/must not have an owner/);
+    await expect(preflightLegacyData(owned.root, "legacy")).rejects.toThrow(/must not have an owner/);
 
     const changed = await fixture();
-    await expect(migrateLegacyData({ dataDir: changed.root, email: "legacy@example.com", password, interruptAfterBooks: 1 })).rejects.toThrow(/Simulated interruption/);
+    await expect(migrateLegacyData({ dataDir: changed.root, username: "legacy", password, interruptAfterBooks: 1 })).rejects.toThrow(/Simulated interruption/);
     await writeFile(path.join(changed.root, "unknown.dat"), "changed");
-    await expect(migrateLegacyData({ dataDir: changed.root, email: "legacy@example.com" })).rejects.toThrow(/Unexpected file hash/);
+    await expect(migrateLegacyData({ dataDir: changed.root, username: "legacy" })).rejects.toThrow(/Unexpected file hash/);
   });
 
   it("requires empty initialization and reads passwords from self-describing hashes", async () => {

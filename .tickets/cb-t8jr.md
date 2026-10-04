@@ -1,6 +1,6 @@
 ---
 id: cb-t8jr
-status: partially_implemented
+status: closed
 deps: [cb-ud97]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -12,6 +12,23 @@ tags: [multi-user-accounts]
 ---
 # Package and rehearse the account migration release
 
+## User name signup update — 2026-10-03
+
+User names now replace the previous account identifier throughout the app, stored accounts, sessions, forms, and configuration.
+LEGACY_USERNAME selects the first signup that claims legacy data. That signup uses its chosen password.
+Startup validates pending storage but does not migrate it. A complete verified persistent copy still precedes source changes.
+Byron explicitly selected first matching signup ownership, with no additional claim code. Other signup waits until completion.
+This update and the current migration guide supersede previous startup-password and offline-only setup instructions below.
+
+
+## Automatic migration update — 2026-10-03
+
+The current release uses matching signup migration when LEGACY_USERNAME is supplied.
+A verified persistent copy precedes all source changes. Matching signup supplies the account password.
+Normal requests never migrate data. Completion checks permit later account and book changes.
+The [current migration guide](../docs/account-migration.md) supersedes offline-only startup and manual cutover instructions below.
+Backups and recovery records are permanent. No live operation is authorized by this implementation.
+
 ## Outcome
 
 An operator can run the release's migration tool against an isolated copied volume and recover it using documented steps. The built runtime contains the required command and preserves accounts, sessions, books, and images across restart.
@@ -19,7 +36,7 @@ An operator can run the release's migration tool against an isolated copied volu
 ## Likely Steps
 
 - Package the migration command, runner, and shared helpers in the existing Docker build. Prefer one image; verify actual contents rather than assuming source scripts exist in the runtime.
-- Document APP_DATA_DIR, LEGACY_USER_EMAIL as migration-only input, APP_ORIGIN, BASE_PATH, and hidden initial-password entry. Keep secrets server-only; opaque sessions need no signing-secret setting.
+- Document APP_DATA_DIR, LEGACY_USERNAME as migration-only input, APP_ORIGIN, BASE_PATH, and hidden initial-password entry. Keep secrets server-only; opaque sessions need no signing-secret setting.
 - Rehearse inventory, checked backup, migration, verification, authenticated startup, and restart against a stopped copy. Keep backups outside the data tree and preserve inherited/unknown files.
 - Confirm service permissions, space, canonical origin/base-path handling, and the planned scrypt memory/latency in the runtime image.
 - Document fresh installation, no-reset behavior, stopped-service volume access, and the boundary between restoring a pre-write backup and repairing forward after new work exists.
@@ -34,7 +51,7 @@ Migration and the private server boundary must be accepted in cb-xp5r and cb-ud9
 
 ## Provenance
 
-[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 5 packaging, rehearsal, configuration, and recovery preparation. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-email, bootstrap, disk, single-process, inherited-scope, no-email, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 5 packaging, rehearsal, configuration, and recovery preparation. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-username, bootstrap, disk, single-process, inherited-scope, no-username, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
 
 ## Execution packet
@@ -72,3 +89,27 @@ Implementation and isolated Linux rehearsal are complete. Keep this ticket parti
 **2026-10-03T06:05:42Z**
 
 Final committed source passed the isolated Linux production build again after browser fixes. The final image served the editor and clear404 page correctly, and retained the earlier session, saved revision, and private crop-original access. The disposable container is stopped. The clean declared-base build remains the only packaging proof gap.
+
+## Automatic startup proof — 2026-10-03
+
+The declared Node 22 Dockerfile built successfully with pnpm 11.9.0. Its actual entrypoint ran against disposable named data and backup volumes.
+
+Missing username and a read-only backup volume stopped before any source file changed. File accounting and SHA-256 comparisons matched all original bytes.
+Generated-password login, legacy ownership, private crop-original reads, book edits, second-account isolation, and sessions passed. Container replacement preserved the saved data and session.
+A second writer exited with code 73. A real SIGKILL during a 1,500-book migration resumed with the same journal, owner, and original backup hashes.
+
+Host bind mounts on Docker Desktop did not share the same advisory lock across separate containers. The accepted check uses the production Compose named-volume storage. Keep that storage configuration.
+
+Type checking, linting, focused filesystem tests, and the production build passed. Lint retains existing warnings and required Node CLI relative-import warnings.
+Evidence scripts and logs remain under root tmp/auto-migration-proof/ and tmp/auto-migration-build.log. No real app/data or production storage was used.
+The prior clean Docker build gap is resolved. Live volume mapping and proxy/HTTPS checks remain in cb-irrm.
+
+## Matching signup proof — 2026-10-03
+
+The updated packaged release validates legacy storage at startup and waits for signup without changing source files.
+The real username signup form claimed the legacy library with its chosen password. No temporary password file was created.
+Complete backup accounting, raw JSON, private crop-original access, second-account isolation, saved edits, persistent sessions, and container replacement passed.
+A nonmatching signup left source bytes unchanged. An interrupted migration required the original chosen password; a wrong password changed no files.
+The original owner and backup remained fixed after the matching signup retry. The named-volume writer lock still rejected a second writer with code 73.
+All 21 focused tests and type checking passed. Lint passed with warnings. The declared Docker image built successfully.
+Evidence: root tmp/username-runtime-results.log, tmp/username-tests.log, and tmp/username-docker-build.log.

@@ -32,7 +32,7 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
         </A>
       </nav>
       <div class="comic-account">
-        <p>{account.email}</p>
+        <p>{account.username}</p>
         <form method="post" action={normalizeActionUrl(signOut.toString())} onSubmit={(event) => {
           if (props.onBeforeLeave) {
             event.preventDefault();

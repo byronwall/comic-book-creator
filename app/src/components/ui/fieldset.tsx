@@ -41,7 +41,7 @@ export const FieldsetDemo = (props: FieldsetDemoProps) => {
           <HelperText>Choose where to receive updates.</HelperText>
         </Control>
         <Content>
-          <Option label="Email alerts" checked />
+          <Option label="App alerts" checked />
           <Option label="SMS alerts" />
           <Option label="Weekly summary" checked />
         </Content>

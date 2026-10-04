@@ -14,6 +14,6 @@ Use the shared UI controls where they fit the existing style.
 Keep the form width readable on phones and larger screens.
 Use a password visibility control only if its label states the current action.
 
-The library shows the account email and a clear empty state.
+The library shows the account username and a clear empty state.
 The editor shows save status and offers draft recovery when saving stops.
 Use existing breakpoints and tokens. Avoid new decorative patterns.

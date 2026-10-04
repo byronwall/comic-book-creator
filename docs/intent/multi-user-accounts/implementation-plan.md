@@ -8,11 +8,28 @@ last_updated: "2026-10-03"
 
 # Comic Book Creator accounts — implementation plan
 
+## User name signup update — 2026-10-03
+
+User names now replace the previous account identifier throughout the app, stored accounts, sessions, forms, and configuration.
+LEGACY_USERNAME selects the first signup that claims legacy data. That signup uses its chosen password.
+Startup validates pending storage but does not migrate it. A complete verified persistent copy still precedes source changes.
+Byron explicitly selected first matching signup ownership, with no additional claim code. Other signup waits until completion.
+This update and the current migration guide supersede previous startup-password and offline-only setup instructions below.
+
+
+## Automatic migration update — 2026-10-03
+
+The current release uses matching signup migration when LEGACY_USERNAME is supplied.
+A verified persistent copy precedes all source changes. Matching signup supplies the account password.
+Normal requests never migrate data. Completion checks permit later account and book changes.
+The [current migration guide](../../../docs/account-migration.md) supersedes offline-only startup and manual cutover instructions below.
+Backups and recovery records are permanent. No live operation is authorized by this implementation.
+
 ## Plan at a glance
 
 Keep disk storage. Introduce a user registry, password hashes, persistent sessions, and an explicit owner on every book. Preserve the current book IDs and image paths. Move the library from `/` to `/books`, then use `/` to explain the product.
 
-Prove migration before changing the live site. The migration must use raw JSON, preserve existing values, and add only ownership and revision fields. It must not call the existing seed or normalization functions. Set up the legacy account from `LEGACY_USER_EMAIL` and a locally entered password before opening public registration.
+Prove migration before changing the live site. The migration must use raw JSON, preserve existing values, and add only ownership and revision fields. It must not call the existing seed or normalization functions. Set up the legacy account from `LEGACY_USERNAME` and a locally entered password before opening public registration.
 
 Implement in five outcomes:
 
@@ -71,14 +88,14 @@ Local `app/data` contains six book JSON files, 30 pages, 66 text elements, and n
 
 ### Ownership and storage contract
 
-Use one account for one person's library. User IDs are immutable UUIDs. Email is a unique login identifier, not a directory name or foreign key. Trim and lowercase email consistently at signup, login, and migration. Do not strip dots or plus suffixes. This is an explicit application policy, not a claim that all mail systems compare addresses the same way.
+Use one account for one person's library. User IDs are immutable UUIDs. User name is a unique login identifier, not a directory name or foreign key. Trim and lowercase username consistently at signup, login, and migration. Do not strip dots or plus suffixes. This is an explicit application policy, not a claim that all mail systems compare addresses the same way.
 
 Keep these minimal records:
 
 ```ts
 interface User {
   id: string;
-  email: string;
+  username: string;
   passwordHash: string;
   createdAt: string;
 }
@@ -112,7 +129,7 @@ interface ComicBook {
 }
 ```
 
-`passwordHash` includes its algorithm, work parameters, salt, and derived key. Do not add plaintext passwords or speculative verification/reset fields. Return only `{ id, email }` from current-user queries. `ComicPage` and nested image/text types retain their present content fields.
+`passwordHash` includes its algorithm, work parameters, salt, and derived key. Do not add plaintext passwords or speculative verification/reset fields. Return only `{ id, username }` from current-user queries. `ComicPage` and nested image/text types retain their present content fields.
 
 ```mermaid
 erDiagram
@@ -124,7 +141,7 @@ erDiagram
   PAGE_IMAGE }o--o| IMAGE_FILE : crop_source
   USER {
     string id PK
-    string email UK
+    string username UK
     string passwordHash
   }
   SESSION {
@@ -145,7 +162,7 @@ Pages and image entries remain embedded in book JSON. The diagram shows relation
 APP_DATA_DIR/
   data-state.json                    # Version and completed legacy assignment
   auth/
-    users.json                       # Small unique-email account registry
+    users.json                       # Small unique-username account registry
     sessions/<sha256-token>.json      # Server sessions; raw token never stored
   comic-books/<existing-id>.json      # Same files, plus ownerUserId and revision
   comic-book-images/<book-id>/*       # Unmoved, unchanged image bytes
@@ -211,7 +228,7 @@ All browser mutations, including signup, login, logout, forms, uploads, and dele
 
 Add a small helper that writes a unique temporary file in the destination directory, flushes it, then renames it. Flush the directory where supported by the target filesystem. Failed writes must leave the previous complete JSON readable. Ignore temporary files when scanning records.
 
-Serialize account-registry mutations around read, duplicate-email check, and replacement. This prevents two concurrent signups from losing a user or creating duplicate normalized emails. Serialize each book's ownership check, revision check, and mutation. One process is a hard deployment assumption; an in-process queue does not protect multiple servers.
+Serialize account-registry mutations around read, duplicate-username check, and replacement. This prevents two concurrent signups from losing a user or creating duplicate normalized usernames. Serialize each book's ownership check, revision check, and mutation. One process is a hard deployment assumption; an in-process queue does not protect multiple servers.
 
 Initialize migrated books at `revision: 1`. Require the expected revision for saves and deletes. Increment it only after a successful save. A stale tab receives `409`, retains its draft, and offers reload or draft download. Do not auto-merge or retry over newer data. This small conflict check protects existing full-book autosave without introducing collaborative editing.
 
@@ -222,7 +239,7 @@ Initialize migrated books at `revision: 1`. Require the expected revision for sa
 | Disk and legacy data | Real filesystem in a disposable directory; synthetic edge cases | Stopped, copied deployment volume; then authorized volume cutover |
 | Password hashing | Absent from dry-run inventory; real Node crypto during account preparation | Actual runtime image memory/latency check |
 | Solid cookies, SSR, actions | Absent from migration proof | Isolated local HTTP flow; later HTTPS cookie/proxy smoke |
-| Email, identity provider, database | Absent | None in this release |
+| User name, identity provider, database | Absent | None in this release |
 
 Use controlled files and interrupted writes for failure checks. A mock disk cannot prove file replacement or recovery. No cloud emulator or external credentials are needed. Keep only focused preservation, isolation, session, and save-conflict checks. The repository requires explicit authorization before running tests or browser automation; this plan does not run them.
 
@@ -240,9 +257,9 @@ pnpm accounts:migrate --data-dir /absolute/disposable-data --apply
 pnpm accounts:verify --data-dir /absolute/disposable-data
 ```
 
-Read `LEGACY_USER_EMAIL` from the command environment. Require it when legacy data exists. Supply the initial password through a hidden terminal prompt with confirmation during apply. Never use a default password or an argument visible in shell history. Do not let public signup create or claim this account.
+Read `LEGACY_USERNAME` from the command environment. Require it when legacy data exists. Supply the initial password through a hidden terminal prompt with confirmation during apply. Never use a default password or an argument visible in shell history. Do not let public signup create or claim this account.
 
-The command must require an explicit absolute data path. It must print the resolved target and proposed email before applying. Do not use `resolveAppDataDir()` fallback to select a migration target. The operator must stop the app and drain jobs first; a migration lock prevents two migrators, not an older app from writing.
+The command must require an explicit absolute data path. It must print the resolved target and proposed username before applying. Do not use `resolveAppDataDir()` fallback to select a migration target. The operator must stop the app and drain jobs first; a migration lock prevents two migrators, not an older app from writing.
 
 ### Migration procedure
 
@@ -253,7 +270,7 @@ The command must require an explicit absolute data path. It must print the resol
 5. Create a full, read-only backup outside the data root. Verify its complete manifest against the stopped source.
 6. Allocate one legacy user ID. Prepare its account record and password hash once.
 7. Stage book copies with only `ownerUserId` and `revision` added. Retain every existing JSON value and unknown field.
-8. Write a journal with migration ID, source/target hashes, account ID, target email, and backup location.
+8. Write a journal with migration ID, source/target hashes, account ID, target username, and backup location.
 9. Replace staged files atomically. Preserve the journal through any interruption.
 10. Compare results, verify image bytes and references, then write `data-state.json` last.
 
@@ -274,7 +291,7 @@ flowchart TD
   K --> L[Resume checked journal or restore before reopening]
 ```
 
-Normal runtime must reject missing/incomplete schema state. A second apply after completion is a no-op when the assignment matches. A different `LEGACY_USER_EMAIL` is a conflict, not a transfer request. Normal startup does not re-read that variable to change ownership.
+Normal runtime must reject missing/incomplete schema state. A second apply after completion is a no-op when the assignment matches. A different `LEGACY_USERNAME` is a conflict, not a transfer request. Normal startup does not re-read that variable to change ownership.
 
 For interruption recovery, each file must match its recorded source hash or target hash. Reuse the journal's user ID. Resume only those checked replacements. Stop on any third value. If no commit began, discard only the command's own staged files and retry. Preserve the backup and journal until the rollout is accepted.
 
@@ -282,7 +299,7 @@ A genuinely empty install uses an explicit initialization path that creates an e
 
 ### Verification
 
-On disposable fixtures, compare parsed books after removing only the two new fields. Require exact nested value equality, including `updatedAt`, trailing spaces, page IDs/order, crop corners, and unknown fields. Require byte-identical images and unchanged auxiliary files. Run twice. Interrupt after one committed book and resume. Exercise malformed JSON, missing source images, wrong email, and an unexpected file change.
+On disposable fixtures, compare parsed books after removing only the two new fields. Require exact nested value equality, including `updatedAt`, trailing spaces, page IDs/order, crop corners, and unknown fields. Require byte-identical images and unchanged auxiliary files. Run twice. Interrupt after one committed book and resume. Exercise malformed JSON, missing source images, wrong username, and an unexpected file change.
 
 Rehearse on a copy of local data only after stopping its writer or obtaining a consistent snapshot. Do not claim the current read-only inventory is a consistent backup.
 
@@ -341,7 +358,7 @@ Using isolated data, sign in as the legacy user, open an existing book, view bot
 
 ### Changes
 
-Add registration as a named server action accepting `FormData`. Use a real POST form and `normalizeActionUrl(...)`. Persist the user before issuing a session. If session creation fails, keep the account and invite sign-in; never delete it as compensation. Serialize the unique-email check and registry write.
+Add registration as a named server action accepting `FormData`. Use a real POST form and `normalizeActionUrl(...)`. Persist the user before issuing a session. If session creation fails, keep the account and invite sign-in; never delete it as compensation. Serialize the unique-username check and registry write.
 
 Start each new account with zero books. The create-book action creates a blank owned book using the existing editor defaults. Reuse form submission state, clear handled results, and keep passwords out of returned errors and logs. Do not build a reset link, verification screen, or mail queue.
 
@@ -357,7 +374,7 @@ Before intentional logout or navigation, finish the pending save or offer an exp
 
 Use account A, account B, and no session. Check list, read, PUT, DELETE, upload, image, original crop image, and removed singleton endpoints. Submit A's book ID and owner ID from B; neither may reveal or change A's files. Inspect serialized HTML and image headers as well as JSON.
 
-Race two registrations for differently cased versions of one email. Exactly one account must exist. Race two saves at the same revision. Exactly one commits. An interrupted replacement must leave complete old or new JSON. Check session expiry, logout revocation, and restart persistence.
+Race two registrations for differently cased versions of one username. Exactly one account must exist. Race two saves at the same revision. Exactly one commits. An interrupted replacement must leave complete old or new JSON. Check session expiry, logout revocation, and restart persistence.
 
 In two tabs, sign out of A and into B. A's old tab must not save, upload, delete, or create as B. Retain A's unsaved draft until an explicit discard or recovery action. Check Back navigation for stale account content.
 
@@ -396,8 +413,8 @@ flowchart TD
 | Route | Purpose |
 |---|---|
 | `/` | Explain the site; show create-account/sign-in, or My books when signed in |
-| `/sign-up` | Email, password, password confirmation, and inline validation |
-| `/sign-in` | Email/password with validated return destination |
+| `/sign-up` | User name, password, password confirmation, and inline validation |
+| `/sign-in` | User name/password with validated return destination |
 | `/books` | Private library, empty state, create-book form |
 | `/books/:bookId` | Existing editor; account and save-state controls |
 | Logout POST action | Revoke current session and return to landing page |
@@ -425,11 +442,11 @@ Your account keeps your saved books together.
 [Create account]
 ```
 
-Use a repository-owned demo illustration or synthetic comic. Do not load a real user's book or private image for the landing page. Do not claim email verification, sharing, collaboration, or recovery. The draft text above defines content needs; final visual polish stays modest.
+Use a repository-owned demo illustration or synthetic comic. Do not load a real user's book or private image for the landing page. Do not claim identity verification, sharing, collaboration, or recovery. The draft text above defines content needs; final visual polish stays modest.
 
-Add focused components under `components/landing/` and `components/auth/`. Keep route files thin. Reuse shared input/button wrappers, Panda tokens, visible labels, keyboard focus, and error text linked to fields. Use appropriate email/password autocomplete values. Make the hero, form, and library empty state usable on narrow screens.
+Add focused components under `components/landing/` and `components/auth/`. Keep route files thin. Reuse shared input/button wrappers, Panda tokens, visible labels, keyboard focus, and error text linked to fields. Use appropriate username/password autocomplete values. Make the hero, form, and library empty state usable on narrow screens.
 
-Update `ComicAppNav` so Books points to `/books`. Show the signed-in email and a POST sign-out control. Keep account details out of printed pages. Add public page metadata and avoid indexing private book routes.
+Update `ComicAppNav` so Books points to `/books`. Show the signed-in username and a POST sign-out control. Keep account details out of printed pages. Add public page metadata and avoid indexing private book routes.
 
 ### Verification
 
@@ -448,7 +465,7 @@ When browser checks are authorized, use an isolated server and disposable accoun
 | Setting | Use |
 |---|---|
 | `APP_DATA_DIR` | Existing persistent runtime root; migration still requires an explicit target argument |
-| `LEGACY_USER_EMAIL` | Required migration input for existing data; never a runtime ownership fallback |
+| `LEGACY_USERNAME` | Required migration input for existing data; never a runtime ownership fallback |
 | `APP_ORIGIN` | Canonical browser origin for mutation checks; required for production |
 | `BASE_PATH` | Existing deployment prefix, applied consistently to auth and app paths |
 | Initial password | Hidden operator input; no committed value, default, or public claim flow |
@@ -491,12 +508,12 @@ Browser verification requires explicit authorization under `AGENTS.md`. First in
 2. **Crypto budget.** Measure the proposed scrypt settings in the runtime image. If memory is too tight, use a documented lower-memory scrypt work combination and remeasure. Do not silently weaken to a fast hash.
 3. **Inherited tools.** This plan keeps project/spatial tools legacy-only. If they must serve all accounts now, expand their ownership design before exposing them. The default remains a legacy guard.
 
-No account email, credential, or production target is needed to review this plan.
+No account username, credential, or production target is needed to review this plan.
 
 ## Below the cut line
 
 - Resend, verification messages, password reset, social login, and magic links.
-- Profile editing, email changes, account deletion, admin screens, roles, teams, and sharing.
+- Profile editing, username changes, account deletion, admin screens, roles, teams, and sharing.
 - A database migration, object storage, multiple processes, or distributed locks.
 - Multi-user project/spatial/AI workflows beyond legacy-only access.
 - Offline editing, automatic draft merge, revision history, and device synchronization.

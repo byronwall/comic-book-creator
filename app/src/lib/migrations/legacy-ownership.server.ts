@@ -1,15 +1,16 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { mkdir, readFile } from "node:fs/promises";
-import { hashPassword } from "../auth/password.server.ts";
-import { replaceUserStore, readUserStore } from "../auth/users.server.ts";
+import { mkdir, open, readFile } from "node:fs/promises";
+import { hashPassword, verifyPassword } from "../auth/password.server.ts";
+import { replaceUserStore, readUserStore, validUsername } from "../auth/users.server.ts";
 import type { DataState, User, UserStore } from "../auth/types.ts";
 import { writeFileAtomic } from "../server/atomic-file.ts";
-import { backupLocation, checkHashes, compareMigrated, createBackup, inventory, pathExists, readOptionalJson, requireAbsolute, sha256, validateImages, verifyBackup, type MigrationJournal } from "./legacy-ownership-files.ts";
+import { writeMigrationFile } from "./migration-write.ts";
+import { backupLocation, checkHashes, compareMigrated, createBackup, inventory, pathExists, readOptionalJson, recoveryPath, requireAbsolute, sha256, syncPath, validateImages, verifyBackup, type MigrationJournal } from "./legacy-ownership-files.ts";
 
 export interface MigrationReport {
   dataDir: string;
-  email: string;
+  username: string;
   files: number;
   books: number;
   backupDir?: string;
@@ -17,7 +18,7 @@ export interface MigrationReport {
   completed: boolean;
 }
 
-export async function inspectLegacyData(dataDir: string) {
+export async function inspectLegacyData(dataDir: string, prepared = false) {
   requireAbsolute(dataDir);
   const root = path.resolve(dataDir);
   const files = await inventory(root);
@@ -39,7 +40,9 @@ export async function inspectLegacyData(dataDir: string) {
     if (book.ownerUserId !== undefined && (typeof book.ownerUserId !== "string" || !book.ownerUserId)) {
       throw new Error(`Invalid book owner: ${relative}`);
     }
-    if (book.ownerUserId !== undefined && book.revision !== 1) throw new Error(`Invalid existing book revision: ${relative}`);
+    if (book.ownerUserId !== undefined && (prepared
+      ? !Number.isSafeInteger(book.revision) || Number(book.revision) < 1
+      : book.revision !== 1)) throw new Error(`Invalid existing book revision: ${relative}`);
     if (!Array.isArray(book.pages) || book.pages.length === 0) throw new Error(`Book pages are invalid: ${relative}`);
     const pageIds = new Set<string>();
     for (const pageValue of book.pages) {
@@ -56,9 +59,9 @@ export async function inspectLegacyData(dataDir: string) {
   return { root, files, records };
 }
 
-export async function preflightLegacyData(dataDir: string, emailInput: string, backupDir?: string) {
-  const email = normalizeEmail(emailInput);
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error("LEGACY_USER_EMAIL must be a valid email address.");
+export async function preflightLegacyData(dataDir: string, usernameInput: string, backupDir?: string) {
+  const username = normalizeUsername(usernameInput);
+  if (!validUsername(username)) throw new Error("LEGACY_USERNAME must use 1–40 letters, numbers, dots, dashes, or underscores.");
   const inspected = await inspectLegacyData(dataDir);
   const { root, files, records } = inspected;
   await backupLocation(root, backupDir);
@@ -70,65 +73,90 @@ export async function preflightLegacyData(dataDir: string, emailInput: string, b
     const state = completedValue as DataState;
     const store = await readUserStore(root);
     const user = store.users.find((item) => item.id === state.legacyUserId);
-    if (state.schemaVersion !== 2 || !user || user.email !== email) throw new Error("Completed migration belongs to a different email or has invalid state.");
+    if (state.schemaVersion !== 2 || !user || user.username !== username) throw new Error("Completed migration belongs to a different username or has invalid state.");
     await verifyCompleted(root, files, records, state, user);
-    return { inspected, email, journal: null, completed: true };
+    return { inspected, username, journal: null, completed: true };
   }
-  const journal = await readOptionalJson(journalPath) as MigrationJournal | null;
+  const journal = (await readOptionalJson(journalPath)
+    ?? await readOptionalJson(await recoveryPath(root, backupDir))) as MigrationJournal | null;
   if (journal) {
-    if (journal.schemaVersion !== 1 || journal.email !== email) throw new Error("Migration journal email does not match LEGACY_USER_EMAIL.");
+    if (journal.schemaVersion !== 1 || journal.username !== username) throw new Error("Migration journal username does not match LEGACY_USERNAME.");
     await checkHashes(root, journal, files);
     checkRecordOwners(records, journal.user.id);
     await verifyBackup(journal);
-    return { inspected, email, journal, completed: false };
+    return { inspected, username, journal, completed: false };
   }
   if (await pathExists(statePath)) throw new Error("Data state exists without a completed migration journal.");
+  if (await pathExists(path.join(root, "migrations", "legacy-ownership"))) {
+    throw new Error("Migration directory exists without a journal. Preserve it and investigate before startup.");
+  }
   if (records.some(({ book }) => book.ownerUserId !== undefined || book.revision !== undefined)) {
     throw new Error("Legacy books must not have an owner or revision before migration.");
   }
   if (files.some((file) => file.startsWith("auth/"))) throw new Error("Account data exists without a migration journal.");
-  return { inspected, email, journal: null, completed: false };
+  return { inspected, username, journal: null, completed: false };
 }
 
 export async function migrateLegacyData(input: {
-  dataDir: string; email: string; password?: string; backupDir?: string; interruptAfterBooks?: number;
+  dataDir: string; username: string; password?: string; backupDir?: string; interruptAfterBooks?: number;
 }): Promise<MigrationReport> {
-  const preflight = await preflightLegacyData(input.dataDir, input.email, input.backupDir);
+  const preflight = await preflightLegacyData(input.dataDir, input.username, input.backupDir);
   const { root, files, records } = preflight.inspected;
-  const { email } = preflight;
+  const { username } = preflight;
   if (preflight.completed) {
-    return { dataDir: root, email, files: files.length, books: records.length, resumed: false, completed: true };
+    return { dataDir: root, username, files: files.length, books: records.length, resumed: false, completed: true };
   }
   let journal = preflight.journal;
+  if (journal && input.password && !await verifyPassword(input.password, journal.user.passwordHash)) {
+    throw new Error("Use the original account password to resume this migration.");
+  }
   const resumed = Boolean(journal);
   if (!journal) {
-    if (!input.password) throw new Error("An initial password is required.");
+    const password = input.password;
+    if (!password) throw new Error("An initial password is required.");
     const user: User = {
-      id: randomUUID(), email, passwordHash: await hashPassword(input.password), createdAt: new Date().toISOString(),
+      id: randomUUID(), username, passwordHash: await hashPassword(password), createdAt: new Date().toISOString(),
     };
     const backupDir = await createBackup(root, files, input.backupDir);
+    const source = await readOptionalJson(path.join(backupDir, ".manifest.json")) as Record<string, string>;
+    for (const record of records) {
+      if (source[record.relative] !== sha256(record.raw)) throw new Error(`Book changed before backup: ${record.relative}`);
+    }
     const targets: Record<string, string> = {};
     for (const record of records) {
-      const next = { ...record.book, ownerUserId: user.id, revision: 1 };
-      targets[record.relative] = sha256(`${JSON.stringify(next, null, 2)}\n`);
+      targets[record.relative] = sha256(addOwnership(record.raw, user.id));
     }
     targets["auth/users.json"] = sha256(`${JSON.stringify({ schemaVersion: 1, users: [user] }, null, 2)}\n`);
     journal = {
-      schemaVersion: 1, migrationId: randomUUID(), email, user, backupDir,
-      source: Object.fromEntries(await Promise.all(files.map(async (file) => [file, sha256(await readFile(path.join(root, file)))]))),
+      schemaVersion: 1, migrationId: randomUUID(), username, user, backupDir,
+      source,
       targets, bookIds: records.map(({ book }) => String(book.id)),
     };
-    await writeFileAtomic(path.join(root, "migrations", "legacy-ownership", "journal.json"), `${JSON.stringify(journal, null, 2)}\n`);
+    // Persist the chosen owner outside the source before creating any source
+    // metadata. Never replace this recovery record, even on retry.
+    const recovery = await recoveryPath(root, input.backupDir);
+    const handle = await open(recovery, "wx", 0o600);
+    try {
+      await handle.writeFile(`${JSON.stringify(journal, null, 2)}\n`);
+      await handle.sync();
+    } finally { await handle.close(); }
+    await syncPath(path.dirname(recovery));
   }
 
+  if (!await pathExists(path.join(root, "migrations/legacy-ownership/journal.json"))) {
+    await verifyBackup(journal);
+    await checkHashes(root, journal, files);
+    await writeMigrationFile(root, "migrations/legacy-ownership/journal.json", `${JSON.stringify(journal, null, 2)}\n`);
+  }
   await checkHashes(root, journal, files);
   let committed = 0;
-  for (const { relative, book } of records) {
+  for (const { relative, raw } of records) {
     const target = journal.targets[relative];
     const currentHash = sha256(await readFile(path.join(root, relative)));
     if (currentHash !== target) {
-      const next = { ...book, ownerUserId: journal.user.id, revision: 1 };
-      await writeFileAtomic(path.join(root, relative), `${JSON.stringify(next, null, 2)}\n`);
+      const next = addOwnership(raw, journal.user.id);
+      if (sha256(next) !== target) throw new Error(`Migration target changed: ${relative}`);
+      await writeMigrationFile(root, relative, next);
     }
     committed += 1;
     if (input.interruptAfterBooks === committed) throw new Error(`Simulated interruption after ${committed} book(s).`);
@@ -139,13 +167,13 @@ export async function migrateLegacyData(input: {
   if (currentRegistry && sha256(await readFile(registryPath)) !== journal.targets["auth/users.json"]) {
     throw new Error("Account registry changed during migration.");
   }
-  if (!currentRegistry) await replaceUserStore(userStore, root);
+  if (!currentRegistry) await writeMigrationFile(root, "auth/users.json", `${JSON.stringify(userStore, null, 2)}\n`);
   await compareMigrated(root, files, records, journal);
   const state: DataState = {
     schemaVersion: 2, legacyUserId: journal.user.id, migrationId: journal.migrationId, completedAt: new Date().toISOString(),
   };
-  await writeFileAtomic(path.join(root, "data-state.json"), `${JSON.stringify(state, null, 2)}\n`);
-  return { dataDir: root, email, files: files.length, books: records.length, backupDir: journal.backupDir, resumed, completed: true };
+  await writeMigrationFile(root, "data-state.json", `${JSON.stringify(state, null, 2)}\n`);
+  return { dataDir: root, username, files: files.length, books: records.length, backupDir: journal.backupDir, resumed, completed: true };
 }
 
 export async function initializeEmptyData(dataDir: string): Promise<DataState> {
@@ -168,13 +196,13 @@ export async function initializeEmptyData(dataDir: string): Promise<DataState> {
   return state;
 }
 
-export async function verifyData(dataDir: string, email: string) {
+export async function verifyData(dataDir: string, username: string) {
   const report = await inspectLegacyData(dataDir);
   const state = await readOptionalJson(path.join(report.root, "data-state.json")) as DataState | null;
   if (!state || state.schemaVersion !== 2) throw new Error("Migration is incomplete.");
   const store = await readUserStore(report.root);
   const user = store.users.find((entry) => entry.id === state.legacyUserId);
-  if (state.legacyUserId && (!user || user.email !== normalizeEmail(email))) throw new Error("Legacy account does not match LEGACY_USER_EMAIL.");
+  if (state.legacyUserId && (!user || user.username !== normalizeUsername(username))) throw new Error("Legacy account does not match LEGACY_USERNAME.");
   for (const { book } of report.records) {
     if (book.ownerUserId !== state.legacyUserId || book.revision !== 1) throw new Error(`Book is not migrated: ${book.id}`);
   }
@@ -185,7 +213,7 @@ export async function verifyData(dataDir: string, email: string) {
     await compareMigrated(report.root, report.files, report.records, journal);
     await verifyBackup(journal);
   } else if (report.records.length > 0) throw new Error("Empty data state contains books.");
-  return { dataDir: report.root, files: report.files.length, books: report.records.length, email: user?.email ?? null, completed: true };
+  return { dataDir: report.root, files: report.files.length, books: report.records.length, username: user?.username ?? null, completed: true };
 }
 
 function checkRecordOwners(records: Array<{relative:string;book:Record<string,unknown>}>, userId: string) {
@@ -196,7 +224,13 @@ function checkRecordOwners(records: Array<{relative:string;book:Record<string,un
   }
 }
 
-function normalizeEmail(email: string) { return email.trim().toLowerCase(); }
+function normalizeUsername(username: string) { return username.trim().toLowerCase(); }
+function addOwnership(raw: string, userId: string) {
+  // Preserve original JSON tokens too: parsing and reserializing can change
+  // unknown numbers, duplicate keys, or formatting in inherited records.
+  const end = raw.lastIndexOf("}");
+  return `${raw.slice(0, end)},\n  "ownerUserId": ${JSON.stringify(userId)},\n  "revision": 1\n${raw.slice(end)}`;
+}
 async function verifyCompleted(root: string, files: string[], records: Array<{relative:string;book:Record<string,unknown>}>, state: DataState, user: User) {
   const journal = await readOptionalJson(path.join(root, "migrations", "legacy-ownership", "journal.json")) as MigrationJournal | null;
   if (!journal || journal.migrationId !== state.migrationId || journal.user.id !== user.id) throw new Error("Completed migration journal is missing or inconsistent.");

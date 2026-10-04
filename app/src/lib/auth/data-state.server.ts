@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { resolveAppDataDir } from "../server/data-dir.ts";
-import type { DataState } from "./types";
+import type { DataState } from "./types.ts";
 
 export async function readDataState(dataDir = resolveAppDataDir()): Promise<DataState> {
   let value: unknown;
