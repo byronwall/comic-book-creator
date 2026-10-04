@@ -108,3 +108,11 @@ Final production checks passed for editor SSR and the404 recovery page. Seven al
 **2026-10-03T06:14:14Z**
 
 Final browser acceptance passed. Wrong-password login displayed the inline error. Keyboard sign-in reached the requested private book. A disposable book edit survived reload; B had an empty library and a clear404 for A book URLs. Account switching, same-account recovery, stale revisions, and print checks passed in their linked tickets. The earlier SSR redirect and generic missing-book errors are fixed.
+
+## User name follow-up verification — 2026-10-03
+
+A separate browser worker confirmed that anonymous books redirect to sign-in and the signup form uses User name and Password.
+The initial host-bind fixture failed backup chmod without changing source files. The target was replaced with production-style named volumes.
+The browser then blocked submission because a Chrome extension UI was open. Its documented recovery exposed no in-app browser backend or supported dismissal.
+Full browser submission remains unverified for this follow-up. Packaged native form checks passed matching signup, chosen-password login, preservation, isolation, restart, and interrupted signup recovery.
+The obsolete offline setup error text was removed. The signup screenshot is root tmp/username-signup.png.
