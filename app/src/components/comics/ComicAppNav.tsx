@@ -10,7 +10,7 @@ export function ComicAppNav(props: { account: Account; onBeforeLeave?: (continue
   const account = untrack(() => props.account);
   const submission = useSubmission(signOut);
   return (
-    <header class="comic-app-nav" aria-label="App navigation">
+    <header class="comic-app-nav" classList={{ "has-admin": account.isAdmin }} aria-label="App navigation">
       <A href="/" class="comic-logo compact" aria-label="ComicBam home" onClick={(event) => {
         if (props.onBeforeLeave && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
           event.preventDefault();

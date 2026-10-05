@@ -534,6 +534,14 @@
 }
 
 @media (max-width: 700px) {
+  .comic-app-nav.has-admin {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .comic-app-nav.has-admin > .comic-logo { grid-column: 1; grid-row: 1; }
+  .comic-app-nav.has-admin > .comic-account { grid-column: 2; grid-row: 1; }
+  .comic-app-nav.has-admin > .comic-nav { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+
   .comic-app-nav {
     grid-template-columns: auto 1fr auto;
     gap: 10px;
