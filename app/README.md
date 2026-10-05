@@ -39,7 +39,7 @@ pnpm start
 - Accounts and sessions: `src/lib/auth/`
 - Startup storage gate: `scripts/accounts/start.ts`; signup: `src/lib/auth/register.server.ts`; empty initialization CLI: `scripts/accounts/cli.ts`
 
-Before starting, follow [account setup](../docs/account-migration.md). New empty data requires explicit initialization. Existing account storage needs no setup.
+Before starting, follow [account setup](../docs/account-migration.md). New empty data requires explicit initialization. Existing account storage needs no setup. Set `ADMIN_USERNAME` to an existing account to enable `/admin`.
 
 ## Reconciled Additions
 

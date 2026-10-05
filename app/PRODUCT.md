@@ -17,8 +17,12 @@ Returning users sign in and open their saved books.
 ## Product boundaries
 
 There is one server process and one deployed version.
-The app has no contact service or password reset flow.
-The app has no public sharing, collaboration, account roles, or profile settings.
+The app has no contact service or self-service password reset flow.
+The configured admin can reset passwords, disable accounts, and delete accounts and their libraries.
+The app has no public sharing, collaboration, configurable account roles, or profile settings.
+ADMIN_USERNAME selects the account allowed to use /admin.
+Admin views show user activity and aggregate library statistics, without private book content.
+Activity records stay until the owner decides to remove them.
 Inherited project tools remain available only to the original owner account.
 
 ## Experience requirements

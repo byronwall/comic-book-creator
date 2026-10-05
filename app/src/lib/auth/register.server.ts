@@ -1,3 +1,4 @@
+import { recordActivity } from "~/lib/admin/activity.server";
 import { hashPassword } from "./password.server";
 import { addUser, normalizeUsername, validUsername } from "./users.server";
 import { passwordWork } from "./login.server";
@@ -10,7 +11,11 @@ export async function registerAccount(usernameInput: string, password: string) {
   if (password.length < 6) fail(400, "Your password needs at least 6 characters.");
   await preparedAccounts();
   const passwordHash = await passwordWork(() => hashPassword(password));
-  try { return await addUser({ username, passwordHash }); }
+  try {
+    const user = await addUser({ username, passwordHash });
+    await recordActivity({ type: "account.created", userId: user.id });
+    return user;
+  }
   catch (error) {
     if (error instanceof Error && error.message === "Username already exists.") {
       return fail(409, "Someone already has that username. Try a different one, or sign in if it's yours.");

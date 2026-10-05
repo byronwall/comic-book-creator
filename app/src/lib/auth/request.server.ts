@@ -42,7 +42,8 @@ export function returnDestination(value: unknown) {
   const fallback = appPath("/books");
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
   const url = new URL(value, appOrigin());
-  if (url.origin !== appOrigin() || (url.pathname !== fallback && !url.pathname.startsWith(`${fallback}/`))) return fallback;
+  if (url.origin !== appOrigin() || (url.pathname !== appPath("/admin") && !url.pathname.startsWith(`${appPath("/admin")}/`)
+      && url.pathname !== fallback && !url.pathname.startsWith(`${fallback}/`))) return fallback;
   return `${url.pathname}${url.search}`;
 }
 export async function requirePageUser() {

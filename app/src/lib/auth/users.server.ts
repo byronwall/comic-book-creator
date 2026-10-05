@@ -55,6 +55,7 @@ function isUserStore(value: unknown): value is UserStore {
   for (const user of store.users) {
     if (!user || typeof user.id !== "string" || !user.id || ids.has(user.id)
       || typeof user.username !== "string" || user.username !== normalizeUsername(user.username) || !validUsername(user.username) || usernames.has(user.username)
+      || (user.disabled !== undefined && typeof user.disabled !== "boolean")
       || typeof user.passwordHash !== "string" || !user.passwordHash || typeof user.createdAt !== "string") return false;
     ids.add(user.id); usernames.add(user.username);
   }
@@ -66,4 +67,18 @@ function serialize<T>(key: string, action: () => Promise<T>): Promise<T> {
   const next = prior.then(action);
   updates.set(key, next);
   return next.finally(() => { if (updates.get(key) === next) updates.delete(key); });
+}
+
+/** Account controls and comic writes share one queue to prevent writes during deletion. */
+export function withUserStore<T>(work: (store: UserStore) => Promise<T>) {
+  return serialize(usersPath(), async () => work(await readUserStore()));
+}
+
+export function withActiveUser<T>(userId: string, work: () => Promise<T>) {
+  return withUserStore(async (store) => {
+    if (!store.users.some((user) => user.id === userId && !user.disabled)) {
+      throw new Response("This account is unavailable. Sign in again.", { status: 401 });
+    }
+    return work();
+  });
 }
