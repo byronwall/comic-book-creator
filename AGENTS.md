@@ -81,7 +81,7 @@ Run inside `app/`:
 
 - Follow `docs/account-migration.md` for empty initialization and account storage setup.
 - Private requests require initialized account storage. Legacy signup migration has been removed. Never seed accounts in real data dirs. Preserve `data-state.json`; its saved owner ID controls shared project and spatial-map tool access.
-- Demo accounts (`dev`/`friend`, password `devdev`) exist only in the disposable `app/tmp/dev-data` dir. `DEV_AUTO_SIGN_IN` only works in the Vite dev server, never in builds.
+- Demo accounts (`dev`/`friend`/`newcomer`/`paused`, password `devdev`) exist only in the disposable `app/tmp/dev-data` dir. `DEV_AUTO_SIGN_IN` only works in the Vite dev server, never in builds.
 - Pass the authenticated user ID into comic storage. Client account IDs detect stale tabs; they never grant ownership.
 - Keep one writer per data directory. Rehearse with disposable copies and separate backup storage.
 - Use private image routes. Keep obsolete public routes as explicit 404 handlers; missing routes can return fallback HTML.

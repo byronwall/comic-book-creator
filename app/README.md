@@ -61,3 +61,11 @@ Reusable markdown rendering (GFM, syntax-highlighted code blocks, mermaid render
 Usage guide:
 
 - `../docs/markdown-renderer-usage.md`
+
+## Admin demo
+
+`pnpm dev:demo` defaults `ADMIN_USERNAME` to `dev` and starts on port 3100.
+Open `/admin` to see synthetic users, book statistics, and activity records.
+The demo includes `dev`, `friend`, `newcomer`, and disabled `paused`; all passwords are `devdev`.
+Run `pnpm dev:seed --reset` while the demo is stopped to rebuild the disposable fixture.
+All demo files remain in `app/tmp/dev-data`. Never seed real account storage.
