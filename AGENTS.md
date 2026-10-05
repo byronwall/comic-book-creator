@@ -90,6 +90,15 @@ Run inside `app/`:
 - Use `appPath()` for plain URLs and cookie paths. Router links already apply the router base.
 - Account CLI imports use explicit `.ts` paths for Node's TypeScript runner. Do not replace these with app aliases.
 
+## Admin accounts and activity
+
+- `ADMIN_USERNAME` selects the existing account allowed to use `/admin`. Keep authorization on every admin query and action.
+- Admin code lives in `app/src/lib/admin/` and `app/src/components/admin/`.
+- Use the shared account write queue for comic writes and account controls. This prevents saves during deletion.
+- Password reset must revoke sessions before saving the new hash. Disable an account before deleting its files.
+- Strip passwords from admin action FormData. Admin snapshots contain aggregates, never password hashes or private comic content.
+- Retain activity in `admin/events.jsonl`. Group repeated book opens and saves. Do not fail a completed comic save because activity logging failed.
+
 ## Router Actions + Forms
 
 - For UI-triggered writes in this app, prefer real `<form method="post">` submissions wired to server actions over imperative `useAction(...)` calls.

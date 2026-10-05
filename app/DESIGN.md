@@ -27,3 +27,10 @@ Use a password visibility control only if its label states the current action.
 The library shows the account username and a clear empty state.
 The editor shows save status and offers draft recovery when saving stops.
 Use existing breakpoints and tokens. Avoid new decorative patterns.
+
+## Admin surface
+
+The admin route uses the same comic shell, type, tokens, and controls.
+Use compact ruled tables and summary strips for users, events, and storage.
+Keep account controls in an inline details panel with visible consequences and confirmations.
+Keep private book content out of this surface.
