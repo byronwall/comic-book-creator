@@ -1,6 +1,6 @@
 ---
 id: cb-2ur3
-status: in_progress
+status: closed
 deps: []
 links: []
 created: 2026-10-05T03:26:43Z
@@ -31,3 +31,7 @@ Independent clean-room browser evidence on localhost:3100: dev sign-in succeeded
 **2026-10-05T03:31:48Z**
 
 Parent screenshot review found the mobile Admin nav link overlapped account controls at 390px, despite no document overflow. Added a second navigation row for admin accounts on narrow screens. Requesting one focused phone recapture and navigation check before attaching evidence.
+
+**2026-10-05T03:34:23Z**
+
+Final confirmation: independent phone recapture at 390x844 shows Admin, avatar, and Sign out without overlap; user/ledger controls remain visible, with horizontally scrollable tables and no page-level overflow or console warnings. Type-check, nav lint, and production build passed at 33c58f8. PR #11 created at https://github.com/byronwall/comic-book-creator/pull/11, based on codex/remove-legacy-account-migration (PR #10). Verified its body contains four GitHub uploaded screenshot URLs. Images are ignored local evidence, not committed. Demo remains running at localhost:3100 on disposable storage. Requested evidence and PR outcome accepted.
