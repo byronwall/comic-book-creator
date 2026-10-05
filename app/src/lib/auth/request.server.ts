@@ -31,7 +31,7 @@ export async function requireMutationUser(request: Request, expectedUserId?: For
   if (expected !== user.id) fail(409, "The account changed. Reload this page before making changes.");
   return user;
 }
-export async function requireLegacyUser(request: Request, write = false) {
+export async function requireToolOwner(request: Request, write = false) {
   if (write) requireOrigin(request);
   const user = await requireUser(request);
   const { state } = await preparedAccounts();

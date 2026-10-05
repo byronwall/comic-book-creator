@@ -79,8 +79,8 @@ Run inside `app/`:
 
 ## Accounts + Migration
 
-- Follow `docs/account-migration.md` for empty initialization, legacy migration, and release checks.
-- Private requests require prepared storage. The first signup matching `LEGACY_USERNAME` migrates after a complete verified persistent backup. Startup validates pending legacy storage. Never seed accounts in real data dirs or use the setting as an ownership fallback after migration.
+- Follow `docs/account-migration.md` for empty initialization and account storage setup.
+- Private requests require initialized account storage. Legacy signup migration has been removed. Never seed accounts in real data dirs. Preserve `data-state.json`; its saved owner ID controls shared project and spatial-map tool access.
 - Demo accounts (`dev`/`friend`, password `devdev`) exist only in the disposable `app/tmp/dev-data` dir. `DEV_AUTO_SIGN_IN` only works in the Vite dev server, never in builds.
 - Pass the authenticated user ID into comic storage. Client account IDs detect stale tabs; they never grant ownership.
 - Keep one writer per data directory. Rehearse with disposable copies and separate backup storage.
@@ -88,7 +88,7 @@ Run inside `app/`:
 - Strip password fields from action FormData before returning errors. SolidStart can copy submitted input into flash cookies.
 - Redirect protected pages in middleware before SSR starts. Late redirects can fail after response headers are sent.
 - Use `appPath()` for plain URLs and cookie paths. Router links already apply the router base.
-- Migration CLI imports use explicit `.ts` paths for Node's TypeScript runner. Do not replace these with app aliases.
+- Account CLI imports use explicit `.ts` paths for Node's TypeScript runner. Do not replace these with app aliases.
 
 ## Router Actions + Forms
 

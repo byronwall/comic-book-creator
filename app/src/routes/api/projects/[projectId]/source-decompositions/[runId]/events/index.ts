@@ -1,4 +1,4 @@
-import { legacyEventStream } from "~/lib/auth/legacy-stream.server";
+import { ownerEventStream } from "~/lib/auth/owner-stream.server";
 import type { APIEvent } from "@solidjs/start/server";
 import {
   getSourceDecompositionRunSnapshot,
@@ -18,7 +18,7 @@ export async function GET(event: APIEvent) {
     });
   }
 
-  const stream = legacyEventStream<SourceDecompositionRunEvent>(event.request, {
+  const stream = ownerEventStream<SourceDecompositionRunEvent>(event.request, {
     type: snapshot.status === "completed" ? "complete" : snapshot.status === "failed" ? "failed" : "snapshot",
     snapshot,
   }, (send) => subscribeSourceDecompositionRun(event.params.runId, send), encodeSourceDecompositionEvent);

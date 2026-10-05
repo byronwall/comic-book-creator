@@ -37,9 +37,9 @@ pnpm start
 - Comic persistence: `src/lib/comics/*` and `data/comic-books/*.json`
 - Private comic API: `src/routes/api/comic-books/`
 - Accounts and sessions: `src/lib/auth/`
-- Startup storage gate: `scripts/accounts/start.ts`; signup migration: `src/lib/auth/register.server.ts`; optional maintenance CLI: `scripts/accounts/cli.ts`
+- Startup storage gate: `scripts/accounts/start.ts`; signup: `src/lib/auth/register.server.ts`; empty initialization CLI: `scripts/accounts/cli.ts`
 
-Before starting, follow [account setup and migration](../docs/account-migration.md). The first signup matching `LEGACY_USERNAME` migrates existing data after a verified backup. New empty data requires explicit initialization.
+Before starting, follow [account setup](../docs/account-migration.md). New empty data requires explicit initialization. Existing account storage needs no setup.
 
 ## Reconciled Additions
 

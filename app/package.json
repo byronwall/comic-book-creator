@@ -15,8 +15,6 @@
     "build": "vinxi build",
     "start": "node --experimental-strip-types scripts/accounts/start.ts",
     "panda": "panda codegen",
-    "accounts:migrate": "node --experimental-strip-types scripts/accounts/cli.ts migrate",
-    "accounts:verify": "node --experimental-strip-types scripts/accounts/cli.ts verify",
     "accounts:init-empty": "node --experimental-strip-types scripts/accounts/cli.ts init-empty"
   },
   "dependencies": {

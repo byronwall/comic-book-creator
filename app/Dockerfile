@@ -36,8 +36,7 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.output ./.output
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/scripts/accounts ./scripts/accounts
-COPY --from=build /app/src/lib/migrations ./src/lib/migrations
-COPY --from=build /app/src/lib/auth/types.ts /app/src/lib/auth/password.server.ts /app/src/lib/auth/users.server.ts /app/src/lib/auth/data-state.server.ts ./src/lib/auth/
+COPY --from=build /app/src/lib/auth/types.ts /app/src/lib/auth/password.server.ts /app/src/lib/auth/users.server.ts /app/src/lib/auth/data-state.server.ts /app/src/lib/auth/storage.server.ts ./src/lib/auth/
 COPY --from=build /app/src/lib/server/atomic-file.ts /app/src/lib/server/data-dir.ts ./src/lib/server/
 
 EXPOSE 3000

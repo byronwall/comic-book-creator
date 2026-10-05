@@ -1,6 +1,6 @@
 import { createMiddleware } from "@solidjs/start/middleware";
 import { setHeader } from "vinxi/http";
-import { appOrigin, requireLegacyUser, requireUser, returnDestination } from "~/lib/auth/request.server";
+import { appOrigin, requireToolOwner, requireUser, returnDestination } from "~/lib/auth/request.server";
 import { appPath } from "~/lib/router/app-path";
 
 function routePath(request: Request) {
@@ -26,7 +26,7 @@ export default createMiddleware({
       }
     }
     if (path === "/api/projects" || path.startsWith("/api/projects/") || (path === "/api/spatial-map" || path.startsWith("/api/spatial-map/"))) {
-      try { await requireLegacyUser(event.request, !["GET", "HEAD"].includes(event.request.method)); }
+      try { await requireToolOwner(event.request, !["GET", "HEAD"].includes(event.request.method)); }
       catch (error) {
         if (error instanceof Response) return error;
         return new Response("Data storage is unavailable.", { status: 503 });

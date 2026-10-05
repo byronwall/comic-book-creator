@@ -6,7 +6,7 @@
 import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { initializeEmptyData } from "../../src/lib/migrations/legacy-ownership.server.ts";
+import { initializeEmptyData } from "../../src/lib/auth/storage.server.ts";
 import { hashPassword } from "../../src/lib/auth/password.server.ts";
 import { addUser } from "../../src/lib/auth/users.server.ts";
 import { demoBooks } from "./demo-books.ts";

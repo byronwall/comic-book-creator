@@ -24,7 +24,7 @@ export async function preparedAccounts() {
     const state = await readDataState();
     const store = await readUserStore();
     if (state.legacyUserId && !store.users.some((user) => user.id === state.legacyUserId)) {
-      throw new Error("Legacy account is missing.");
+      throw new Error("Tool owner account is missing.");
     }
     return { state, store };
   } catch { return fail(503, "Account storage is unavailable. Ask the site owner to check account setup."); }
