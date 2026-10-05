@@ -4,13 +4,17 @@ export const getCurrentAccount = query(async () => {
   "use server";
   const { currentRequest } = await import("./request.server");
   const { readSession } = await import("./sessions.server");
-  return (await readSession(currentRequest()))?.account ?? null;
+  const account = (await readSession(currentRequest()))?.account;
+  const { isAdminUsername } = await import("~/lib/admin/access.server");
+  return account ? { ...account, isAdmin: isAdminUsername(account.username) } : null;
 }, "current-account");
 
 export const getPageAccount = query(async () => {
   "use server";
   const { requirePageUser } = await import("./request.server");
-  return requirePageUser();
+  const account = await requirePageUser();
+  const { isAdminUsername } = await import("~/lib/admin/access.server");
+  return { ...account, isAdmin: isAdminUsername(account.username) };
 }, "page-account");
 
 export const signIn = action(async (formData: FormData) => {
@@ -27,8 +31,10 @@ export const signIn = action(async (formData: FormData) => {
     if (typeof username !== "string" || typeof password !== "string") return { error: "Type your username and password." };
     const user = await authenticate(username, password);
     if (!user) return { error: "That username and password don't match. Check them and try again." };
-    const { token } = await issueSession(user.id, request);
+    const { token } = await issueSession(user.id, request, user.passwordHash);
     setSessionCookie(token);
+    const { recordActivity } = await import("~/lib/admin/activity.server");
+    await recordActivity({ type: "account.signed-in", userId: user.id });
     destination = new URL(returnDestination(formData.get("returnTo")), appOrigin()).href;
   } catch (error) {
     return { error: error instanceof Response ? await error.text() : "Signing in isn't working right now. Try again in a little while." };
@@ -46,9 +52,11 @@ export const signOut = action(async (formData: FormData) => {
   const { appPath } = await import("~/lib/router/app-path");
   try {
     const request = currentRequest();
-    await requireMutationUser(request, formData.get("userId"));
+    const account = await requireMutationUser(request, formData.get("userId"));
+    const { recordActivity } = await import("~/lib/admin/activity.server");
     await revokeSession(request);
     clearSessionCookie();
+    await recordActivity({ type: "account.signed-out", userId: account.id });
   } catch (error) {
     return { error: error instanceof Response ? await error.text() : "Signing out didn't work. Try again." };
   }
@@ -70,7 +78,7 @@ export const signUp = action(async (formData: FormData) => {
     if (typeof username !== "string" || typeof password !== "string") return { error: "Type a username and password.", accountCreated };
     const user = await registerAccount(username, password);
     accountCreated = true;
-    const { token } = await issueSession(user.id, request);
+    const { token } = await issueSession(user.id, request, user.passwordHash);
     setSessionCookie(token);
   } catch (error) {
     const message = accountCreated

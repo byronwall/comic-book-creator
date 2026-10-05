@@ -3,14 +3,14 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { initializeEmptyData } from "~/lib/migrations/legacy-ownership.server";
+import { initializeEmptyData } from "./storage.server";
 import { addUser, readUserStore } from "./users.server";
 import { hashPassword } from "./password.server";
-import { legacyEventStream } from "./legacy-stream.server";
+import { ownerEventStream } from "./owner-stream.server";
 import { registerAccount } from "./register.server";
 import { authenticate } from "./login.server";
 import { issueSession, readSession, revokeSession, SESSION_COOKIE } from "./sessions.server";
-import { requireLegacyUser, requireMutationUser, returnDestination } from "./request.server";
+import { requireToolOwner, requireMutationUser, returnDestination } from "./request.server";
 
 let root: string;
 const originalDir = process.env.APP_DATA_DIR;
@@ -50,14 +50,14 @@ describe("disk-backed account boundaries", () => {
     expect(await readSession(request(first.token))).toBeNull();
   });
 
-  it("rejects foreign origins, old account contexts, nonlegacy tools, and unsafe return paths", async () => {
+  it("rejects foreign origins, old account contexts, tools owned by another account, and unsafe return paths", async () => {
     const user = await addUser({ username: "user-a", passwordHash: await hashPassword(password) });
     const { token } = await issueSession(user.id, request());
     await expect(requireMutationUser(request(token, "http://evil.test", user.id))).rejects.toMatchObject({ status: 403 });
     await expect(requireMutationUser(request(token, "", user.id))).rejects.toMatchObject({ status: 403 });
     await expect(requireMutationUser(request(token, "http://comic.test", "other"))).rejects.toMatchObject({ status: 409 });
     await expect(requireMutationUser(request(token, "http://comic.test", user.id))).resolves.toMatchObject({ id: user.id });
-    await expect(requireLegacyUser(request(token))).rejects.toMatchObject({ status: 404 });
+    await expect(requireToolOwner(request(token))).rejects.toMatchObject({ status: 404 });
     expect(returnDestination("//evil.test/books")).toBe("/books");
     expect(returnDestination("/books/../../sign-in")).toBe("/books");
     expect(returnDestination("/books/one")).toBe("/books/one");
@@ -65,7 +65,7 @@ describe("disk-backed account boundaries", () => {
     await expect(readSession(request(token))).rejects.toMatchObject({ status: 503 });
   });
 
-  it("closes a legacy event stream before sending more data after logout", async () => {
+  it("closes an owner event stream before sending more data after logout", async () => {
     const user = await addUser({ username: "legacy", passwordHash: await hashPassword(password) });
     const stateFile = path.join(root, "data-state.json");
     const state = JSON.parse(await readFile(stateFile, "utf8"));
@@ -73,7 +73,7 @@ describe("disk-backed account boundaries", () => {
     const { token } = await issueSession(user.id, request());
     let send: (event: { type: string }) => void = () => {};
     let unsubscribed = false;
-    const stream = legacyEventStream(request(token), { type: "snapshot" }, (listener) => {
+    const stream = ownerEventStream(request(token), { type: "snapshot" }, (listener) => {
       send = listener;
       return () => { unsubscribed = true; };
     }, (event) => JSON.stringify(event));

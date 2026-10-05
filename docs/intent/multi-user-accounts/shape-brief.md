@@ -1,4 +1,6 @@
 ---
+
+> Historical migration plan. Account migration is complete. Legacy signup migration and migration commands have been removed. See [current account setup](../../account-migration.md).
 title: "Comic Book Creator accounts — shape brief"
 slug: "multi-user-accounts"
 phase: shape

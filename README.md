@@ -104,13 +104,13 @@ OPENAI_MODEL=gpt-5-mini
 OPENAI_HEAVY_MODEL=gpt-5.4
 APP_DATA_DIR=/app/data
 APP_ORIGIN=https://comics.example.com
-LEGACY_USERNAME=legacy
+ADMIN_USERNAME=your_username
 BASE_PATH=/
 ```
 
 For local development, the app uses `app/data` when `APP_DATA_DIR` is not set.
 
-Set `LEGACY_USERNAME`, then create that account on the site. Signup makes a complete verified persistent backup before migrating existing data. Do not run empty initialization on an existing library. See [account setup and migration](docs/account-migration.md).
+Create an account on the site after storage initialization. Existing account storage needs no setup. Set `ADMIN_USERNAME` to your account username to enable `/admin`. See [account setup](docs/account-migration.md).
 
 ## Scripts
 

@@ -22,6 +22,6 @@ export async function authenticate(username: string, password: string) {
   return passwordWork(async () => {
     const user = store.users.find((item) => item.username === normalizeUsername(username));
     const valid = await verifyPassword(password, user?.passwordHash ?? dummyHash);
-    return user && valid ? user : null;
+    return user && !user.disabled && valid ? user : null;
   });
 }

@@ -1,6 +1,6 @@
 ---
 id: cb-irrm
-status: open
+status: closed
 deps: [cb-f2t6, cb-t8jr]
 links: []
 created: 2026-10-03T04:01:12Z
@@ -69,3 +69,9 @@ Set LEGACY_USERNAME and deploy normally with the existing named data and backup 
 Then create that account through the site with the password you want to use.
 Byron approved first matching signup ownership. No claim code or temporary password is required.
 No live operation was performed.
+
+## Notes
+
+**2026-10-05T03:11:04Z**
+
+Byron confirmed the live site is fully migrated and the original account retained its data. PR #10 removes the completed migration paths. Live migration work is complete.

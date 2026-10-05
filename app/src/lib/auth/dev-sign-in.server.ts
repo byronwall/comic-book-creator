@@ -16,5 +16,5 @@ export function devAutoAccount(request: Request, store: UserStore) {
   if (request.headers.get("cookie")?.split(";").some((part) => part.trim() === `${DEV_SIGNED_OUT_COOKIE}=1`)) return null;
   const username = process.env.DEV_AUTO_SIGN_IN?.trim().toLowerCase();
   const user = store.users.find((item) => item.username === username);
-  return user ? { id: user.id, username: user.username } : null;
+  return user && !user.disabled ? { id: user.id, username: user.username } : null;
 }

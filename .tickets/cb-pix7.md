@@ -1,6 +1,6 @@
 ---
 id: cb-pix7
-status: open
+status: closed
 deps: [cb-xp5r, cb-3g5e, cb-tt7r, cb-jqfr, cb-f2t6, cb-t8jr, cb-irrm]
 links: []
 created: 2026-10-03T04:01:11Z
@@ -53,3 +53,7 @@ Implementation is committed in seven stacked PRs: #1 migration, #2 private accou
 **2026-10-03T06:21:59Z**
 
 Final production build passed at 981a083 after the recovery layout fix. All 16 focused tests, type checks, HTTP isolation checks, and combined browser acceptance passed. The screenshot evidence is attached to the stack. The preview uses disposable data on port 3002. The clean declared-base Docker build and separately approved live rollout remain outstanding.
+
+**2026-10-05T03:11:04Z**
+
+All account child work is complete. Byron confirmed successful live migration. Legacy cleanup is PR #10; admin work is a separate scope.

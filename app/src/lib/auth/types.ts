@@ -3,6 +3,7 @@ export interface User {
   username: string;
   passwordHash: string;
   createdAt: string;
+  disabled?: boolean;
 }
 
 export interface UserStore {
@@ -12,7 +13,6 @@ export interface UserStore {
 
 export interface DataState {
   schemaVersion: 2;
+  /** Stored owner of the shared project and spatial-map tools. */
   legacyUserId: string | null;
-  migrationId: string;
-  completedAt: string;
 }

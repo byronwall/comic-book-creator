@@ -31,7 +31,7 @@ export async function requireMutationUser(request: Request, expectedUserId?: For
   if (expected !== user.id) fail(409, "The account changed. Reload this page before making changes.");
   return user;
 }
-export async function requireLegacyUser(request: Request, write = false) {
+export async function requireToolOwner(request: Request, write = false) {
   if (write) requireOrigin(request);
   const user = await requireUser(request);
   const { state } = await preparedAccounts();
@@ -42,7 +42,8 @@ export function returnDestination(value: unknown) {
   const fallback = appPath("/books");
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
   const url = new URL(value, appOrigin());
-  if (url.origin !== appOrigin() || (url.pathname !== fallback && !url.pathname.startsWith(`${fallback}/`))) return fallback;
+  if (url.origin !== appOrigin() || (url.pathname !== appPath("/admin") && !url.pathname.startsWith(`${appPath("/admin")}/`)
+      && url.pathname !== fallback && !url.pathname.startsWith(`${fallback}/`))) return fallback;
   return `${url.pathname}${url.search}`;
 }
 export async function requirePageUser() {

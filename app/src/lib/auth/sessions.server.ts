@@ -7,12 +7,12 @@ import { resolveAppDataDir } from "~/lib/server/data-dir";
 import { writeFileAtomic } from "~/lib/server/atomic-file";
 import { appPath } from "~/lib/router/app-path";
 import { readDataState } from "./data-state.server";
-import { readUserStore } from "./users.server";
+import { withActiveUser, readUserStore } from "./users.server";
 import { DEV_SIGNED_OUT_COOKIE, devAutoAccount, devAutoSignInEnabled } from "./dev-sign-in.server";
 import { fail } from "./http.server";
 import type { User } from "./types";
 
-export type Account = Pick<User, "id" | "username">;
+export type Account = Pick<User, "id" | "username"> & { isAdmin?: boolean };
 export interface Session { tokenHash: string; userId: string; createdAt: string; expiresAt: string }
 export const SESSION_COOKIE = "comic_session";
 const lifetime = 30 * 24 * 60 * 60;
@@ -24,7 +24,7 @@ export async function preparedAccounts() {
     const state = await readDataState();
     const store = await readUserStore();
     if (state.legacyUserId && !store.users.some((user) => user.id === state.legacyUserId)) {
-      throw new Error("Legacy account is missing.");
+      throw new Error("Tool owner account is missing.");
     }
     return { state, store };
   } catch { return fail(503, "Account storage is unavailable. Ask the site owner to check account setup."); }
@@ -60,18 +60,23 @@ async function readStoredSession(request: Request) {
   }
   if (Date.parse(session.expiresAt) <= Date.now()) return null;
   const user = store.users.find((item) => item.id === session.userId);
-  return user ? { account: { id: user.id, username: user.username }, session } : null;
+  return user && !user.disabled ? { account: { id: user.id, username: user.username }, session } : null;
 }
 
-export async function issueSession(userId: string, request: Request) {
-  const token = randomBytes(32).toString("hex");
-  const session: Session = {
-    tokenHash: digest(token), userId, createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + lifetime * 1000).toISOString(),
-  };
-  await writeFileAtomic(sessionPath(session.tokenHash), `${JSON.stringify(session)}\n`);
-  await revokeSession(request);
-  return { token, session };
+export async function issueSession(userId: string, request: Request, passwordHash?: string) {
+  return withActiveUser(userId, async () => {
+    if (passwordHash && !(await readUserStore()).users.some((user) => user.id === userId && user.passwordHash === passwordHash)) {
+      return fail(401, "The password changed. Sign in again.");
+    }
+    const token = randomBytes(32).toString("hex");
+    const session: Session = {
+      tokenHash: digest(token), userId, createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + lifetime * 1000).toISOString(),
+    };
+    await writeFileAtomic(sessionPath(session.tokenHash), `${JSON.stringify(session)}\n`);
+    await revokeSession(request);
+    return { token, session };
+  });
 }
 
 export async function revokeSession(request: Request) {

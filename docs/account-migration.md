@@ -1,142 +1,52 @@
-# User names and legacy account signup
+# Account storage setup
 
-The app uses one Node process and disk storage. Keep one writer per data directory.
-Docker holds a kernel file lock throughout service on the Compose named volumes.
+The existing site has completed account migration. Signup creates ordinary accounts.
+Startup reads account storage and checks book ownership. It does not read migration journals or verify migration backups.
 
-## Settings
+Set `APP_DATA_DIR` to the existing absolute data path. Set `APP_ORIGIN` to the canonical browser origin.
+`LEGACY_USERNAME` and `MIGRATION_BACKUP_DIR` are no longer used.
 
-| Setting | Use |
-| --- | --- |
-| `APP_DATA_DIR` | Absolute existing data directory. Compose keeps `/app/data`. |
-| `APP_ORIGIN` | Exact browser origin, such as `https://comics.example.com`. |
-| `BASE_PATH` | App path. Use the same value during build and startup. |
-| `LEGACY_USERNAME` | The first signup with this user name claims the legacy library. |
-| `MIGRATION_BACKUP_DIR` | Persistent backup parent outside the data tree. Compose uses `/app/backups`. |
+Keep `auth/users.json`, `auth/sessions/`, `data-state.json`, books, and images in the persistent data directory.
+Existing accounts, passwords, sessions, and book ownership need no conversion.
 
-User names use 1–40 letters, numbers, dots, dashes, or underscores.
-Start with a letter or number. Comparison trims outer spaces and ignores case.
-Stored user names use lowercase. Passwords require at least 6 characters, with no maximum length or composition rules.
-The website has no password reset or user name change flow.
-Use Node 22.6 or later and pnpm 11.9.0.
+`data-state.json` keeps schema version 2. Its `legacyUserId` field stores the owner of shared project and spatial-map tools.
+Keep this field to preserve access control. New accounts cannot access another account's tools or books.
+The old `migrationId` and `completedAt` fields are no longer read.
 
-## Existing installation
+Old migration journals and backups are historical records. The app no longer needs them to start.
+Keep backups for recovery. Docker Compose retains the backup volume.
+Do not start old code against current data or restore an old backup over newer work.
 
-1. Set `LEGACY_USERNAME` to the intended owner's user name.
-2. Deploy through your normal Docker Compose process.
-3. Open Create account and enter that user name and your chosen password.
-
-No migration command, temporary password, or terminal prompt is required.
-Byron selected a first matching signup claim rule. Anyone who registers the configured user name first receives the legacy library.
-This release does not verify identity or require a separate claim code.
-
-Keep the existing Compose project name and data volume. Stop the old container before starting the new release.
-The old release cannot participate in the new writer lock. Never run both against the same data volume.
-
-Startup validates legacy records, image files, crop originals, and any recovery record.
-It makes no source changes while waiting for signup. Public account pages remain available.
-Private documents remain unavailable. Other accounts cannot register until the legacy account is complete.
-Missing configuration, corrupt records, conflicting ownership, or an unexpected empty mount stops startup.
-
-Matching signup runs these steps:
-
-1. Validate the supplied user name and password.
-2. Copy the complete data tree into a new private backup directory.
-3. Compare every file name and SHA-256 hash, then sync backup files and directories to disk.
-4. Record the selected owner and password hash in permanent recovery records.
-5. Apply checked ownership changes without changing existing JSON tokens.
-6. Verify the result and write the completion marker last.
-7. Create the session and open the legacy library.
-
-No plaintext password is written to storage or logs. The account and recovery records contain the scrypt hash.
-Backup failure stops signup before any source change. The form shows a setup error; logs describe the failure.
-No error causes deletion, source cleanup, or an empty replacement library.
-
-## Docker persistence
-
-The service retains `comic-book-data` at `/app/data`.
-The separate `comic-book-backups` volume at `/app/backups` stores backups, recovery records, and the writer lock.
-Both volumes survive container replacement. Never remove the backup volume or run `docker compose down -v`.
-Keep enough free space for the complete copy. Keep the same backup mount during recovery.
-A second container using these named volumes exits with code 73 while the first holds the lock.
-Separate host bind mounts on Docker Desktop did not share the lock during rehearsal. Keep the named-volume configuration.
+For a new, empty installation only, run from `app/`:
 
 ```sh
-cd app
-docker compose up -d --build app
-```
-
-The runtime image includes the startup scripts and their source dependencies.
-Private data is excluded from the build context. Compose binds the host port to loopback.
-Use the configured reverse proxy and HTTPS origin.
-Production session cookies use Secure, HttpOnly, and SameSite=Lax.
-
-## Preservation and restart
-
-Comic JSON stays under `comic-books/`. Images stay under `comic-book-images/`.
-Migration appends only `ownerUserId` and `revision: 1` to each raw book.
-All existing JSON tokens, IDs, timestamps, image references, unknown files, inherited files, and empty directories stay intact.
-
-Each backup contains a complete `files/` tree and a separate `.manifest.json` with hashes.
-A source file named `.manifest.json` remains inside `files/`. Backup files are read-only.
-Backups use unique directory names. The app never overwrites or automatically removes them.
-The copy protects against migration changes. It cannot protect against destruction of the entire server or disk.
-
-The source journal is `migrations/legacy-ownership/journal.json`.
-A permanent `.legacy-HASH.json` recovery record in the backup parent records the same owner, password hash, and backup.
-The external record permits recovery if signup stops before the source journal is published.
-Migration stages atomic writes inside its own metadata directory.
-Each source file must match its recorded source or target hash before retry can proceed.
-Corrupt or incomplete recovery records stop progress for investigation. They never select another owner.
-
-After interruption, restart with the same mounts and setting.
-Submit Create account again with the same user name and original chosen password.
-A different password cannot resume or claim the interrupted migration.
-The original backup and owner stay fixed. Keep failed copies and records; do not remove metadata to force another migration.
-If signup completed but session creation failed, sign in with your chosen password instead.
-
-After completion, startup checks account identity, book ownership, record validity, and the preserved backup.
-It does not compare current data against the old migration snapshot.
-Later sessions, registrations, revisions, new books, and inherited edits survive restart.
-You can remove `LEGACY_USERNAME` after completion. A different supplied value stops startup without reassigning data.
-A later signup with the claimed user name reports a duplicate account; it never replaces the password or ownership.
-
-## New empty installation
-
-Empty initialization remains explicit. Never use it on an existing or unexpectedly empty production mount.
-Run from `app/` before local development:
-
-```sh
-pnpm install
-export APP_DATA_DIR="$PWD/data"
-export APP_ORIGIN=http://localhost:3000
+export APP_DATA_DIR=/absolute/path/to/new-data
 pnpm accounts:init-empty --data-dir "$APP_DATA_DIR"
-pnpm dev
 ```
 
-For a confirmed new Docker volume, run `docker compose run --rm app pnpm accounts:init-empty --data-dir /app/data`.
-Then start the service and create an account. New libraries contain no sample books.
-`pnpm start` runs the storage gate. `pnpm dev` requires an explicit target and the configured legacy user name or prepared storage.
-
-## Maintenance and recovery
-
-The optional `accounts:migrate` CLI supports stopped-copy dry runs and hidden password entry.
-It is not required for website signup. Use an explicit absolute data path and `LEGACY_USERNAME`.
-`accounts:verify` compares the cutover snapshot. Run it before account use changes that snapshot.
-
-Before new app writes, preserve a failed target and restore backup `files/` into separate writable storage.
-Compare restored files with the manifest before using the old release.
-Never start old code against migrated files. Never restore a pre-migration backup over newer work.
-After registrations or edits exist, preserve the current volume and repair forward.
-
-## Checks
-
-Use disposable filesystem data for signup, preservation, interruption, password, restart, and failure checks.
-Verify the packaged Docker entrypoint and real signup form. Check correct legacy ownership and second-account isolation.
-Live volume mapping, HTTPS, and proxy checks remain release constraints. No production operation was performed.
+For a new Docker volume, run:
 
 ```sh
-pnpm type-check
-pnpm lint
-pnpm exec vitest run src/lib/migrations/startup.server.test.ts src/lib/migrations/legacy-ownership.server.test.ts src/lib/auth/accounts.server.test.ts src/lib/comics/data.server.test.ts src/components/comics/comic-draft-queue.test.ts
-pnpm build
+docker compose run --rm app pnpm accounts:init-empty --data-dir /app/data
 ```
+
+Then start the site and create an account. Never initialize an existing library.
+Unowned data is rejected. The app cannot migrate an old single-user library.
+Keep one writer per data directory. The Docker entrypoint locks `.writer.lock` inside the data directory.
+
+## Admin access
+
+Set `ADMIN_USERNAME` to an existing account username, then restart the server.
+Username matching ignores case and surrounding spaces. Leave the setting empty to turn off admin access.
+The matching user sees an Admin link and can open `/admin`. All admin queries and actions check the server session.
+
+The admin can inspect aggregate library counts and storage, reset passwords, disable or enable accounts, and delete accounts.
+Password resets and disabling end existing sessions. The admin supplies and shares the new password; no email is sent.
+The current admin cannot disable or delete itself. Deletion removes the account, sessions, owned books, and stored photos.
+Deleting the shared tool owner clears its saved access assignment; it does not transfer shared project data.
+A failed deletion leaves the account disabled so the admin can inspect and retry.
+
+New account and comic events are appended to `admin/events.jsonl`. Existing activity cannot be reconstructed fully.
+Book opens and saves are grouped into five-minute intervals. Events remain after account deletion.
+No password, book text, or photo content is recorded in these events.
+The admin page shows event-log size and library bytes. Events are retained without automatic pruning.

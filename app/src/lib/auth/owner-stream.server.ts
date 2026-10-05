@@ -1,7 +1,7 @@
-import { requireLegacyUser } from "./request.server";
+import { requireToolOwner } from "./request.server";
 
-/** Close a legacy job stream when its session expires or is revoked. */
-export function legacyEventStream<T extends { type: string }>(
+/** Close an owner job stream when its session expires or is revoked. */
+export function ownerEventStream<T extends { type: string }>(
   request: Request,
   first: T,
   subscribe: (send: (event: T) => void) => () => void,
@@ -30,7 +30,7 @@ export function legacyEventStream<T extends { type: string }>(
         pending = pending.then(async () => {
           if (closed) return;
           try {
-            await requireLegacyUser(request);
+            await requireToolOwner(request);
             if (closed) return;
             controller.enqueue(encoder.encode(encode(event)));
             if (event.type === "complete" || event.type === "failed") stop();
@@ -42,7 +42,7 @@ export function legacyEventStream<T extends { type: string }>(
       send(first);
       if (first.type !== "complete" && first.type !== "failed") {
         unsubscribe = subscribe(send);
-        timer = setInterval(() => { void requireLegacyUser(request).catch(stop); }, 5_000);
+        timer = setInterval(() => { void requireToolOwner(request).catch(stop); }, 5_000);
       }
     },
     cancel() { cancel(); },

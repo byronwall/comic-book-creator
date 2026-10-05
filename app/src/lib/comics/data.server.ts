@@ -1,8 +1,9 @@
+import { recordActivity } from "~/lib/admin/activity.server";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { readDataState } from "~/lib/auth/data-state.server";
-import { readUserStore } from "~/lib/auth/users.server";
+import { withActiveUser, readUserStore } from "~/lib/auth/users.server";
 import { resolveAppDataDir } from "~/lib/server/data-dir";
 import { writeFileAtomic } from "~/lib/server/atomic-file";
 import { normalizeComicBook } from "./normalize";
@@ -25,52 +26,63 @@ export async function readComicBookSummariesFromDisk(userId: string): Promise<Co
 export async function readComicBookByIdFromDisk(userId: string, bookId: string): Promise<ComicBook | null> {
   await assertPrepared(userId);
   const book = await readById(bookId);
-  return book?.ownerUserId === userId ? book : null;
-}
-
-export async function createComicBookOnDisk(userId: string, input: { title?: string } = {}): Promise<ComicBook> {
-  await assertPrepared(userId);
-  await ensureBooksDir();
-  const id = randomUUID();
-  const title = text(input.title) || "Untitled Comic Book";
-  const now = new Date().toISOString();
-  const book = normalizeComicBook({
-    id, ownerUserId: userId, revision: 1, title, updatedAt: now,
-    pages: [{ id: "page-1", title: "Page 1", status: "Blank", layout: "four", paperSize: "letter-portrait", texts: [] }],
-  });
-  await writeFileAtomic(bookPath(id), serialize(book));
+  if (book?.ownerUserId !== userId) return null;
+  await recordActivity({ type: "book.opened", userId, bookId: book.id });
   return book;
 }
 
-export async function writeComicBookByIdToDisk(userId: string, bookId: string, input: unknown): Promise<ComicBook | null> {
-  await assertPrepared(userId);
-  const cleanId = validId(bookId);
-  return serializeBook(cleanId, async () => {
-    const current = await readById(cleanId);
-    if (!current || current.ownerUserId !== userId) return null;
-    const payload = validateBook(input);
-    if (payload.revision !== current.revision) throw new Response("Comic book revision is stale", { status: 409 });
-    const next = normalizeComicBook({
-      ...payload,
-      id: current.id,
-      ownerUserId: current.ownerUserId,
-      revision: current.revision + 1,
-      updatedAt: new Date().toISOString(),
+export async function createComicBookOnDisk(userId: string, input: { title?: string } = {}): Promise<ComicBook> {
+  return withActiveUser(userId, async () => {
+    await assertPrepared(userId);
+    await ensureBooksDir();
+    const id = randomUUID();
+    const title = text(input.title) || "Untitled Comic Book";
+    const now = new Date().toISOString();
+    const book = normalizeComicBook({
+      id, ownerUserId: userId, revision: 1, title, updatedAt: now,
+      pages: [{ id: "page-1", title: "Page 1", status: "Blank", layout: "four", paperSize: "letter-portrait", texts: [] }],
     });
-    await writeFileAtomic(bookPath(cleanId), serialize(next));
-    return next;
+    await writeFileAtomic(bookPath(id), serialize(book));
+    await recordActivity({ type: "book.created", userId, bookId: id });
+    return book;
+  });
+}
+
+export async function writeComicBookByIdToDisk(userId: string, bookId: string, input: unknown): Promise<ComicBook | null> {
+  return withActiveUser(userId, async () => {
+    await assertPrepared(userId);
+    const cleanId = validId(bookId);
+    return serializeBook(cleanId, async () => {
+      const current = await readById(cleanId);
+      if (!current || current.ownerUserId !== userId) return null;
+      const payload = validateBook(input);
+      if (payload.revision !== current.revision) throw new Response("Comic book revision is stale", { status: 409 });
+      const next = normalizeComicBook({
+        ...payload,
+        id: current.id,
+        ownerUserId: current.ownerUserId,
+        revision: current.revision + 1,
+        updatedAt: new Date().toISOString(),
+      });
+      await writeFileAtomic(bookPath(cleanId), serialize(next));
+      await recordActivity({ type: "book.saved", userId, bookId: cleanId });
+      return next;
+    });
   });
 }
 
 export async function deleteComicBookOnDisk(userId: string, bookId: string): Promise<boolean> {
-  await assertPrepared(userId);
-  const cleanId = validId(bookId);
-  return serializeBook(cleanId, async () => {
-    const book = await readById(cleanId);
-    if (!book || book.ownerUserId !== userId) return false;
-    await rm(bookPath(cleanId), { force: true });
-    await rm(imageDir(cleanId), { recursive: true, force: true });
-    return true;
+  return withActiveUser(userId, async () => {
+    await assertPrepared(userId);
+    const cleanId = validId(bookId);
+    return serializeBook(cleanId, async () => {
+      const book = await readById(cleanId);
+      if (!book || book.ownerUserId !== userId) return false;
+      await rm(bookPath(cleanId), { force: true });
+      await rm(imageDir(cleanId), { recursive: true, force: true });
+      await recordActivity({ type: "book.deleted", userId, bookId: cleanId });
+      return true;
+    });
   });
 }
 
@@ -81,17 +93,20 @@ export async function saveComicBookImage(
   mimeType: string,
   bytes: Uint8Array,
 ): Promise<void> {
-  await assertPrepared(userId);
-  const cleanId = validId(bookId);
-  const cleanFilename = validFilename(filename);
-  await serializeBook(cleanId, async () => {
-    const book = await readById(cleanId);
-    if (!book || book.ownerUserId !== userId) throw new Response("Not found", { status: 404 });
-    const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
-    if (!allowed.has(mimeType) || bytes.byteLength > 25 * 1024 * 1024) throw new Response("Invalid image", { status: 400 });
-    const dir = imageDir(cleanId);
-    await mkdir(dir, { recursive: true });
-    await writeFileAtomic(path.join(dir, cleanFilename), bytes);
+  return withActiveUser(userId, async () => {
+    await assertPrepared(userId);
+    const cleanId = validId(bookId);
+    const cleanFilename = validFilename(filename);
+    await serializeBook(cleanId, async () => {
+      const book = await readById(cleanId);
+      if (!book || book.ownerUserId !== userId) throw new Response("Not found", { status: 404 });
+      const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
+      if (!allowed.has(mimeType) || bytes.byteLength > 25 * 1024 * 1024) throw new Response("Invalid image", { status: 400 });
+      const dir = imageDir(cleanId);
+      await mkdir(dir, { recursive: true });
+      await writeFileAtomic(path.join(dir, cleanFilename), bytes);
+      await recordActivity({ type: "photo.uploaded", userId, bookId: cleanId });
+    });
   });
 }
 
@@ -117,7 +132,7 @@ async function assertPrepared(userId: string) {
   try {
     await readDataState();
     const store = await readUserStore();
-    if (!store.users.some((user) => user.id === userId)) throw storageUnavailable();
+    if (!store.users.some((user) => user.id === userId && !user.disabled)) throw storageUnavailable();
   } catch {
     throw storageUnavailable();
   }

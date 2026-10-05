@@ -79,16 +79,25 @@ Run inside `app/`:
 
 ## Accounts + Migration
 
-- Follow `docs/account-migration.md` for empty initialization, legacy migration, and release checks.
-- Private requests require prepared storage. The first signup matching `LEGACY_USERNAME` migrates after a complete verified persistent backup. Startup validates pending legacy storage. Never seed accounts in real data dirs or use the setting as an ownership fallback after migration.
-- Demo accounts (`dev`/`friend`, password `devdev`) exist only in the disposable `app/tmp/dev-data` dir. `DEV_AUTO_SIGN_IN` only works in the Vite dev server, never in builds.
+- Follow `docs/account-migration.md` for empty initialization and account storage setup.
+- Private requests require initialized account storage. Legacy signup migration has been removed. Never seed accounts in real data dirs. Preserve `data-state.json`; its saved owner ID controls shared project and spatial-map tool access.
+- Demo accounts (`dev`/`friend`/`newcomer`/`paused`, password `devdev`) exist only in the disposable `app/tmp/dev-data` dir. `DEV_AUTO_SIGN_IN` only works in the Vite dev server, never in builds.
 - Pass the authenticated user ID into comic storage. Client account IDs detect stale tabs; they never grant ownership.
 - Keep one writer per data directory. Rehearse with disposable copies and separate backup storage.
 - Use private image routes. Keep obsolete public routes as explicit 404 handlers; missing routes can return fallback HTML.
 - Strip password fields from action FormData before returning errors. SolidStart can copy submitted input into flash cookies.
 - Redirect protected pages in middleware before SSR starts. Late redirects can fail after response headers are sent.
 - Use `appPath()` for plain URLs and cookie paths. Router links already apply the router base.
-- Migration CLI imports use explicit `.ts` paths for Node's TypeScript runner. Do not replace these with app aliases.
+- Account CLI imports use explicit `.ts` paths for Node's TypeScript runner. Do not replace these with app aliases.
+
+## Admin accounts and activity
+
+- `ADMIN_USERNAME` selects the existing account allowed to use `/admin`. Keep authorization on every admin query and action.
+- Admin code lives in `app/src/lib/admin/` and `app/src/components/admin/`.
+- Use the shared account write queue for comic writes and account controls. This prevents saves during deletion.
+- Password reset must revoke sessions before saving the new hash. Disable an account before deleting its files.
+- Strip passwords from admin action FormData. Admin snapshots contain aggregates, never password hashes or private comic content.
+- Retain activity in `admin/events.jsonl`. Group repeated book opens and saves. Do not fail a completed comic save because activity logging failed.
 
 ## Router Actions + Forms
 

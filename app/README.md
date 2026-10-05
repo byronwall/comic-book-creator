@@ -37,9 +37,9 @@ pnpm start
 - Comic persistence: `src/lib/comics/*` and `data/comic-books/*.json`
 - Private comic API: `src/routes/api/comic-books/`
 - Accounts and sessions: `src/lib/auth/`
-- Startup storage gate: `scripts/accounts/start.ts`; signup migration: `src/lib/auth/register.server.ts`; optional maintenance CLI: `scripts/accounts/cli.ts`
+- Startup storage gate: `scripts/accounts/start.ts`; signup: `src/lib/auth/register.server.ts`; empty initialization CLI: `scripts/accounts/cli.ts`
 
-Before starting, follow [account setup and migration](../docs/account-migration.md). The first signup matching `LEGACY_USERNAME` migrates existing data after a verified backup. New empty data requires explicit initialization.
+Before starting, follow [account setup](../docs/account-migration.md). New empty data requires explicit initialization. Existing account storage needs no setup. Set `ADMIN_USERNAME` to an existing account to enable `/admin`.
 
 ## Reconciled Additions
 
@@ -61,3 +61,11 @@ Reusable markdown rendering (GFM, syntax-highlighted code blocks, mermaid render
 Usage guide:
 
 - `../docs/markdown-renderer-usage.md`
+
+## Admin demo
+
+`pnpm dev:demo` defaults `ADMIN_USERNAME` to `dev` and starts on port 3100.
+Open `/admin` to see synthetic users, book statistics, and activity records.
+The demo includes `dev`, `friend`, `newcomer`, and disabled `paused`; all passwords are `devdev`.
+Run `pnpm dev:seed --reset` while the demo is stopped to rebuild the disposable fixture.
+All demo files remain in `app/tmp/dev-data`. Never seed real account storage.

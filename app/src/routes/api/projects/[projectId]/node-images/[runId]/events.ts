@@ -1,4 +1,4 @@
-import { legacyEventStream } from "~/lib/auth/legacy-stream.server";
+import { ownerEventStream } from "~/lib/auth/owner-stream.server";
 import type { APIEvent } from "@solidjs/start/server";
 import {
   getNodeImageGenerationRunSnapshot,
@@ -18,7 +18,7 @@ export async function GET(event: APIEvent) {
     });
   }
 
-  const stream = legacyEventStream<NodeImageGenerationRunEvent>(event.request, {
+  const stream = ownerEventStream<NodeImageGenerationRunEvent>(event.request, {
     type: snapshot.status === "completed" ? "complete" : snapshot.status === "failed" ? "failed" : "snapshot",
     snapshot,
   }, (send) => subscribeNodeImageGenerationRun(event.params.runId, send), encodeNodeImageGenerationEvent);

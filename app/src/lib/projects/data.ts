@@ -2,25 +2,25 @@ import { action, query, redirect } from "@solidjs/router";
 
 export const getProjects = query(async () => {
   "use server";
-  const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
+  const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
   const { readProjectSummariesFromDisk } = await import("./data.server");
-  await requireLegacyUser(currentRequest());
+  await requireToolOwner(currentRequest());
   return readProjectSummariesFromDisk();
 }, "projects");
 
 export const getProjectById = query(async (projectId: string) => {
   "use server";
-  const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
+  const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
   const { readProjectByIdFromDisk } = await import("./data.server");
-  await requireLegacyUser(currentRequest());
+  await requireToolOwner(currentRequest());
   return readProjectByIdFromDisk(projectId);
 }, "project-by-id");
 
 export const createProject = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { createProjectOnDisk } = await import("./data.server");
 
     const nameValue = formData.get("name");
@@ -46,8 +46,8 @@ function getMetadataFromFormData(formData: FormData) {
 export const deleteProject = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { deleteProjectOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -67,8 +67,8 @@ export const deleteProject = action(
 export const importProject = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { importProjectArchiveOnDisk } = await import("./archive.server");
 
     const archive = formData.get("archive");
@@ -88,8 +88,8 @@ export const importProject = action(
 export const updateProjectNodeContext = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { updateProjectNodeContextOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -115,8 +115,8 @@ export const updateProjectNodeContext = action(
 export const addProjectNodeImages = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { addProjectNodeImagesOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -144,8 +144,8 @@ export const addProjectNodeImages = action(
 export const deleteProjectNodeImage = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { deleteProjectNodeImageOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -174,8 +174,8 @@ export const deleteProjectNodeImage = action(
 export const createProjectContextNode = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { createContextNodeOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -207,8 +207,8 @@ export const createProjectContextNode = action(
 export const updateProjectNodeMetadata = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { updateProjectNodeMetadataOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -233,8 +233,8 @@ export const updateProjectNodeMetadata = action(
 export const updateProjectMetadataSchema = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { updateProjectMetadataSchemaOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
@@ -272,8 +272,8 @@ export const updateProjectMetadataSchema = action(
 export const deleteProjectNode = action(
   async (formData: FormData) => {
     "use server";
-    const { currentRequest, requireLegacyUser } = await import("~/lib/auth/request.server");
-    await requireLegacyUser(currentRequest(), true);
+    const { currentRequest, requireToolOwner } = await import("~/lib/auth/request.server");
+    await requireToolOwner(currentRequest(), true);
     const { deleteProjectNodeOnDisk } = await import("./data.server");
 
     const projectId = formData.get("projectId");
