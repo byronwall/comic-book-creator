@@ -17,8 +17,7 @@
     "paths": {
       "styled-system/*": ["./styled-system/*"],
       "~/*": ["./src/*"]
-    },
-    "baseUrl": "."
+    }
   },
   "include": ["src", "styled-system", "panda.config.ts"],
   "exclude": ["node_modules"]
