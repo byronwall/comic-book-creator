@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /books
+Disallow: /api/
+
+Sitemap: https://comicbam.com/sitemap.xml
