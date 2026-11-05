@@ -29,7 +29,7 @@ export function AccountForm(props: { mode: "sign-in" | "sign-up" }) {
           <Field.Root required>
             <Field.Label>Password</Field.Label>
             <Input name="password" type="password" autocomplete={signup() ? "new-password" : "current-password"}
-              required minlength={signup() ? 6 : undefined} aria-describedby={signup() ? "password-help account-error" : "account-error"} />
+              required minlength={signup() ? 6 : undefined} maxlength={signup() ? 128 : undefined} aria-describedby={signup() ? "password-help account-error" : "account-error"} />
             <Show when={signup()}><Field.HelperText id="password-help">At least 6 characters. Write it down somewhere safe. We can't reset passwords yet.</Field.HelperText></Show>
           </Field.Root>
           <p id="account-error" class="account-error" role="alert">{submission.result?.error || (submission.error ? "The request failed. Try again." : "")}</p>

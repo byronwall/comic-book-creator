@@ -96,7 +96,7 @@ describe("disk-backed account boundaries", () => {
     expect((await readUserStore()).users).toHaveLength(1);
     await expect(registerAccount("PERSON", password)).rejects.toMatchObject({ status: 409 });
     await expect(registerAccount("bad name", password)).rejects.toMatchObject({ status: 400 });
-    await expect(registerAccount("new-user", "too short")).rejects.toMatchObject({ status: 400 });
+    await expect(registerAccount("new-user", "short")).rejects.toMatchObject({ status: 400 });
     await expect(registerAccount("new-user", "x".repeat(129))).rejects.toMatchObject({ status: 400 });
     expect((await readUserStore()).users).toHaveLength(1);
   });
