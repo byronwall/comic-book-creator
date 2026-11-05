@@ -8,7 +8,7 @@ import { fail } from "./http.server";
 export async function registerAccount(usernameInput: string, password: string) {
   const username = normalizeUsername(usernameInput);
   if (!validUsername(username)) fail(400, "Usernames use letters and numbers (up to 40), plus dots, dashes, or underscores. Start with a letter or number.");
-  if (password.length < 6) fail(400, "Your password needs at least 6 characters.");
+  if (password.length < 6 || password.length > 128) fail(400, "Use a password with 6 to 128 characters.");
   await preparedAccounts();
   const passwordHash = await passwordWork(() => hashPassword(password));
   try {
