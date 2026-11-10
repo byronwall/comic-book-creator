@@ -12,6 +12,8 @@ import { ConsoleLogCaptureProvider } from "./components/console-log-capture";
 import { GlobalErrorOverlay } from "./components/errors/GlobalErrorOverlay";
 import { notifyAccountTabs } from "./lib/auth/account-events";
 
+import { CanonicalMeta } from "./lib/seo";
+
 import "./index.css";
 
 type ClientExceptionState = {
@@ -55,6 +57,8 @@ export default function App() {
       <Router
         base={routerBase}
         root={(props) => (
+          <>
+          <CanonicalMeta />
           <ErrorBoundary
             fallback={(error, reset) => (
               <GlobalErrorOverlay
@@ -89,6 +93,7 @@ export default function App() {
               }}
             />
           </ErrorBoundary>
+          </>
         )}
       >
         <FileRoutes />
