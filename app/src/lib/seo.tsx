@@ -1,4 +1,5 @@
 import { Link, Meta, Title } from "@solidjs/meta";
+import { useLocation } from "@solidjs/router";
 import { createRenderEffect } from "solid-js";
 import { isServer } from "solid-js/web";
 import { appPath } from "./router/app-path";
@@ -11,6 +12,15 @@ interface PageMetaProps {
   title?: string;
   description?: string;
   type?: "website" | "article";
+}
+
+export function CanonicalMeta() {
+  const location = useLocation();
+  const url = () => `https://comicbam.com${location.pathname}`;
+  return <>
+    <Link rel="canonical" href={url()} />
+    <Meta property="og:url" content={url()} />
+  </>;
 }
 
 export function PageMeta(props: PageMetaProps) {
