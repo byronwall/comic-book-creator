@@ -5,10 +5,10 @@
 This personal project helps families make printable comic books.
 People choose page layouts, add text or photos, and print their stories.
 
-## Current work
+## Accounts
 
-Use private accounts with username and password.
-Keep disk storage and preserve all existing books and images.
+Each person has a private account with a username and password.
+Books and images stay in disk storage. The live library moved to accounts in October 2026.
 
 Visitors start on a public home page with a synthetic comic example.
 New users create an account and enter an empty library.
@@ -35,6 +35,5 @@ Never show private books or photos in public examples.
 
 ## Decision source
 
-The accepted plan is `../docs/intent/multi-user-accounts/implementation-plan.md`.
-The user approved implementation and checks on disposable data.
-Live rollout requires a separate decision.
+[Account storage setup](../docs/account-migration.md) records how accounts work and how to run them.
+The closed `multi-user-accounts` initiative is in [initiative history](../docs/initiative-history.json).

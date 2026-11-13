@@ -35,7 +35,7 @@ The private server boundary must be accepted in cb-ud97, including alternate API
 
 ## Provenance
 
-[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 3 registration and isolation scope. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: accounts, ownership, bootstrap, disk, single-process, seeding, inherited-scope, isolation, no-username. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+[Implementation plan](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/implementation-plan.md) — milestone 3 registration and isolation scope. [Selected shape](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/intent-brief.md) claims: accounts, ownership, bootstrap, disk, single-process, seeding, inherited-scope, isolation, no-username. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
 ## Execution packet
 

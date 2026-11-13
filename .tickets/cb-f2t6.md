@@ -34,7 +34,7 @@ Construction requires the accepted server contract in cb-ud97. Signup/isolation 
 
 ## Provenance
 
-[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 4. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: landing, accounts, ownership, no-username, preserve, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+[Implementation plan](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/implementation-plan.md) — milestone 4. [Selected shape](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/intent-brief.md) claims: landing, accounts, ownership, no-username, preserve, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
 
 ## Execution packet

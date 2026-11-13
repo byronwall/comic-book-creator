@@ -53,7 +53,7 @@ Exclude new product features, cleanup, account recovery flows, and multi-user in
 
 ## Provenance
 
-[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestone 5 authorized cutover and rollback. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-username, accounts, landing, ownership, bootstrap, single-process, inherited-scope, planning-only. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+[Implementation plan](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/implementation-plan.md) — milestone 5 authorized cutover and rollback. [Selected shape](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-username, accounts, landing, ownership, bootstrap, single-process, inherited-scope, planning-only. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
 
 ## Startup release constraints — 2026-10-03

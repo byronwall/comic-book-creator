@@ -42,7 +42,7 @@ Prefer: small TypeScript modules and a pnpm-run command with tsx if needed. Keep
 
 ## Provenance
 
-Implementation plan milestone 1 and storage/password strategy. Claims: preserve, legacy-username, disk, bootstrap, in-place, single-process, seeding, raw-migration, isolation. Original repository baseline 54282e8. Full plan: ../docs/intent/multi-user-accounts/implementation-plan.md.
+Implementation plan milestone 1 and storage/password strategy. Claims: preserve, legacy-username, disk, bootstrap, in-place, single-process, seeding, raw-migration, isolation. Original repository baseline 54282e8. Full plan: https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/implementation-plan.md.
 
 ## Execution checkpoint
 
