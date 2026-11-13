@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Comic Book Creator accounts",
+    "slug": "multi-user-accounts",
+    "outcome": "completed",
+    "retired_at": "2026-11-12",
+    "summary": "Disk-backed username/password accounts, private owned libraries, stale-save protection, a public landing page, and a verified legacy migration shipped in PRs #1-#8 and #10. The live site completed migration. Inspected revision 10a9eac on origin/main; no uncommitted changes.",
+    "reason": "All five milestones shipped and the live migration finished.",
+    "documentation": [
+      "docs/account-migration.md",
+      "app/PRODUCT.md"
+    ],
+    "revision": "10a9eac48a5ccf1c24970e693a9fa4f0413d3a58",
+    "pull_requests": [
+      "https://github.com/byronwall/comic-book-creator/pull/1",
+      "https://github.com/byronwall/comic-book-creator/pull/2",
+      "https://github.com/byronwall/comic-book-creator/pull/3",
+      "https://github.com/byronwall/comic-book-creator/pull/4",
+      "https://github.com/byronwall/comic-book-creator/pull/5",
+      "https://github.com/byronwall/comic-book-creator/pull/6",
+      "https://github.com/byronwall/comic-book-creator/pull/7",
+      "https://github.com/byronwall/comic-book-creator/pull/8",
+      "https://github.com/byronwall/comic-book-creator/pull/10"
+    ],
+    "changed_scope": [
+      "LEGACY_USERNAME claim moved from a startup password to first matching signup (PR #8), then was removed after live migration (PR #10)."
+    ],
+    "follow_ups": []
+  }
+]

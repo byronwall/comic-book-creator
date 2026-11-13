@@ -34,6 +34,29 @@ Then start the site and create an account. Never initialize an existing library.
 Unowned data is rejected. The app cannot migrate an old single-user library.
 Keep one writer per data directory. The Docker entrypoint locks `.writer.lock` inside the data directory.
 
+## How accounts work
+
+Each account has a username and a password. Usernames ignore case and use 1–40 letters, numbers, dots, dashes, or underscores. The first character is a letter or number.
+The app has no email, verification, or password-reset flow. The admin resets passwords.
+
+`auth/users.json` is the authority for usernames. One in-process queue serializes signups, so two signups cannot claim the same name.
+Passwords use Node `scrypt` (`N=131072`, `r=8`, `p=1`, 64-byte key, 16-byte salt, `maxmem` 256 MiB) and a constant-time compare.
+
+Sign-in issues a random 32-byte token in an `HttpOnly`, `SameSite=Lax` cookie. The cookie is `Secure` in production and lasts 30 days.
+The server stores only the SHA-256 digest of the token in `auth/sessions/`. Deleting a session file revokes that session.
+
+Every book file has `ownerUserId` and `revision`. All book and image reads and writes check the owner from the server session.
+Another user's book or image returns `404`. A save with an old `revision` returns `409`. The editor then keeps the draft and stops saving.
+The editor sends the account ID it loaded with. The server compares it to the session to catch a tab from a different account. It never grants access.
+
+Book IDs, file names, and image paths did not change in the migration. Ownership is a field, not a folder.
+Images are private and inherit ownership from their book.
+
+`/` is the public landing page. `/books` is the private library. `/books/:bookId` is the editor.
+Inherited project and spatial-map tools are available only to the account in `data-state.json` `legacyUserId`.
+
+The app assumes one server process. JSON files and in-process queues replace a database. Move to SQLite only if several processes must write the same data.
+
 ## Admin access
 
 Set `ADMIN_USERNAME` to an existing account username, then restart the server.

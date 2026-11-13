@@ -41,7 +41,7 @@ This epic tracks child acceptance. Dependencies on every child determine complet
 
 ## Provenance
 
-[Implementation plan](../docs/intent/multi-user-accounts/implementation-plan.md) — milestones 1–5. [Selected shape](../docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](../docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-username, accounts, landing, disk, no-username, planning-only, ownership, bootstrap, in-place, inherited-scope, single-process, seeding, raw-migration, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
+[Implementation plan](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/implementation-plan.md) — milestones 1–5. [Selected shape](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/shape-brief.md): disk-backed accounts with ownership added in place. [Intent](https://github.com/byronwall/comic-book-creator/blob/10a9eac48a5ccf1c24970e693a9fa4f0413d3a58/docs/intent/multi-user-accounts/intent-brief.md) claims: preserve, legacy-username, accounts, landing, disk, no-username, planning-only, ownership, bootstrap, in-place, inherited-scope, single-process, seeding, raw-migration, isolation. Repository baseline: `54282e8ef9348b33544d6ff0a9ffeb286b0d8cab`.
 
 
 ## Notes
